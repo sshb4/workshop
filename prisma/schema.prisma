@@ -1,0 +1,103 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Teacher/Tenant - each teacher gets their own booking system
+model Teacher {
+  id            String    @id @default(cuid())
+  subdomain     String    @unique
+  name          String
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  bio           String?   @db.Text
+  hourlyRate    Decimal   @map("hourly_rate") @db.Decimal(10, 2)
+  profileImage  String?   @map("profile_image")
+  phone         String?
+  emailVerified DateTime? @map("email_verified")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  availabilitySlots AvailabilitySlot[]
+  bookings          Booking[]
+  sessions          Session[]
+  accounts          Account[]
+
+  @@map("teachers")
+}
+
+// NextAuth Account model
+model Account {
+  id                String  @id @default(cuid())
+  teacherId         String  @map("teacher_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// NextAuth Session model
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  teacherId    String   @map("teacher_id")
+  expires      DateTime
+  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Weekly recurring availability
+model AvailabilitySlot {
+  id              String   @id @default(cuid())
+  teacherId       String   @map("teacher_id")
+  dayOfWeek       Int      @map("day_of_week") // 0=Sunday, 1=Monday, etc.
+  startTime       String   @map("start_time") // "09:00"
+  endTime         String   @map("end_time") // "17:00"
+  durationMinutes Int      @map("duration_minutes") // 60 for 1-hour slots
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("availability_slots")
+}
+
+// Actual bookings
+model Booking {
+  id            String   @id @default(cuid())
+  teacherId     String   @map("teacher_id")
+  studentName   String   @map("student_name")
+  studentEmail  String   @map("student_email")
+  studentPhone  String   @map("student_phone")
+  bookingDate   DateTime @map("booking_date") @db.Date
+  startTime     String   @map("start_time") // "14:00"
+  endTime       String   @map("end_time") // "15:00"
+  amountPaid    Decimal  @map("amount_paid") @db.Decimal(10, 2)
+  paymentStatus String   @map("payment_status") @default("pending") // pending, paid, failed
+  paymentId     String?  @map("payment_id")
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, bookingDate])
+  @@map("bookings")
+}
