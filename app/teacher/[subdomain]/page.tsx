@@ -21,7 +21,7 @@ export async function generateMetadata({
     }
   }
 
-  const displayTitle = (teacher as any).title || 'Service Provider'
+  const displayTitle = (teacher as { title?: string }).title || 'Service Provider'
   
   return {
     title: `${teacher.name} - ${displayTitle}`,
@@ -86,7 +86,7 @@ export default async function TeacherProfilePage({
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-4xl font-bold text-gray-900">{teacher.name}</h1>
-          <p className="text-lg text-gray-600 mt-1">{(teacher as any).title || 'Service Provider'}</p>
+          <p className="text-lg text-gray-600 mt-1">{(teacher as { title?: string }).title || 'Service Provider'}</p>
         </div>
       </header>
 
@@ -199,8 +199,8 @@ export default async function TeacherProfilePage({
                   <div>
                     <h4 className="font-medium text-blue-900 mb-1">How to Book</h4>
                     <p className="text-sm text-blue-700">
-                      Click on any available time slot above to book your dance lesson. 
-                      You'll be able to choose your preferred date and provide your contact information.
+                      Click on any available time slot above to book your session. 
+                      You&apos;ll be able to choose your preferred date and provide your contact information.
                     </p>
                   </div>
                 </div>
@@ -233,7 +233,7 @@ export default async function TeacherProfilePage({
                 </svg>
               </div>
               <p className="text-gray-500 text-lg font-medium">No availability set</p>
-              <p className="text-gray-400 text-sm mt-2">The teacher hasn't set their available times yet</p>
+              <p className="text-gray-400 text-sm mt-2">The provider hasn&apos;t set their available times yet</p>
               <p className="text-sm mt-4">
                 <span className="text-gray-500">Contact directly: </span>
                 <a href={`mailto:${teacher.email}`} className="text-indigo-600 hover:text-indigo-700 font-medium">

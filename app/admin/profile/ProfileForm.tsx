@@ -112,7 +112,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
               placeholder="e.g. Fitness Coach, Business Consultant, Piano Teacher, Massage Therapist"
             />
             <p className="mt-1 text-sm text-gray-500">
-              This will be displayed on your public profile (e.g., "John Smith - Fitness Coach"). Leave blank to use "Service Provider".
+              This will be displayed on your public profile (e.g., &quot;John Smith - Fitness Coach&quot;). Leave blank to use &quot;Service Provider&quot;.
             </p>
           </div>
 

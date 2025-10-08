@@ -51,7 +51,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleBookingCreated(teacherId: string, bookingData: any) {
+interface BookingData {
+  student_name: string
+  student_email: string
+  student_phone?: string
+  date: string
+  start_time: string
+  end_time: string
+  booking_date: string
+  amount_paid: string
+  payment_status?: string
+  notes?: string
+}
+
+async function handleBookingCreated(teacherId: string, bookingData: BookingData) {
   const booking = await prisma.booking.create({
     data: {
       teacherId,
@@ -71,7 +84,7 @@ async function handleBookingCreated(teacherId: string, bookingData: any) {
   return booking
 }
 
-async function handleBookingUpdated(teacherId: string, bookingData: any) {
+async function handleBookingUpdated(teacherId: string, bookingData: BookingData) {
   // Find existing booking by some identifier (you can modify this logic later)
   const booking = await prisma.booking.findFirst({
     where: {
@@ -91,7 +104,7 @@ async function handleBookingUpdated(teacherId: string, bookingData: any) {
   }
 }
 
-async function handleBookingCancelled(teacherId: string, bookingData: any) {
+async function handleBookingCancelled(teacherId: string, bookingData: BookingData) {
   // Delete or mark as cancelled
   const booking = await prisma.booking.findFirst({
     where: {

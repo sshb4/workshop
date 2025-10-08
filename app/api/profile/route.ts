@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -94,7 +94,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare update data
-    const updateData: any = {
+    const updateData: {
+      name: string
+      email: string
+      subdomain: string
+      hourlyRate: number
+      title: string | null
+      bio: string | null
+      profileImage: string | null
+      phone?: string | null
+    } = {
       name,
       email,
       subdomain,
