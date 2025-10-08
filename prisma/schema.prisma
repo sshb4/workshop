@@ -5,8 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 // Teacher/Tenant - each teacher gets their own booking system
@@ -16,8 +16,8 @@ model Teacher {
   name               String
   email              String    @unique
   passwordHash       String    @map("password_hash")
-  bio                String?   @db.Text
-  hourlyRate         Decimal   @map("hourly_rate") @db.Decimal(10, 2)
+  bio                String?
+  hourlyRate         Float     @map("hourly_rate")
   profileImage       String?   @map("profile_image")
   phone         String?
   emailVerified DateTime? @map("email_verified")
@@ -39,12 +39,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
@@ -86,13 +86,13 @@ model Booking {
   studentName       String    @map("student_name")
   studentEmail      String    @map("student_email")
   studentPhone      String    @map("student_phone")
-  bookingDate       DateTime  @map("booking_date") @db.Date
+  bookingDate       DateTime  @map("booking_date")
   startTime         String    @map("start_time") // "14:00"
   endTime           String    @map("end_time") // "15:00"
-  amountPaid        Decimal   @map("amount_paid") @db.Decimal(10, 2)
+  amountPaid        Float     @map("amount_paid")
   paymentStatus     String    @map("payment_status") @default("pending") // pending, paid, failed
   paymentId     String?  @map("payment_id")
-  notes         String?  @db.Text
+  notes         String?
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
 
