@@ -11,18 +11,20 @@ datasource db {
 
 // Teacher/Tenant - each teacher gets their own booking system
 model Teacher {
-  id            String    @id @default(cuid())
-  subdomain     String    @unique
-  name          String
-  email         String    @unique
-  passwordHash  String    @map("password_hash")
-  bio           String?   @db.Text
-  hourlyRate    Decimal   @map("hourly_rate") @db.Decimal(10, 2)
-  profileImage  String?   @map("profile_image")
-  phone         String?
-  emailVerified DateTime? @map("email_verified")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id                 String    @id @default(cuid())
+  subdomain          String    @unique
+  name               String
+  email              String    @unique
+  passwordHash       String    @map("password_hash")
+  bio                String?   @db.Text
+  hourlyRate         Decimal   @map("hourly_rate") @db.Decimal(10, 2)
+  profileImage       String?   @map("profile_image")
+  phone              String?
+  emailVerified      DateTime? @map("email_verified")
+  externalBusinessId String?   @map("external_business_id")
+  externalAdminId    String?   @map("external_admin_id")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
   availabilitySlots AvailabilitySlot[]
   bookings          Booking[]
@@ -81,20 +83,22 @@ model AvailabilitySlot {
 
 // Actual bookings
 model Booking {
-  id            String   @id @default(cuid())
-  teacherId     String   @map("teacher_id")
-  studentName   String   @map("student_name")
-  studentEmail  String   @map("student_email")
-  studentPhone  String   @map("student_phone")
-  bookingDate   DateTime @map("booking_date") @db.Date
-  startTime     String   @map("start_time") // "14:00"
-  endTime       String   @map("end_time") // "15:00"
-  amountPaid    Decimal  @map("amount_paid") @db.Decimal(10, 2)
-  paymentStatus String   @map("payment_status") @default("pending") // pending, paid, failed
-  paymentId     String?  @map("payment_id")
-  notes         String?  @db.Text
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id                String    @id @default(cuid())
+  teacherId         String    @map("teacher_id")
+  studentName       String    @map("student_name")
+  studentEmail      String    @map("student_email")
+  studentPhone      String    @map("student_phone")
+  bookingDate       DateTime  @map("booking_date") @db.Date
+  startTime         String    @map("start_time") // "14:00"
+  endTime           String    @map("end_time") // "15:00"
+  amountPaid        Decimal   @map("amount_paid") @db.Decimal(10, 2)
+  paymentStatus     String    @map("payment_status") @default("pending") // pending, paid, failed
+  paymentId         String?   @map("payment_id")
+  notes             String?   @db.Text
+  externalBookingId String?   @map("external_booking_id")
+  syncedAt          DateTime? @map("synced_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
