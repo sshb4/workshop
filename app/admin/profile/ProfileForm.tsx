@@ -13,6 +13,7 @@ interface Teacher {
   phone: string | null
   hourlyRate: number
   subdomain: string
+  title: string | null
   bio: string | null
   profileImage: string | null
 }
@@ -95,6 +96,24 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
                 placeholder="your@email.com"
               />
             </div>
+          </div>
+
+          {/* Professional Title */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+              Professional Title
+            </label>
+            <input
+              id="title"
+              name="title"
+              type="text"
+              defaultValue={teacher.title || ''}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
+              placeholder="e.g. Fitness Coach, Business Consultant, Piano Teacher, Massage Therapist"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              This will be displayed on your public profile (e.g., "John Smith - Fitness Coach"). Leave blank to use "Service Provider".
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

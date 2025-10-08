@@ -16,6 +16,7 @@ model Teacher {
   name               String
   email              String    @unique
   passwordHash       String    @map("password_hash")
+  title              String?   // Professional title (e.g., "Fitness Coach", "Business Consultant")
   bio                String?
   hourlyRate         Float     @map("hourly_rate")
   profileImage       String?   @map("profile_image")

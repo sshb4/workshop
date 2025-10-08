@@ -1,7 +1,47 @@
-// app/_sites/[subdomain]/page.tsx
+// app/teacher/[subdomain]/page.tsx
 
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { Metadata } from 'next'
+
+// Generate dynamic metadata for each service provider
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ subdomain: string }>
+}): Promise<Metadata> {
+  const { subdomain } = await params
+  const teacher = await prisma.teacher.findUnique({
+    where: { subdomain },
+  })
+
+  if (!teacher) {
+    return {
+      title: 'Provider Not Found',
+    }
+  }
+
+  const displayTitle = (teacher as any).title || 'Service Provider'
+  
+  return {
+    title: `${teacher.name} - ${displayTitle}`,
+    description: teacher.bio 
+      ? `Book appointments with ${teacher.name}. ${teacher.bio.slice(0, 160)}...`
+      : `Book appointments with ${teacher.name}. Professional ${displayTitle.toLowerCase()} offering sessions at $${teacher.hourlyRate}/hour.`,
+    openGraph: {
+      title: `${teacher.name} - ${displayTitle}`,
+      description: teacher.bio || `Professional ${displayTitle.toLowerCase()} offering sessions at $${teacher.hourlyRate}/hour.`,
+      images: teacher.profileImage ? [teacher.profileImage] : [],
+      url: `/teacher/${teacher.subdomain}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${teacher.name} - ${displayTitle}`,
+      description: teacher.bio || `Professional ${displayTitle.toLowerCase()} offering sessions at $${teacher.hourlyRate}/hour.`,
+      images: teacher.profileImage ? [teacher.profileImage] : [],
+    },
+  }
+}
 
 const daysOfWeek = [
   { id: 0, name: 'Sunday', short: 'Sun' },
@@ -16,12 +56,14 @@ const daysOfWeek = [
 export default async function TeacherProfilePage({
   params,
 }: {
-  params: { subdomain: string }
+  params: Promise<{ subdomain: string }>
 }) {
+  const { subdomain } = await params
+  
   // Fetch teacher by subdomain with availability slots
   const teacher = await prisma.teacher.findUnique({
     where: {
-      subdomain: params.subdomain,
+      subdomain,
     },
     include: {
       availabilitySlots: {
@@ -44,7 +86,7 @@ export default async function TeacherProfilePage({
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-4xl font-bold text-gray-900">{teacher.name}</h1>
-          <p className="text-lg text-gray-600 mt-1">Dance Instructor</p>
+          <p className="text-lg text-gray-600 mt-1">{(teacher as any).title || 'Service Provider'}</p>
         </div>
       </header>
 

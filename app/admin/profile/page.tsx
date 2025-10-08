@@ -28,7 +28,8 @@ export default async function ProfilePage() {
   // Convert Decimal to number for client component
   const teacherData = {
     ...teacher,
-    hourlyRate: Number(teacher.hourlyRate)
+    hourlyRate: Number(teacher.hourlyRate),
+    title: (teacher as any).title
   }
 
   return (

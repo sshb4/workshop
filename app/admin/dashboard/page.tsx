@@ -5,6 +5,12 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Provider Dashboard',
+  description: 'Manage your appointments, availability, and profile',
+}
 
 export default async function DashboardPage() {
   // Check if user is logged in

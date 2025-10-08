@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
     const phone = formData.get('phone') as string
     const hourlyRate = parseFloat(formData.get('hourlyRate') as string)
     const subdomain = formData.get('subdomain') as string
+    const title = formData.get('title') as string
     const bio = formData.get('bio') as string
     const profileImage = formData.get('profileImage') as string
 
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
       email,
       subdomain,
       hourlyRate,
+      title: title || null,
       bio: bio || null,
       profileImage: profileImage || null,
     }
