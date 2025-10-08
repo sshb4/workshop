@@ -19,13 +19,10 @@ export async function POST(request: NextRequest) {
       booking_data,
     } = body
 
-    // Find teacher by business/admin ID
+    // Find teacher by ID (you can add this logic back later)
     const teacher = await prisma.teacher.findFirst({
       where: {
-        OR: [
-          { externalBusinessId: business_id },
-          { externalAdminId: admin_id },
-        ],
+        id: business_id, // For now, just use business_id as teacher ID
       },
     })
 
@@ -67,8 +64,6 @@ async function handleBookingCreated(teacherId: string, bookingData: any) {
       amountPaid: parseFloat(bookingData.amount_paid) || 0,
       paymentStatus: bookingData.payment_status || 'pending',
       notes: bookingData.notes || '',
-      externalBookingId: bookingData.external_id,
-      syncedAt: new Date(),
     },
   })
   
@@ -77,11 +72,11 @@ async function handleBookingCreated(teacherId: string, bookingData: any) {
 }
 
 async function handleBookingUpdated(teacherId: string, bookingData: any) {
-  // Find existing booking by external ID
+  // Find existing booking by some identifier (you can modify this logic later)
   const booking = await prisma.booking.findFirst({
     where: {
       teacherId,
-      externalBookingId: bookingData.external_id,
+      studentEmail: bookingData.student_email, // Use email as identifier for now
     },
   })
 
@@ -91,7 +86,6 @@ async function handleBookingUpdated(teacherId: string, bookingData: any) {
       data: {
         paymentStatus: bookingData.payment_status,
         notes: bookingData.notes,
-        syncedAt: new Date(),
       },
     })
   }
@@ -102,7 +96,7 @@ async function handleBookingCancelled(teacherId: string, bookingData: any) {
   const booking = await prisma.booking.findFirst({
     where: {
       teacherId,
-      externalBookingId: bookingData.external_id,
+      studentEmail: bookingData.student_email, // Use email as identifier for now
     },
   })
 
