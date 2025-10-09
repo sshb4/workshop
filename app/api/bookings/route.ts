@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
 // GET - Fetch bookings for a teacher
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
       endTime,
       amountPaid,
       notes,
-      externalBookingId, // From your external booking API
     } = body
 
     // Validate required fields

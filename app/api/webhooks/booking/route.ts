@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
     const {
       event_type,
       business_id,
-      admin_id,
       booking_data,
     } = body
 

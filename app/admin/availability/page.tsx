@@ -64,7 +64,7 @@ export default async function AvailabilityPage() {
               </Link>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Manage Availability</h1>
-                <p className="text-sm text-gray-600">Set your weekly schedule for dance lessons</p>
+                <p className="text-sm text-gray-600">Set your available time windows for bookings</p>
               </div>
             </div>
             <Link
@@ -83,27 +83,24 @@ export default async function AvailabilityPage() {
         {/* Current Availability Overview */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Current Schedule</h2>
-            <p className="text-sm text-gray-600">Your available time slots throughout the week</p>
+            <h2 className="text-lg font-semibold text-gray-900">Current Availability</h2>
+            <p className="text-sm text-gray-600">Your available time windows throughout the week</p>
           </div>
           <div className="p-6">
             {teacher.availabilitySlots.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {daysOfWeek.map(day => {
-                  const daySlots = teacher.availabilitySlots.filter(slot => slot.dayOfWeek === day.id)
+                  const dayWindows = teacher.availabilitySlots.filter(slot => slot.dayOfWeek === day.id)
                   
                   return (
                     <div key={day.id} className="bg-gray-50 rounded-lg p-4">
                       <h3 className="font-medium text-gray-900 mb-2">{day.name}</h3>
-                      {daySlots.length > 0 ? (
+                      {dayWindows.length > 0 ? (
                         <div className="space-y-2">
-                          {daySlots.map(slot => (
-                            <div key={slot.id} className="flex items-center justify-between text-sm bg-white rounded px-3 py-2">
+                          {dayWindows.map(window => (
+                            <div key={window.id} className="flex items-center justify-between text-sm bg-white rounded px-3 py-2">
                               <span className="text-gray-700">
-                                {slot.startTime} - {slot.endTime}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {slot.durationMinutes}min
+                                {window.startTime} - {window.endTime}
                               </span>
                             </div>
                           ))}
@@ -120,18 +117,34 @@ export default async function AvailabilityPage() {
                 <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No availability set</h3>
-                <p className="text-gray-600 mb-4">Set your weekly schedule to start accepting bookings</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No availability windows set</h3>
+                <p className="text-gray-600 mb-4">Set your available time windows to start accepting bookings</p>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Info Banner */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h3 className="font-medium text-blue-900 mb-1">How availability windows work</h3>
+              <p className="text-sm text-blue-800">
+                Set broad time windows when you&apos;re available (e.g., &quot;Monday 9:00 AM - 5:00 PM&quot;). 
+                Clients can then book specific appointment times within these windows based on your preferences.
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Add New Availability */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Add Time Slot</h2>
-            <p className="text-sm text-gray-600">Create a new available time slot for bookings</p>
+            <h2 className="text-lg font-semibold text-gray-900">Add Available Window</h2>
+            <p className="text-sm text-gray-600">Set when you&apos;re available for bookings - clients can book within these windows</p>
           </div>
           <div className="p-6">
             <form className="space-y-6" action="/api/availability" method="POST">
@@ -159,7 +172,7 @@ export default async function AvailabilityPage() {
                 {/* Start Time */}
                 <div>
                   <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-2">
-                    Start Time
+                    Available From
                   </label>
                   <select
                     id="startTime"
@@ -177,7 +190,7 @@ export default async function AvailabilityPage() {
                 {/* End Time */}
                 <div>
                   <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 mb-2">
-                    End Time
+                    Available Until
                   </label>
                   <select
                     id="endTime"
@@ -192,25 +205,6 @@ export default async function AvailabilityPage() {
                   </select>
                 </div>
 
-                {/* Duration */}
-                <div>
-                  <label htmlFor="durationMinutes" className="block text-sm font-medium text-gray-700 mb-2">
-                    Lesson Duration
-                  </label>
-                  <select
-                    id="durationMinutes"
-                    name="durationMinutes"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                  >
-                    <option value="">Select duration</option>
-                    <option value="30">30 minutes</option>
-                    <option value="45">45 minutes</option>
-                    <option value="60">60 minutes</option>
-                    <option value="90">90 minutes</option>
-                    <option value="120">2 hours</option>
-                  </select>
-                </div>
               </div>
 
               <div className="flex justify-end">
@@ -218,7 +212,7 @@ export default async function AvailabilityPage() {
                   type="submit"
                   className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-200 shadow-sm hover:shadow-md"
                 >
-                  Add Time Slot
+                  Add Available Window
                 </button>
               </div>
             </form>
@@ -251,7 +245,7 @@ export default async function AvailabilityPage() {
               </div>
               <h3 className="font-medium text-gray-900">Block Time</h3>
             </div>
-            <p className="text-sm text-gray-600 mb-4">Temporarily block time slots for holidays or breaks</p>
+            <p className="text-sm text-gray-600 mb-4">Temporarily block availability windows for holidays or breaks</p>
             <button className="text-sm text-green-600 hover:text-green-700 font-medium">
               Coming Soon →
             </button>

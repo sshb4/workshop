@@ -5,6 +5,7 @@
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { colorSchemes } from '@/lib/themes'
 
 interface Teacher {
   id: string
@@ -16,6 +17,7 @@ interface Teacher {
   title: string | null
   bio: string | null
   profileImage: string | null
+  colorScheme: string
 }
 
 interface ProfileFormProps {
@@ -25,6 +27,7 @@ interface ProfileFormProps {
 export default function ProfileForm({ teacher }: ProfileFormProps) {
   const searchParams = useSearchParams()
   const [showSuccess, setShowSuccess] = useState(false)
+  const [origin, setOrigin] = useState('your-domain.com')
 
   useEffect(() => {
     if (searchParams.get('updated') === 'true') {
@@ -34,6 +37,11 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
       return () => clearTimeout(timer)
     }
   }, [searchParams])
+
+  useEffect(() => {
+    // Set origin on client side to avoid hydration mismatch
+    setOrigin(window.location.origin)
+  }, [])
 
   return (
     <>
@@ -112,7 +120,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
               placeholder="e.g. Fitness Coach, Business Consultant, Piano Teacher, Massage Therapist"
             />
             <p className="mt-1 text-sm text-gray-500">
-              This will be displayed on your public profile (e.g., &quot;John Smith - Fitness Coach&quot;). Leave blank to use &quot;Service Provider&quot;.
+              This will be displayed on your public profile (e.g., &quot;John Smith - Fitness Coach&quot;). Optional field.
             </p>
           </div>
 
@@ -127,7 +135,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
                 type="tel"
                 defaultValue={teacher.phone || ''}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
-                placeholder="+1-555-0123"
+                placeholder="+1 555-123-4567"
               />
             </div>
 
@@ -156,7 +164,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
             </label>
             <div className="flex">
               <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                {typeof window !== 'undefined' ? window.location.origin : 'localhost:3000'}/teacher/
+                {origin}/teacher/
               </span>
               <input
                 id="subdomain"
@@ -191,6 +199,52 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
             <p className="mt-1 text-sm text-gray-500">
               This will be displayed on your public profile to help students learn about you.
             </p>
+          </div>
+
+          {/* Color Scheme */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Page Theme
+            </label>
+            <p className="text-sm text-gray-500 mb-4">
+              Choose a color theme for your booking page. This affects the colors and overall look of your public profile.
+            </p>
+            
+            {/* Theme Preview */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {colorSchemes.map(scheme => (
+                <div key={scheme.id} className="relative">
+                  <input
+                    type="radio"
+                    id={`theme-${scheme.id}`}
+                    name="colorScheme"
+                    value={scheme.id}
+                    defaultChecked={teacher.colorScheme === scheme.id}
+                    className="sr-only peer"
+                  />
+                  <label
+                    htmlFor={`theme-${scheme.id}`}
+                    className="block cursor-pointer rounded-lg border-2 border-gray-200 p-3 hover:border-gray-300 peer-checked:border-indigo-500 peer-checked:ring-2 peer-checked:ring-indigo-500 transition"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <div 
+                        className="w-4 h-4 rounded-full border border-gray-300"
+                        style={{ backgroundColor: scheme.preview.primary }}
+                      />
+                      <div 
+                        className="w-4 h-4 rounded border border-gray-300"
+                        style={{ backgroundColor: scheme.preview.secondary }}
+                      />
+                      <div 
+                        className="w-4 h-4 rounded border border-gray-300"
+                        style={{ backgroundColor: scheme.preview.background }}
+                      />
+                    </div>
+                    <div className="text-xs font-medium text-gray-700">{scheme.name}</div>
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Profile Image URL */}

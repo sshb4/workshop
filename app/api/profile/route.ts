@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
     const title = formData.get('title') as string
     const bio = formData.get('bio') as string
     const profileImage = formData.get('profileImage') as string
+    const colorScheme = formData.get('colorScheme') as string
 
     // Validate required fields
     if (!name || !email || !subdomain || isNaN(hourlyRate)) {
@@ -102,6 +103,7 @@ export async function POST(request: NextRequest) {
       title: string | null
       bio: string | null
       profileImage: string | null
+      colorScheme: string
       phone?: string | null
     } = {
       name,
@@ -111,6 +113,7 @@ export async function POST(request: NextRequest) {
       title: title || null,
       bio: bio || null,
       profileImage: profileImage || null,
+      colorScheme: colorScheme || 'default',
     }
 
     // Only update phone if provided

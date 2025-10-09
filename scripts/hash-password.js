@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 
-const password = 'password123'; // Change this to whatever you want
+const password = 'tester'; // Change this to whatever you want
 const hashed = bcrypt.hashSync(password, 10);
 
 console.log('Password:', password);

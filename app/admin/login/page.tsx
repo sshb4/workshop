@@ -32,7 +32,7 @@ export default function LoginPage() {
         router.push('/admin/dashboard')
         router.refresh()
       }
-    } catch (err) {
+    } catch {
       setError('Something went wrong')
     } finally {
       setLoading(false)

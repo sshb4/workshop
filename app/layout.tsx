@@ -14,8 +14,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Buzz - Service Booking Platform",
-    template: "%s | Buzz",
+    default: "Buzz Financial",
+    template: "%s | Booking",
   },
   description: "Book appointments with professional service providers. Find the perfect expert and schedule sessions that fit your needs.",
   keywords: ["booking", "appointments", "services", "professionals", "scheduling"],

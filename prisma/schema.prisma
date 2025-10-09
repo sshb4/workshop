@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,31 +7,29 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-// Teacher/Tenant - each teacher gets their own booking system
 model Teacher {
-  id                 String    @id @default(cuid())
-  subdomain          String    @unique
-  name               String
-  email              String    @unique
-  passwordHash       String    @map("password_hash")
-  title              String?   // Professional title (e.g., "Fitness Coach", "Business Consultant")
-  bio                String?
-  hourlyRate         Float     @map("hourly_rate")
-  profileImage       String?   @map("profile_image")
-  phone         String?
-  emailVerified DateTime? @map("email_verified")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
-
+  id                String             @id @default(cuid())
+  subdomain         String             @unique
+  name              String
+  email             String             @unique
+  passwordHash      String             @map("password_hash")
+  title             String?
+  bio               String?
+  hourlyRate        Float              @map("hourly_rate")
+  profileImage      String?            @map("profile_image")
+  phone             String?
+  colorScheme       String             @default("default") @map("color_scheme")
+  emailVerified     DateTime?          @map("email_verified")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  accounts          Account[]
   availabilitySlots AvailabilitySlot[]
   bookings          Booking[]
   sessions          Session[]
-  accounts          Account[]
 
   @@map("teachers")
 }
 
-// NextAuth Account model
 model Account {
   id                String  @id @default(cuid())
   teacherId         String  @map("teacher_id")
@@ -47,14 +43,12 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  teacher           Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
 
-// NextAuth Session model
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique @map("session_token")
@@ -65,39 +59,34 @@ model Session {
   @@map("sessions")
 }
 
-// Weekly recurring availability
 model AvailabilitySlot {
-  id              String   @id @default(cuid())
-  teacherId       String   @map("teacher_id")
-  dayOfWeek       Int      @map("day_of_week") // 0=Sunday, 1=Monday, etc.
-  startTime       String   @map("start_time") // "09:00"
-  endTime         String   @map("end_time") // "17:00"
-  durationMinutes Int      @map("duration_minutes") // 60 for 1-hour slots
-  createdAt       DateTime @default(now()) @map("created_at")
-
-  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  teacherId String   @map("teacher_id")
+  dayOfWeek Int      @map("day_of_week")
+  startTime String   @map("start_time")
+  endTime   String   @map("end_time")
+  createdAt DateTime @default(now()) @map("created_at")
+  teacher   Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@map("availability_slots")
 }
 
-// Actual bookings
 model Booking {
-  id                String    @id @default(cuid())
-  teacherId         String    @map("teacher_id")
-  studentName       String    @map("student_name")
-  studentEmail      String    @map("student_email")
-  studentPhone      String    @map("student_phone")
-  bookingDate       DateTime  @map("booking_date")
-  startTime         String    @map("start_time") // "14:00"
-  endTime           String    @map("end_time") // "15:00"
-  amountPaid        Float     @map("amount_paid")
-  paymentStatus     String    @map("payment_status") @default("pending") // pending, paid, failed
+  id            String   @id @default(cuid())
+  teacherId     String   @map("teacher_id")
+  studentName   String   @map("student_name")
+  studentEmail  String   @map("student_email")
+  studentPhone  String   @map("student_phone")
+  bookingDate   DateTime @map("booking_date")
+  startTime     String   @map("start_time")
+  endTime       String   @map("end_time")
+  amountPaid    Float    @map("amount_paid")
+  paymentStatus String   @default("pending") @map("payment_status")
   paymentId     String?  @map("payment_id")
   notes         String?
   createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
-
-  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  teacher       Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@index([teacherId, bookingDate])
   @@map("bookings")

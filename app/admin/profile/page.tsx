@@ -29,8 +29,8 @@ export default async function ProfilePage() {
   const teacherData = {
     ...teacher,
     hourlyRate: Number(teacher.hourlyRate),
-    title: (teacher as typeof teacher & { title?: string }).title || null
-
+    title: (teacher as typeof teacher & { title?: string }).title || null,
+    colorScheme: (teacher as typeof teacher & { colorScheme?: string }).colorScheme || 'default'
   }
 
   return (

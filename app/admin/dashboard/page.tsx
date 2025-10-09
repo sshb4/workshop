@@ -28,7 +28,6 @@ export default async function DashboardPage() {
         orderBy: { bookingDate: 'asc' },
         take: 10,
       },
-      availabilitySlots: true,
     },
   })
 
@@ -204,19 +203,6 @@ export default async function DashboardPage() {
             </div>
           </Link>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Availability Slots</h3>
-                <p className="text-sm text-gray-600">{teacher.availabilitySlots.length} slots set</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Recent Bookings */}

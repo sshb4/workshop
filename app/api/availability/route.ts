@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { redirect } from 'next/navigation'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,12 +19,11 @@ export async function POST(request: NextRequest) {
     const dayOfWeek = parseInt(formData.get('dayOfWeek') as string)
     const startTime = formData.get('startTime') as string
     const endTime = formData.get('endTime') as string
-    const durationMinutes = parseInt(formData.get('durationMinutes') as string)
 
     // Validate required fields
-    if (isNaN(dayOfWeek) || !startTime || !endTime || isNaN(durationMinutes)) {
+    if (isNaN(dayOfWeek) || !startTime || !endTime) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: 'Day of week, start time, and end time are required' },
         { status: 400 }
       )
     }
@@ -70,13 +68,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the availability slot
-    const availabilitySlot = await prisma.availabilitySlot.create({
+    await prisma.availabilitySlot.create({
       data: {
         teacherId: session.user.id,
         dayOfWeek,
         startTime,
         endTime,
-        durationMinutes,
       },
     })
 
