@@ -81,7 +81,7 @@ export default async function TeacherProfilePage({
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h2 className="text-3xl font-bold mb-6 text-gray-900">Book a Lesson</h2>
           <p className="text-gray-600 mb-8 text-lg">
-            Select an available time slot below to schedule your dance lesson.
+            Select an available time window below to schedule your session.
           </p>
           
           {/* Placeholder for booking calendar */}

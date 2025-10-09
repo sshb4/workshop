@@ -15,7 +15,7 @@ model Teacher {
   passwordHash      String             @map("password_hash")
   title             String?
   bio               String?
-  hourlyRate        Float              @map("hourly_rate")
+  hourlyRate        Float?             @map("hourly_rate")
   profileImage      String?            @map("profile_image")
   phone             String?
   colorScheme       String             @default("default") @map("color_scheme")

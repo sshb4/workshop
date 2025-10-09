@@ -7,6 +7,28 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import ProfileForm from './ProfileForm'
+import { Metadata } from 'next'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await getServerSession(authOptions)
+  
+  if (!session?.user?.id) {
+    return {
+      title: 'Profile Settings',
+      description: 'Manage your profile information and settings',
+    }
+  }
+
+  const teacher = await prisma.teacher.findUnique({
+    where: { id: session.user.id },
+    select: { name: true }
+  })
+
+  return {
+    title: teacher ? `${teacher.name} | Profile` : 'Profile Settings',
+    description: 'Manage your profile information and settings',
+  }
+}
 
 export default async function ProfilePage() {
   // Check if user is logged in
@@ -28,7 +50,7 @@ export default async function ProfilePage() {
   // Convert Decimal to number for client component
   const teacherData = {
     ...teacher,
-    hourlyRate: Number(teacher.hourlyRate),
+    hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : null,
     title: (teacher as typeof teacher & { title?: string }).title || null,
     colorScheme: (teacher as typeof teacher & { colorScheme?: string }).colorScheme || 'default'
   }

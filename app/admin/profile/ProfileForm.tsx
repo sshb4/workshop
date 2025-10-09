@@ -12,7 +12,7 @@ interface Teacher {
   name: string
   email: string
   phone: string | null
-  hourlyRate: number
+  hourlyRate: number | null
   subdomain: string
   title: string | null
   bio: string | null
@@ -141,7 +141,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
 
             <div>
               <label htmlFor="hourlyRate" className="block text-sm font-medium text-gray-700 mb-2">
-                Hourly Rate ($) *
+                Hourly Rate ($)
               </label>
               <input
                 id="hourlyRate"
@@ -149,18 +149,20 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
                 type="number"
                 step="0.01"
                 min="0"
-                required
-                defaultValue={teacher.hourlyRate.toString()}
+                defaultValue={teacher.hourlyRate ? teacher.hourlyRate.toString() : ''}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
                 placeholder="50.00"
               />
+              <p className="mt-1 text-sm text-gray-500">
+                Leave blank if you prefer not to display pricing on your public page.
+              </p>
             </div>
           </div>
 
           {/* Subdomain */}
           <div>
             <label htmlFor="subdomain" className="block text-sm font-medium text-gray-700 mb-2">
-              Booking Page URL *
+              Booking Page URL
             </label>
             <div className="flex">
               <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
@@ -170,7 +172,6 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
                 id="subdomain"
                 name="subdomain"
                 type="text"
-                required
                 defaultValue={teacher.subdomain}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-r-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
                 placeholder="maria"

@@ -49,11 +49,6 @@ export const metadata: Metadata = {
     description: "Book appointments with professional service providers",
     images: ["/og-image.jpg"],
   },
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
-  },
   manifest: "/site.webmanifest",
 };
 
@@ -64,6 +59,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/buzz-icon.png" type="image/png" />
+        <link rel="shortcut icon" href="/buzz-icon.png" type="image/png" />
+      </head>
       <body
         className="antialiased font-sans"
       >

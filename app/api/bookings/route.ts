@@ -29,22 +29,28 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const {
+    const { 
       teacherId,
-      studentName,
-      studentEmail,
-      studentPhone,
-      bookingDate,
-      startTime,
-      endTime,
-      amountPaid,
-      notes,
+      customerName,
+      customerEmail,
+      customerPhone,
+      additionalNotes,
+      selectedSlots
     } = body
 
     // Validate required fields
-    if (!teacherId || !studentName || !studentEmail || !bookingDate || !startTime) {
+    if (!teacherId || !customerName || !customerEmail || !selectedSlots || selectedSlots.length === 0) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(customerEmail)) {
+      return NextResponse.json(
+        { error: 'Please enter a valid email address' },
         { status: 400 }
       )
     }
@@ -58,24 +64,60 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Create booking
-    const booking = await prisma.booking.create({
-      data: {
-        teacherId,
-        studentName,
-        studentEmail,
-        studentPhone,
-        bookingDate: new Date(bookingDate),
-        startTime,
-        endTime,
-        amountPaid: parseFloat(amountPaid) || 0,
-        paymentStatus: 'pending',
-        notes,
-        // externalBookingId, // Add if you extend schema
-      },
-    })
+    // Calculate total hours and cost
+    let totalHours = 0
+    for (const slot of selectedSlots) {
+      const startTime = slot.customStartTime || slot.startTime
+      const endTime = slot.customEndTime || slot.endTime
+      const start = new Date(`2000-01-01T${startTime}:00`)
+      const end = new Date(`2000-01-01T${endTime}:00`)
+      const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+      totalHours += hours
+    }
 
-    return NextResponse.json({ booking }, { status: 201 })
+    const totalAmount = teacher.hourlyRate ? totalHours * Number(teacher.hourlyRate) : 0
+
+    // Create bookings for each selected slot
+    const createdBookings = []
+    
+    for (const slot of selectedSlots) {
+      const startTime = slot.customStartTime || slot.startTime
+      const endTime = slot.customEndTime || slot.endTime
+      
+      // Calculate hours for this specific slot
+      const start = new Date(`2000-01-01T${startTime}:00`)
+      const end = new Date(`2000-01-01T${endTime}:00`)
+      const slotHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+      const slotAmount = teacher.hourlyRate ? slotHours * Number(teacher.hourlyRate) : 0
+
+      const booking = await prisma.booking.create({
+        data: {
+          teacherId: teacherId,
+          studentName: customerName,
+          studentEmail: customerEmail,
+          studentPhone: customerPhone || '',
+          bookingDate: new Date(), // For now, using current date
+          startTime: startTime,
+          endTime: endTime,
+          amountPaid: slotAmount,
+          paymentStatus: 'pending', // Since payment isn't integrated yet
+          notes: additionalNotes || null,
+        }
+      })
+
+      createdBookings.push(booking)
+    }
+
+    console.log(`Created ${createdBookings.length} bookings for teacher ${teacherId}`)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Booking created successfully',
+      bookings: createdBookings,
+      totalHours: totalHours,
+      totalAmount: totalAmount
+    }, { status: 201 })
+
   } catch (error) {
     console.error('Error creating booking:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -7,9 +7,25 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: 'Provider Dashboard',
-  description: 'Manage your appointments, availability, and profile',
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await getServerSession(authOptions)
+  
+  if (!session?.user?.id) {
+    return {
+      title: 'Provider Dashboard',
+      description: 'Manage your appointments, availability, and profile',
+    }
+  }
+
+  const teacher = await prisma.teacher.findUnique({
+    where: { id: session.user.id },
+    select: { name: true }
+  })
+
+  return {
+    title: teacher ? `${teacher.name} | Dashboard` : 'Provider Dashboard',
+    description: 'Manage your appointments, availability, and profile',
+  }
 }
 
 export default async function DashboardPage() {

@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     if (hasOverlap) {
       return NextResponse.json(
-        { error: 'This time slot overlaps with an existing availability slot' },
+        { error: 'This time window overlaps with an existing availability window' },
         { status: 400 }
       )
     }

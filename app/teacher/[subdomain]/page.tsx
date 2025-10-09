@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Metadata } from 'next'
 import { getColorScheme } from '@/lib/themes'
+import BookingCalendar from './BookingCalendar'
 
 // Generate dynamic metadata for each service provider
 export async function generateMetadata({
@@ -167,36 +168,40 @@ export default async function TeacherProfilePage({
               >
                 About Me
               </h2>
-              <p 
-                className="text-lg leading-relaxed mb-6 transition-colors duration-300"
-                style={{ color: colorScheme.styles.textSecondary }}
-              >
-                {teacher.bio || 'Professional service provider with years of experience helping clients achieve their goals.'}
-              </p>
-              
-              <div 
-                className="flex items-baseline gap-3 rounded-lg p-4 inline-block transition-colors duration-300"
-                style={{ backgroundColor: colorScheme.styles.primaryLight }}
-              >
-                <span 
-                  className="text-sm font-medium transition-colors duration-300"
-                  style={{ color: colorScheme.styles.textSecondary }}
-                >
-                  Hourly Rate
-                </span>
+              {teacher.bio && (
                 <p 
-                  className="text-3xl font-bold transition-colors duration-300"
-                  style={{ color: colorScheme.styles.primary }}
-                >
-                  ${teacher.hourlyRate.toString()}
-                </p>
-                <span 
-                  className="transition-colors duration-300"
+                  className="text-lg leading-relaxed mb-6 transition-colors duration-300"
                   style={{ color: colorScheme.styles.textSecondary }}
                 >
-                  /hour
-                </span>
-              </div>
+                  {teacher.bio}
+                </p>
+              )}
+              
+              {teacher.hourlyRate && (
+                <div 
+                  className="flex items-baseline gap-3 rounded-lg p-4 inline-block transition-colors duration-300"
+                  style={{ backgroundColor: colorScheme.styles.primaryLight }}
+                >
+                  <span 
+                    className="text-sm font-medium transition-colors duration-300"
+                    style={{ color: colorScheme.styles.textSecondary }}
+                  >
+                    Hourly Rate
+                  </span>
+                  <p 
+                    className="text-3xl font-bold transition-colors duration-300"
+                    style={{ color: colorScheme.styles.primary }}
+                  >
+                    ${teacher.hourlyRate.toString()}
+                  </p>
+                  <span 
+                    className="transition-colors duration-300"
+                    style={{ color: colorScheme.styles.textSecondary }}
+                  >
+                    /hour
+                  </span>
+                </div>
+              )}
 
               {teacher.phone && (
                 <div className="mt-4">
@@ -237,168 +242,22 @@ export default async function TeacherProfilePage({
             className="mb-8 text-lg transition-colors duration-300"
             style={{ color: colorScheme.styles.textSecondary }}
           >
-            Select an available time slot below to schedule your session.
+            Select an available time window below to schedule your session.
           </p>
           
           {/* Booking Calendar */}
           {teacher.availabilitySlots.length > 0 ? (
-            <div className="space-y-6">
-              {/* Week View */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {daysOfWeek.map(day => {
-                  const daySlots = teacher.availabilitySlots.filter(slot => slot.dayOfWeek === day.id)
-                  
-                  return (
-                    <div 
-                      key={day.id} 
-                      className="rounded-xl p-4 border transition-colors duration-300"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${colorScheme.styles.backgroundSecondary}, ${colorScheme.styles.primaryLight})`,
-                        borderColor: colorScheme.styles.border
-                      }}
-                    >
-                      <h3 
-                        className="font-semibold mb-3 text-center transition-colors duration-300"
-                        style={{ color: colorScheme.styles.textPrimary }}
-                      >
-                        {day.name}
-                      </h3>
-                      {daySlots.length > 0 ? (
-                        <div className="space-y-2">
-                          {daySlots.map(slot => (
-                            <button
-                              key={slot.id}
-                              className="w-full rounded-lg px-3 py-3 text-sm transition-all duration-200 group border"
-                              style={{ 
-                                backgroundColor: colorScheme.styles.background,
-                                borderColor: colorScheme.styles.border,
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = colorScheme.styles.primaryLight
-                                e.currentTarget.style.borderColor = colorScheme.styles.primary
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = colorScheme.styles.background
-                                e.currentTarget.style.borderColor = colorScheme.styles.border
-                              }}
-                            >
-                              <div className="text-center">
-                                <div 
-                                  className="font-medium transition-colors duration-200"
-                                  style={{ color: colorScheme.styles.textPrimary }}
-                                >
-                                  {slot.startTime} - {slot.endTime}
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-4">
-                          <div 
-                            className="mb-2 transition-colors duration-300"
-                            style={{ color: colorScheme.styles.textSecondary }}
-                          >
-                            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </div>
-                          <p 
-                            className="text-xs transition-colors duration-300"
-                            style={{ color: colorScheme.styles.textSecondary }}
-                          >
-                            Not available
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Booking Instructions */}
-              <div 
-                className="rounded-lg p-4 border transition-colors duration-300"
-                style={{ 
-                  backgroundColor: colorScheme.styles.primaryLight,
-                  borderColor: colorScheme.styles.border
-                }}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <svg 
-                      className="w-5 h-5 mt-0.5 transition-colors duration-300" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                      style={{ color: colorScheme.styles.primary }}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 
-                      className="font-medium mb-1 transition-colors duration-300"
-                      style={{ color: colorScheme.styles.textPrimary }}
-                    >
-                      How to Book
-                    </h4>
-                    <p 
-                      className="text-sm transition-colors duration-300"
-                      style={{ color: colorScheme.styles.textSecondary }}
-                    >
-                      Click on any available time slot above to book your session. 
-                      You&apos;ll be able to choose your preferred date and provide your contact information.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Info */}
-              <div 
-                className="text-center pt-4 border-t transition-colors duration-300"
-                style={{ borderColor: colorScheme.styles.border }}
-              >
-                <p 
-                  className="mb-2 transition-colors duration-300"
-                  style={{ color: colorScheme.styles.textSecondary }}
-                >
-                  Questions about booking?
-                </p>
-                {teacher.phone && (
-                  <p className="text-sm">
-                    <span 
-                      className="transition-colors duration-300"
-                      style={{ color: colorScheme.styles.textSecondary }}
-                    >
-                      Call or text: 
-                    </span>
-                    <a 
-                      href={`tel:${teacher.phone}`} 
-                      className="font-medium transition-colors duration-200 hover:opacity-80"
-                      style={{ color: colorScheme.styles.primary }}
-                    >
-                      {teacher.phone}
-                    </a>
-                  </p>
-                )}
-                <p className="text-sm mt-1">
-                  <span 
-                    className="transition-colors duration-300"
-                    style={{ color: colorScheme.styles.textSecondary }}
-                  >
-                    Email: 
-                  </span>
-                  <a 
-                    href={`mailto:${teacher.email}`} 
-                    className="font-medium transition-colors duration-200 hover:opacity-80"
-                    style={{ color: colorScheme.styles.primary }}
-                  >
-                    {teacher.email}
-                  </a>
-                </p>
-              </div>
-            </div>
+            <BookingCalendar 
+              teacher={{
+                id: teacher.id,
+                subdomain: teacher.subdomain,
+                name: teacher.name,
+                hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : undefined,
+                title: (teacher as { title?: string }).title
+              }}
+              availabilitySlots={teacher.availabilitySlots}
+              colorScheme={colorScheme}
+            />
           ) : (
             <div 
               className="border-2 border-dashed rounded-xl p-16 text-center transition-colors duration-300"

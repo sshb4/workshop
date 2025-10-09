@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
     const name = formData.get('name') as string
     const email = formData.get('email') as string
     const phone = formData.get('phone') as string
-    const hourlyRate = parseFloat(formData.get('hourlyRate') as string)
+    const hourlyRateStr = formData.get('hourlyRate') as string
+    const hourlyRate = hourlyRateStr && hourlyRateStr.trim() !== '' ? parseFloat(hourlyRateStr) : NaN
     const subdomain = formData.get('subdomain') as string
     const title = formData.get('title') as string
     const bio = formData.get('bio') as string
@@ -27,9 +28,9 @@ export async function POST(request: NextRequest) {
     const colorScheme = formData.get('colorScheme') as string
 
     // Validate required fields
-    if (!name || !email || !subdomain || isNaN(hourlyRate)) {
+    if (!name || !email) {
       return NextResponse.json(
-        { error: 'Name, email, subdomain, and hourly rate are required' },
+        { error: 'Name and email are required' },
         { status: 400 }
       )
     }
@@ -43,17 +44,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate subdomain format (lowercase letters, numbers, hyphens only)
-    const subdomainRegex = /^[a-z0-9-]+$/
-    if (!subdomainRegex.test(subdomain)) {
-      return NextResponse.json(
-        { error: 'Subdomain can only contain lowercase letters, numbers, and hyphens' },
-        { status: 400 }
-      )
+    // Validate subdomain format if provided (lowercase letters, numbers, hyphens only)
+    if (subdomain) {
+      const subdomainRegex = /^[a-z0-9-]+$/
+      if (!subdomainRegex.test(subdomain)) {
+        return NextResponse.json(
+          { error: 'Subdomain can only contain lowercase letters, numbers, and hyphens' },
+          { status: 400 }
+        )
+      }
     }
 
-    // Validate hourly rate
-    if (hourlyRate <= 0 || hourlyRate > 10000) {
+    // Validate hourly rate if provided
+    if (!isNaN(hourlyRate) && (hourlyRate <= 0 || hourlyRate > 10000)) {
       return NextResponse.json(
         { error: 'Hourly rate must be between $0.01 and $10,000' },
         { status: 400 }
@@ -77,29 +80,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if subdomain is already taken by another user
-    const existingSubdomainUser = await prisma.teacher.findFirst({
-      where: {
-        subdomain: subdomain,
-        NOT: {
-          id: session.user.id,
+    // Check if subdomain is already taken by another user (only if subdomain is provided)
+    if (subdomain) {
+      const existingSubdomainUser = await prisma.teacher.findFirst({
+        where: {
+          subdomain: subdomain,
+          NOT: {
+            id: session.user.id,
+          },
         },
-      },
-    })
+      })
 
-    if (existingSubdomainUser) {
-      return NextResponse.json(
-        { error: 'This subdomain is already taken. Please choose another one.' },
-        { status: 400 }
-      )
+      if (existingSubdomainUser) {
+        return NextResponse.json(
+          { error: 'This subdomain is already taken. Please choose another one.' },
+          { status: 400 }
+        )
+      }
     }
 
     // Prepare update data
     const updateData: {
       name: string
       email: string
-      subdomain: string
-      hourlyRate: number
+      subdomain?: string
+      hourlyRate?: number
       title: string | null
       bio: string | null
       profileImage: string | null
@@ -108,17 +113,31 @@ export async function POST(request: NextRequest) {
     } = {
       name,
       email,
-      subdomain,
-      hourlyRate,
-      title: title || null,
-      bio: bio || null,
-      profileImage: profileImage || null,
+      title: title && title.trim() !== '' ? title : null,
+      bio: bio && bio.trim() !== '' ? bio : null,
+      profileImage: profileImage && profileImage.trim() !== '' ? profileImage : null,
       colorScheme: colorScheme || 'default',
     }
 
+    // Only update subdomain if provided
+    if (subdomain) {
+      updateData.subdomain = subdomain
+    }
+
+    // Update hourlyRate - only include in update if we want to change it
+    if (hourlyRateStr && hourlyRateStr.trim() !== '') {
+      // Field has a value, parse and validate it
+      if (!isNaN(hourlyRate) && hourlyRate > 0) {
+        updateData.hourlyRate = hourlyRate
+      }
+    } else {
+      // Field is empty, explicitly set to null to clear existing value
+      (updateData as any).hourlyRate = null
+    }
+
     // Only update phone if provided
-    if (phone) {
-      updateData.phone = phone
+    if (phone && phone.trim() !== '') {
+      updateData.phone = phone.trim()
     } else {
       updateData.phone = null
     }
