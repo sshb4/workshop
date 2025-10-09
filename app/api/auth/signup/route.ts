@@ -74,11 +74,11 @@ export async function POST(request: NextRequest) {
     // Create the new teacher
     const newTeacher = await prisma.teacher.create({
       data: {
-        name,
-        email,
+        name: name as string,
+        email: email as string,
         passwordHash: hashedPassword,
-        subdomain,
-      } as any // Temporary type bypass until Prisma types are fixed
+        subdomain: subdomain as string,
+      }
     })
 
     // Return success (don't return password hash)
