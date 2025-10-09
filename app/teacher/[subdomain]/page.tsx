@@ -7,6 +7,9 @@ import { Metadata } from 'next'
 import { getColorScheme } from '@/lib/themes'
 import BookingCalendar from './BookingCalendar'
 
+// Type assertion helper to work around Prisma type issues
+type SlotLike = Record<string, unknown>
+
 // Generate dynamic metadata for each service provider
 export async function generateMetadata({
   params,
@@ -70,8 +73,7 @@ export default async function TeacherProfilePage({
     include: {
       availabilitySlots: {
         orderBy: [
-          { dayOfWeek: 'asc' },
-          { startTime: 'asc' }
+          { createdAt: 'asc' }
         ]
       },
     },
@@ -80,6 +82,27 @@ export default async function TeacherProfilePage({
   // If teacher doesn't exist, show 404
   if (!teacher) {
     notFound()
+  }
+
+  // Map and filter availability slots to match expected interface
+  const mappedSlots = teacher.availabilitySlots ? 
+    (teacher.availabilitySlots as SlotLike[])
+      .filter((slot: SlotLike) => !('isActive' in slot) || slot.isActive !== false)
+      .map((slot: SlotLike) => ({
+        id: String(slot.id || ''),
+        title: (slot.title as string) || null,
+        startDate: slot.startDate ? String(slot.startDate) : new Date().toISOString(),
+        endDate: slot.endDate ? String(slot.endDate) : null,
+        dayOfWeek: Number(slot.dayOfWeek || 0),
+        startTime: String(slot.startTime || '09:00'),
+        endTime: String(slot.endTime || '17:00'),
+        isActive: Boolean(slot.isActive !== false)
+      })) : []
+
+  // Create a teacher object with mapped slots
+  const teacherWithActiveSlots = {
+    ...teacher,
+    availabilitySlots: mappedSlots
   }
 
   // Get the selected color scheme
@@ -248,7 +271,7 @@ export default async function TeacherProfilePage({
           </p>
           
           {/* Booking Calendar */}
-          {teacher.availabilitySlots.length > 0 ? (
+          {teacherWithActiveSlots.availabilitySlots.length > 0 ? (
             <BookingCalendar 
               teacher={{
                 id: teacher.id,
@@ -257,7 +280,7 @@ export default async function TeacherProfilePage({
                 hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : undefined,
                 title: (teacher as { title?: string }).title
               }}
-              availabilitySlots={teacher.availabilitySlots}
+              availabilitySlots={teacherWithActiveSlots.availabilitySlots}
               colorScheme={colorScheme}
             />
           ) : (

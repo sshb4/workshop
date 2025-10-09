@@ -5,9 +5,13 @@ import { useRouter } from 'next/navigation'
 
 interface AvailabilitySlot {
   id: string
+  title: string | null
+  startDate: string
+  endDate: string | null
   dayOfWeek: number
   startTime: string
   endTime: string
+  isActive: boolean
 }
 
 interface Teacher {
@@ -63,7 +67,35 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
   const [currentSlot, setCurrentSlot] = useState<AvailabilitySlot | null>(null)
   const [customStartTime, setCustomStartTime] = useState('')
   const [customEndTime, setCustomEndTime] = useState('')
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [currentMonth, setCurrentMonth] = useState(new Date())
   const router = useRouter()
+
+  // Helper function to check if a specific date is available
+  const isDateAvailable = (date: Date, dayOfWeek: number): AvailabilitySlot[] => {
+    const availableSlots = availabilitySlots.filter(slot => {
+      // Check if the day of week matches
+      if (slot.dayOfWeek !== dayOfWeek || !slot.isActive) return false
+      
+      // Check if the date is within the availability period
+      const slotStart = new Date(slot.startDate)
+      const slotEnd = slot.endDate ? new Date(slot.endDate) : null
+      
+      // Date should be >= start date and <= end date (if end date exists)
+      const isAfterStart = date >= slotStart
+      const isBeforeEnd = !slotEnd || date <= slotEnd
+      
+      return isAfterStart && isBeforeEnd
+    })
+    
+    return availableSlots
+  }
+
+  // Get available slots for the selected date
+  const getAvailableSlotsForDate = (date: Date): AvailabilitySlot[] => {
+    const dayOfWeek = date.getDay()
+    return isDateAvailable(date, dayOfWeek)
+  }
 
   // Generate 30-minute time intervals between start and end time
   const generateTimeOptions = (startTime: string, endTime: string) => {
@@ -295,87 +327,177 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
         </div>
       </div>
 
-      {/* Week View */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {daysOfWeek.map(day => {
-          const dayWindows = availabilitySlots.filter(slot => slot.dayOfWeek === day.id)
-          
-          return (
-            <div 
-              key={day.id} 
-              className="rounded-xl p-4 border transition-colors duration-300"
-              style={{ 
-                background: `linear-gradient(135deg, ${colorScheme.styles.backgroundSecondary}, ${colorScheme.styles.primaryLight})`,
-                borderColor: colorScheme.styles.border
-              }}
-            >
-              <h3 
-                className="font-semibold mb-3 text-center transition-colors duration-300"
-                style={{ color: colorScheme.styles.textPrimary }}
-              >
-                {day.name}
-              </h3>
-              {dayWindows.length > 0 ? (
-                <div className="space-y-2">
-                  {dayWindows.map(window => {
-                    const selected = isSlotSelected(window.id)
-                    return (
-                      <button
-                        key={window.id}
-                        onClick={() => handleSlotClick(window)}
-                        className="w-full rounded-lg px-3 py-3 text-sm transition-all duration-200 group border"
-                        style={{ 
-                          backgroundColor: selected 
-                            ? colorScheme.styles.primary 
-                            : colorScheme.styles.background,
-                          borderColor: selected 
-                            ? colorScheme.styles.primary 
-                            : colorScheme.styles.border,
-                          color: selected 
-                            ? 'white' 
-                            : colorScheme.styles.textPrimary
-                        }}
-                      >
-                        <div className="text-center">
-                          <div className="font-medium transition-colors duration-200">
-                            {window.startTime} - {window.endTime}
-                          </div>
-                          {selected ? (
-                            <div className="text-xs mt-1 opacity-90">
-                              ✓ Customized
-                            </div>
-                          ) : (
-                            <div className="text-xs mt-1 opacity-70">
-                              Click to customize
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <div 
-                    className="mb-2 transition-colors duration-300"
-                    style={{ color: colorScheme.styles.textSecondary }}
-                  >
-                    <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </div>
-                  <p 
-                    className="text-xs transition-colors duration-300"
-                    style={{ color: colorScheme.styles.textSecondary }}
-                  >
-                    Not available
-                  </p>
-                </div>
-              )}
-            </div>
-          )
-        })}
+      {/* Calendar Navigation */}
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+          className="p-2 rounded-lg border transition-colors hover:bg-opacity-50"
+          style={{ 
+            borderColor: colorScheme.styles.border,
+            color: colorScheme.styles.textPrimary
+          }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        
+        <h3 
+          className="text-xl font-semibold"
+          style={{ color: colorScheme.styles.textPrimary }}
+        >
+          {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        </h3>
+        
+        <button
+          onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+          className="p-2 rounded-lg border transition-colors hover:bg-opacity-50"
+          style={{ 
+            borderColor: colorScheme.styles.border,
+            color: colorScheme.styles.textPrimary
+          }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
+
+      {/* Calendar Grid */}
+      <div className="mb-6">
+        {/* Day Headers */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            <div 
+              key={day}
+              className="text-center text-sm font-medium py-2"
+              style={{ color: colorScheme.styles.textSecondary }}
+            >
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Days */}
+        <div className="grid grid-cols-7 gap-1">
+          {(() => {
+            const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
+            const startDate = new Date(firstDay)
+            startDate.setDate(startDate.getDate() - firstDay.getDay())
+            
+            const days = []
+            const today = new Date()
+            today.setHours(0, 0, 0, 0)
+            
+            for (let i = 0; i < 42; i++) {
+              const currentDate = new Date(startDate)
+              currentDate.setDate(startDate.getDate() + i)
+              
+              const isCurrentMonth = currentDate.getMonth() === currentMonth.getMonth()
+              const isPast = currentDate < today
+              const availableSlots = isCurrentMonth ? getAvailableSlotsForDate(currentDate) : []
+              const hasAvailability = availableSlots.length > 0
+              const isSelected = selectedDate?.toDateString() === currentDate.toDateString()
+              
+              days.push(
+                <button
+                  key={currentDate.toISOString()}
+                  onClick={() => {
+                    if (isCurrentMonth && hasAvailability && !isPast) {
+                      setSelectedDate(currentDate)
+                    }
+                  }}
+                  disabled={!isCurrentMonth || !hasAvailability || isPast}
+                  className="aspect-square p-1 text-sm rounded-lg transition-all duration-200 relative"
+                  style={{ 
+                    backgroundColor: isSelected 
+                      ? colorScheme.styles.primary
+                      : hasAvailability && !isPast && isCurrentMonth
+                      ? colorScheme.styles.backgroundSecondary
+                      : 'transparent',
+                    color: isSelected
+                      ? 'white'
+                      : !isCurrentMonth || isPast
+                      ? colorScheme.styles.textSecondary + '60'
+                      : colorScheme.styles.textPrimary,
+                    cursor: isCurrentMonth && hasAvailability && !isPast ? 'pointer' : 'default',
+                    border: `1px solid ${isSelected ? colorScheme.styles.primary : 'transparent'}`
+                  }}
+                >
+                  <div>{currentDate.getDate()}</div>
+                  {hasAvailability && !isPast && isCurrentMonth && (
+                    <div 
+                      className="w-1 h-1 rounded-full absolute bottom-1 left-1/2 transform -translate-x-1/2"
+                      style={{ backgroundColor: isSelected ? 'white' : colorScheme.styles.primary }}
+                    />
+                  )}
+                </button>
+              )
+            }
+            
+            return days
+          })()}
+        </div>
+      </div>
+
+      {/* Available Times for Selected Date */}
+      {selectedDate && (
+        <div 
+          className="rounded-xl p-4 border mb-6"
+          style={{ 
+            background: `linear-gradient(135deg, ${colorScheme.styles.backgroundSecondary}, ${colorScheme.styles.primaryLight})`,
+            borderColor: colorScheme.styles.border
+          }}
+        >
+          <h4 
+            className="font-semibold mb-3"
+            style={{ color: colorScheme.styles.textPrimary }}
+          >
+            Available Times - {selectedDate.toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </h4>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {getAvailableSlotsForDate(selectedDate).map(slot => {
+              const selected = isSlotSelected(slot.id)
+              return (
+                <button
+                  key={slot.id}
+                  onClick={() => handleSlotClick(slot)}
+                  className="rounded-lg px-4 py-3 text-sm transition-all duration-200 border"
+                  style={{ 
+                    backgroundColor: selected 
+                      ? colorScheme.styles.primary 
+                      : colorScheme.styles.background,
+                    borderColor: selected 
+                      ? colorScheme.styles.primary 
+                      : colorScheme.styles.border,
+                    color: selected 
+                      ? 'white' 
+                      : colorScheme.styles.textPrimary
+                  }}
+                >
+                  <div className="font-medium">
+                    {slot.startTime} - {slot.endTime}
+                  </div>
+                  {slot.title && (
+                    <div className="text-xs mt-1 opacity-70">
+                      {slot.title}
+                    </div>
+                  )}
+                  {selected && (
+                    <div className="text-xs mt-1 opacity-90">
+                      ✓ Selected
+                    </div>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Selected Slots Summary & Checkout */}
       {selectedSlots.length > 0 && (
