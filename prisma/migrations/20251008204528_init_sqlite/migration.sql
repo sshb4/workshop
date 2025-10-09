@@ -5,10 +5,12 @@ CREATE TABLE "teachers" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password_hash" TEXT NOT NULL,
+    "title" TEXT,
     "bio" TEXT,
     "hourly_rate" REAL NOT NULL,
     "profile_image" TEXT,
     "phone" TEXT,
+    "color_scheme" TEXT NOT NULL DEFAULT 'default',
     "email_verified" DATETIME,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME NOT NULL
@@ -47,7 +49,6 @@ CREATE TABLE "availability_slots" (
     "day_of_week" INTEGER NOT NULL,
     "start_time" TEXT NOT NULL,
     "end_time" TEXT NOT NULL,
-    "duration_minutes" INTEGER NOT NULL,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "availability_slots_teacher_id_fkey" FOREIGN KEY ("teacher_id") REFERENCES "teachers" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
