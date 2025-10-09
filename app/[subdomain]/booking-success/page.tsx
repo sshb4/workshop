@@ -43,7 +43,7 @@ export default async function BookingSuccessPage({ params }: BookingSuccessProps
           <ul className="text-sm text-blue-800 space-y-2 text-left">
             <li className="flex items-start">
               <span className="flex-shrink-0 h-5 w-5 text-blue-600 mr-2">1.</span>
-              <span>You'll receive a confirmation email shortly</span>
+              <span>You&apos;ll receive a confirmation email shortly</span>
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 h-5 w-5 text-blue-600 mr-2">2.</span>
@@ -75,7 +75,7 @@ export default async function BookingSuccessPage({ params }: BookingSuccessProps
         {/* Help Text */}
         <div className="pt-6 border-t border-gray-200">
           <p className="text-sm text-gray-500">
-            Questions about your booking? Check your email for contact information or visit the provider's page.
+            Questions about your booking? Check your email for contact information or visit the provider&apos;s page.
           </p>
         </div>
       </div>

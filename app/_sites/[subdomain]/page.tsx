@@ -1,6 +1,7 @@
 // app/_sites/[subdomain]/page.tsx
 
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 
 export default async function TeacherProfilePage({
@@ -38,9 +39,11 @@ export default async function TeacherProfilePage({
             {/* Profile Image */}
             <div className="flex-shrink-0">
               {teacher.profileImage ? (
-                <img
+                <Image
                   src={teacher.profileImage}
                   alt={teacher.name}
+                  width={160}
+                  height={160}
                   className="w-40 h-40 rounded-full object-cover border-4 border-indigo-100"
                 />
               ) : (
@@ -59,13 +62,15 @@ export default async function TeacherProfilePage({
                 {teacher.bio || 'Professional dance instructor with years of experience teaching students of all levels.'}
               </p>
               
-              <div className="flex items-baseline gap-3 bg-indigo-50 rounded-lg p-4 inline-block">
-                <span className="text-sm text-gray-600 font-medium">Hourly Rate</span>
-                <p className="text-3xl font-bold text-indigo-600">
-                  ${teacher.hourlyRate.toString()}
-                </p>
-                <span className="text-gray-500">/hour</span>
-              </div>
+              {teacher.hourlyRate && (
+                <div className="flex items-baseline gap-3 bg-indigo-50 rounded-lg p-4 inline-block">
+                  <span className="text-sm text-gray-600 font-medium">Hourly Rate</span>
+                  <p className="text-3xl font-bold text-indigo-600">
+                    ${teacher.hourlyRate.toString()}
+                  </p>
+                  <span className="text-gray-500">/hour</span>
+                </div>
+              )}
 
               {teacher.phone && (
                 <div className="mt-4">

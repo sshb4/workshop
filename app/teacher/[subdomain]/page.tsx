@@ -1,6 +1,7 @@
 // app/teacher/[subdomain]/page.tsx
 
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { Metadata } from 'next'
 import { getColorScheme } from '@/lib/themes'
@@ -45,15 +46,7 @@ export async function generateMetadata({
   }
 }
 
-const daysOfWeek = [
-  { id: 0, name: 'Sunday', short: 'Sun' },
-  { id: 1, name: 'Monday', short: 'Mon' },
-  { id: 2, name: 'Tuesday', short: 'Tue' },
-  { id: 3, name: 'Wednesday', short: 'Wed' },
-  { id: 4, name: 'Thursday', short: 'Thu' },
-  { id: 5, name: 'Friday', short: 'Fri' },
-  { id: 6, name: 'Saturday', short: 'Sat' },
-]
+
 
 export default async function TeacherProfilePage({
   params,
@@ -139,9 +132,11 @@ export default async function TeacherProfilePage({
             {/* Profile Image */}
             <div className="flex-shrink-0">
               {teacher.profileImage ? (
-                <img
+                <Image
                   src={teacher.profileImage}
                   alt={teacher.name}
+                  width={160}
+                  height={160}
                   className="w-40 h-40 rounded-full object-cover border-4 transition-colors duration-300"
                   style={{ borderColor: colorScheme.styles.primaryLight }}
                 />

@@ -131,8 +131,8 @@ export async function POST(request: NextRequest) {
         updateData.hourlyRate = hourlyRate
       }
     } else {
-      // Field is empty, explicitly set to null to clear existing value
-      (updateData as any).hourlyRate = null
+      // Field is empty, explicitly set to undefined to clear existing value
+      updateData.hourlyRate = undefined
     }
 
     // Only update phone if provided

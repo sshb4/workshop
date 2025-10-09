@@ -71,7 +71,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
     const start = new Date(`2000-01-01T${startTime}:00`)
     const end = new Date(`2000-01-01T${endTime}:00`)
     
-    let current = new Date(start)
+    const current = new Date(start)
     while (current < end) {
       options.push(current.toTimeString().slice(0, 5))
       current.setMinutes(current.getMinutes() + 30)
@@ -120,22 +120,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
     setSelectedSlots(prev => prev.filter(s => s.id !== slotId))
   }
 
-  const handleSlotClickOld = (slot: AvailabilitySlot) => {
-    const dayName = daysOfWeek.find(day => day.id === slot.dayOfWeek)?.name || ''
-    const selectedSlot: SelectedSlot = {
-      ...slot,
-      dayName
-    }
 
-    setSelectedSlots(prev => {
-      const isAlreadySelected = prev.some(s => s.id === slot.id)
-      if (isAlreadySelected) {
-        return prev.filter(s => s.id !== slot.id)
-      } else {
-        return [...prev, selectedSlot]
-      }
-    })
-  }
 
   const handleProceedToCheckout = () => {
     if (selectedSlots.length === 0) return
