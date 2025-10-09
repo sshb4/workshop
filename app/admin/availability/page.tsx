@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { redirect } from 'next/navigation'
-import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
 
 interface AvailabilitySlot {
   id: string
@@ -22,6 +21,7 @@ const DAYS = [
 
 function AvailabilityContent() {
   const { data: session, status } = useSession()
+  const router = useRouter()
   const [slots, setSlots] = useState<AvailabilitySlot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -69,9 +69,15 @@ function AvailabilityContent() {
     }
   }, [session, fetchAvailability, status])
 
-  // Redirect if not authenticated
+  // Handle authentication
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/admin/login')
+    }
+  }, [status, router])
+
   if (status === 'loading') return <div>Loading...</div>
-  if (status === 'unauthenticated') redirect('/admin/login')
+  if (status === 'unauthenticated') return null
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -397,17 +403,6 @@ function AvailabilityContent() {
   )
 }
 
-// Export with no SSR to avoid session issues during build
-const AvailabilityPage = dynamic(() => Promise.resolve(AvailabilityContent), {
-  ssr: false,
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading...</p>
-      </div>
-    </div>
-  )
-})
-
-export default AvailabilityPage
+export default function AvailabilityPage() {
+  return <AvailabilityContent />
+}
