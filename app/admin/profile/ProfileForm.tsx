@@ -17,6 +17,7 @@ interface Teacher {
   title: string | null
   bio: string | null
   profileImage: string | null
+  favicon: string | null
   colorScheme: string
 }
 
@@ -264,6 +265,33 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
             <p className="mt-1 text-sm text-gray-500">
               Paste a URL to your profile photo. Leave blank to use your initials as a placeholder.
             </p>
+          </div>
+
+          {/* Favicon URL */}
+          <div>
+            <label htmlFor="favicon" className="block text-sm font-medium text-gray-700 mb-2">
+              Custom Favicon URL
+            </label>
+            <input
+              id="favicon"
+              name="favicon"
+              type="url"
+              defaultValue={teacher.favicon || ''}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
+              placeholder="https://example.com/your-favicon.png"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              Paste a URL to your custom favicon (recommended: 32x32 PNG, max 256x256). Leave blank to use the default favicon. This will appear in browser tabs when visitors view your booking page.
+            </p>
+            <div className="mt-2 p-3 bg-blue-50 border-l-4 border-blue-400 rounded-r">
+              <p className="text-xs text-blue-800">
+                <strong>Favicon Tips:</strong> Use a simple, recognizable icon that works at small sizes. Square PNG files work best. You can create favicons at{' '}
+                <a href="https://favicon.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">
+                  favicon.io
+                </a>{' '}
+                or upload your logo to free online favicon generators.
+              </p>
+            </div>
           </div>
 
           {/* Submit Button */}

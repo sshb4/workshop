@@ -52,6 +52,7 @@ export default async function ProfilePage() {
     ...teacher,
     hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : null,
     title: (teacher as typeof teacher & { title?: string }).title || null,
+    favicon: (teacher as typeof teacher & { favicon?: string }).favicon || null,
     colorScheme: (teacher as typeof teacher & { colorScheme?: string }).colorScheme || 'default'
   }
 

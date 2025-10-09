@@ -5,6 +5,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import ErrorMessage from '@/components/ErrorMessage'
+import SuccessMessage from '@/components/SuccessMessage'
 
 const daysOfWeek = [
   { id: 0, name: 'Sunday', short: 'Sun' },
@@ -22,7 +24,13 @@ const timeSlots = [
   '18:00', '19:00', '20:00', '21:00', '22:00'
 ]
 
-export default async function AvailabilityPage() {
+export default async function AvailabilityPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; success?: string }>
+}) {
+  const { error, success } = await searchParams
+  
   // Check if user is logged in
   const session = await getServerSession(authOptions)
   
@@ -79,6 +87,15 @@ export default async function AvailabilityPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Error/Success Messages */}
+        {error && (
+          <ErrorMessage message={error} className="mb-6" />
+        )}
+        
+        {success && (
+          <SuccessMessage message={success} className="mb-6" />
+        )}
         
         {/* Current Availability Overview */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">

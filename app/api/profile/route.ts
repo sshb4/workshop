@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
     const title = formData.get('title') as string
     const bio = formData.get('bio') as string
     const profileImage = formData.get('profileImage') as string
+    const favicon = formData.get('favicon') as string
     const colorScheme = formData.get('colorScheme') as string
 
     // Validate required fields
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
       title: string | null
       bio: string | null
       profileImage: string | null
+      favicon: string | null
       colorScheme: string
       phone?: string | null
     } = {
@@ -116,6 +118,7 @@ export async function POST(request: NextRequest) {
       title: title && title.trim() !== '' ? title : null,
       bio: bio && bio.trim() !== '' ? bio : null,
       profileImage: profileImage && profileImage.trim() !== '' ? profileImage : null,
+      favicon: favicon && favicon.trim() !== '' ? favicon : null,
       colorScheme: colorScheme || 'default',
     }
 

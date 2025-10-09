@@ -3,16 +3,26 @@
 'use client'
 
 import { signIn } from 'next-auth/react'
-import { useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, FormEvent, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+
+  useEffect(() => {
+    const message = searchParams.get('message')
+    if (message) {
+      setSuccessMessage(message)
+    }
+  }, [searchParams])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -53,6 +63,22 @@ export default function LoginPage() {
             <h2 className="text-3xl font-bold text-gray-900">Teacher Login</h2>
             <p className="mt-2 text-gray-600">Sign in to manage your bookings</p>
           </div>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-green-700">{successMessage}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -138,6 +164,19 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Signup Link */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link 
+                href="/admin/signup" 
+                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+              >
+                Create one here
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

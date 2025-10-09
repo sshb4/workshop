@@ -21,27 +21,24 @@ export async function POST(request: NextRequest) {
     const endTime = formData.get('endTime') as string
 
     // Validate required fields
-    if (isNaN(dayOfWeek) || !startTime || !endTime) {
-      return NextResponse.json(
-        { error: 'Day of week, start time, and end time are required' },
-        { status: 400 }
-      )
+    if (!dayOfWeek && dayOfWeek !== 0 || !startTime || !endTime) {
+      const url = new URL('/admin/availability', request.url)
+      url.searchParams.set('error', 'Day of week, start time, and end time are required')
+      return NextResponse.redirect(url)
     }
 
     // Validate day of week (0-6)
     if (dayOfWeek < 0 || dayOfWeek > 6) {
-      return NextResponse.json(
-        { error: 'Invalid day of week' },
-        { status: 400 }
-      )
+      const url = new URL('/admin/availability', request.url)
+      url.searchParams.set('error', 'Invalid day of week')
+      return NextResponse.redirect(url)
     }
 
     // Validate time format and logic
     if (startTime >= endTime) {
-      return NextResponse.json(
-        { error: 'Start time must be before end time' },
-        { status: 400 }
-      )
+      const url = new URL('/admin/availability', request.url)
+      url.searchParams.set('error', 'Start time must be before end time')
+      return NextResponse.redirect(url)
     }
 
     // Check for overlapping slots
@@ -61,10 +58,9 @@ export async function POST(request: NextRequest) {
     })
 
     if (hasOverlap) {
-      return NextResponse.json(
-        { error: 'This time window overlaps with an existing availability window' },
-        { status: 400 }
-      )
+      const url = new URL('/admin/availability', request.url)
+      url.searchParams.set('error', 'This time window overlaps with an existing availability window')
+      return NextResponse.redirect(url)
     }
 
     // Create the availability slot
@@ -77,14 +73,15 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Redirect back to availability page
-    return NextResponse.redirect(new URL('/admin/availability', request.url))
+    // Redirect back to availability page with success message
+    const url = new URL('/admin/availability', request.url)
+    url.searchParams.set('success', 'Availability window added successfully')
+    return NextResponse.redirect(url)
 
   } catch (error) {
     console.error('Error creating availability slot:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    const url = new URL('/admin/availability', request.url)
+    url.searchParams.set('error', 'Something went wrong. Please try again.')
+    return NextResponse.redirect(url)
   }
 }

@@ -26,11 +26,18 @@ export async function generateMetadata({
 
   const teacherTitle = (teacher as { title?: string }).title
   
+  // Get favicon from teacher data
+  const teacherFavicon = (teacher as { favicon?: string }).favicon
+
   return {
     title: teacherTitle ? `${teacher.name} - ${teacherTitle}` : teacher.name,
     description: teacher.bio 
       ? `Book appointments with ${teacher.name}. ${teacher.bio.slice(0, 160)}...`
       : `Book appointments with ${teacher.name}. Professional services available for $${teacher.hourlyRate}/hour.`,
+    icons: teacherFavicon ? {
+      icon: teacherFavicon,
+      shortcut: teacherFavicon,
+    } : undefined,
     openGraph: {
       title: teacherTitle ? `${teacher.name} - ${teacherTitle}` : teacher.name,
       description: teacher.bio || `Professional services available for $${teacher.hourlyRate}/hour.`,

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import ErrorMessage from '@/components/ErrorMessage'
 
 interface SelectedSlot {
   id: string
@@ -43,6 +44,7 @@ export default function CheckoutPage() {
     additionalNotes: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
     // Load data from sessionStorage
@@ -90,6 +92,7 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setSubmitError('')
 
     try {
       // Submit the actual booking
@@ -111,7 +114,9 @@ export default function CheckoutPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create booking')
+        const errorMessage = result.error || 'Failed to create booking'
+        setSubmitError(errorMessage)
+        return
       }
 
       console.log('Booking created successfully:', result)
@@ -124,8 +129,7 @@ export default function CheckoutPage() {
       router.push(`/${subdomain}/booking-success`)
     } catch (error) {
       console.error('Booking submission error:', error)
-      // You might want to show an error message to the user here
-      alert('There was an error creating your booking. Please try again.')
+      setSubmitError('There was an error creating your booking. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -216,6 +220,10 @@ export default function CheckoutPage() {
           {/* Customer Information Form */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">Your Information</h2>
+            
+            {submitError && (
+              <ErrorMessage message={submitError} className="mb-6" />
+            )}
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>

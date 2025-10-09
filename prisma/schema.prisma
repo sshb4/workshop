@@ -17,6 +17,7 @@ model Teacher {
   bio               String?
   hourlyRate        Float?             @map("hourly_rate")
   profileImage      String?            @map("profile_image")
+  favicon           String?
   phone             String?
   colorScheme       String             @default("default") @map("color_scheme")
   emailVerified     DateTime?          @map("email_verified")
