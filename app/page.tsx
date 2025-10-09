@@ -69,20 +69,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Example Preview */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-6">See How It Works</h3>
-            <p className="text-gray-600 mb-4">
-              Visit a sample booking page to see what your clients will experience:
-            </p>
-            <Link 
-              href="/teacher/demo"
-              className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all"
-            >
-              View Demo Booking Page →
-            </Link>
-          </div>
-
           {/* Footer */}
           <div className="mt-16 pt-8 border-t border-gray-200">
             <p className="text-gray-500">

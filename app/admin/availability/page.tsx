@@ -156,23 +156,45 @@ function AvailabilityContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Availability Management</h1>
-              <p className="text-gray-600 mt-1">Set up your flexible schedule periods</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-4">
+              <a 
+                href="/admin/dashboard"
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </a>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Availability Management</h1>
+                <p className="text-sm text-gray-600">Set up your flexible schedule periods</p>
+              </div>
             </div>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-            >
-              {showForm ? 'Cancel' : 'Add Period'}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+              >
+                {showForm ? 'Cancel' : 'Add Period'}
+              </button>
+              <a
+                href="/admin/dashboard"
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              >
+                Back to Dashboard
+              </a>
+            </div>
           </div>
         </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Messages */}
         {error && (
@@ -203,7 +225,7 @@ function AvailabilityContent() {
                     value={formData.title}
                     onChange={handleInputChange}
                     placeholder="e.g., Regular Hours, Holiday Schedule"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                   />
                 </div>
                 <div>
@@ -214,7 +236,7 @@ function AvailabilityContent() {
                     name="dayOfWeek"
                     value={formData.dayOfWeek}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                   >
                     {DAYS.map((day, index) => (
                       <option key={index} value={index}>{day}</option>
@@ -234,7 +256,7 @@ function AvailabilityContent() {
                     value={formData.startDate}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                   />
                 </div>
                 <div>
@@ -246,7 +268,7 @@ function AvailabilityContent() {
                     name="endDate"
                     value={formData.endDate}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                   />
                   <p className="text-xs text-gray-500 mt-1">Leave empty for ongoing availability</p>
                 </div>
@@ -263,7 +285,7 @@ function AvailabilityContent() {
                     value={formData.startTime}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                   />
                 </div>
                 <div>
@@ -276,7 +298,7 @@ function AvailabilityContent() {
                     value={formData.endTime}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                   />
                 </div>
               </div>

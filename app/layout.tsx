@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from './providers';
 
 // Temporarily removed Google Fonts due to network issues
 // const geistSans = Geist({
@@ -66,7 +67,9 @@ export default function RootLayout({
       <body
         className="antialiased font-sans"
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -65,19 +65,36 @@ export default async function TeacherProfilePage({
 }) {
   const { subdomain } = await params
   
-  // Fetch teacher by subdomain with availability slots
-  const teacher = await prisma.teacher.findUnique({
-    where: {
-      subdomain,
-    },
-    include: {
-      availabilitySlots: {
+  // Fetch teacher by subdomain (without includes to isolate the issue)
+  let teacher
+  try {
+    teacher = await prisma.teacher.findUnique({
+      where: {
+        subdomain,
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching teacher:', error)
+    notFound()
+  }
+
+  // Fetch availability slots separately
+  let availabilitySlots: SlotLike[] = []
+  if (teacher) {
+    try {
+      availabilitySlots = await prisma.availabilitySlot.findMany({
+        where: {
+          teacherId: teacher.id
+        },
         orderBy: [
           { createdAt: 'asc' }
         ]
-      },
-    },
-  })
+      })
+    } catch (error) {
+      console.error('Error fetching availability slots:', error)
+      // Continue without availability slots
+    }
+  }
 
   // If teacher doesn't exist, show 404
   if (!teacher) {
@@ -85,19 +102,18 @@ export default async function TeacherProfilePage({
   }
 
   // Map and filter availability slots to match expected interface
-  const mappedSlots = teacher.availabilitySlots ? 
-    (teacher.availabilitySlots as SlotLike[])
-      .filter((slot: SlotLike) => !('isActive' in slot) || slot.isActive !== false)
-      .map((slot: SlotLike) => ({
-        id: String(slot.id || ''),
-        title: (slot.title as string) || null,
-        startDate: slot.startDate ? String(slot.startDate) : new Date().toISOString(),
-        endDate: slot.endDate ? String(slot.endDate) : null,
-        dayOfWeek: Number(slot.dayOfWeek || 0),
-        startTime: String(slot.startTime || '09:00'),
-        endTime: String(slot.endTime || '17:00'),
-        isActive: Boolean(slot.isActive !== false)
-      })) : []
+  const mappedSlots = availabilitySlots
+    .filter((slot: SlotLike) => !('isActive' in slot) || slot.isActive !== false)
+    .map((slot: SlotLike) => ({
+      id: String(slot.id || ''),
+      title: (slot.title as string) || null,
+      startDate: slot.startDate ? String(slot.startDate) : new Date().toISOString(),
+      endDate: slot.endDate ? String(slot.endDate) : null,
+      dayOfWeek: Number(slot.dayOfWeek || 0),
+      startTime: String(slot.startTime || '09:00'),
+      endTime: String(slot.endTime || '17:00'),
+      isActive: Boolean(slot.isActive !== false)
+    }))
 
   // Create a teacher object with mapped slots
   const teacherWithActiveSlots = {
