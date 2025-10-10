@@ -22,7 +22,7 @@ export function middleware(request: NextRequest) {
   
   // If we have a valid subdomain, rewrite to tenant-specific route
   if (subdomain && !isReservedSubdomain(subdomain)) {
-    url.pathname = `/_sites/${subdomain}${url.pathname}`
+    url.pathname = `/${subdomain}${url.pathname}`
     return NextResponse.rewrite(url)
   }
   
