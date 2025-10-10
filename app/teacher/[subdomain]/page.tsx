@@ -145,16 +145,16 @@ export default async function TeacherProfilePage({
           borderColor: colorScheme.styles.border
         }}
       >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <h1 
-            className="text-4xl font-bold transition-colors duration-300"
+            className="text-2xl sm:text-4xl font-bold transition-colors duration-300"
             style={{ color: colorScheme.styles.textPrimary }}
           >
             {teacher.name}
           </h1>
           {(teacher as { title?: string }).title && (
             <p 
-              className="text-lg mt-1 transition-colors duration-300"
+              className="text-sm sm:text-lg mt-1 transition-colors duration-300"
               style={{ color: colorScheme.styles.textSecondary }}
             >
               {(teacher as { title?: string }).title}
@@ -164,37 +164,37 @@ export default async function TeacherProfilePage({
       </header>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         {/* Profile Section */}
         <div 
-          className="rounded-2xl shadow-lg p-8 mb-8 transition-colors duration-300"
+          className="rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-8 mb-6 sm:mb-8 transition-colors duration-300"
           style={{ 
             backgroundColor: colorScheme.styles.background,
             borderColor: colorScheme.styles.border,
             border: `1px solid ${colorScheme.styles.border}`
           }}
         >
-          <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
             {/* Profile Image */}
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 mx-auto sm:mx-0">
               {teacher.profileImage ? (
                 <Image
                   src={teacher.profileImage}
                   alt={teacher.name}
-                  width={160}
-                  height={160}
-                  className="w-40 h-40 rounded-full object-cover border-4 transition-colors duration-300"
+                  width={120}
+                  height={120}
+                  className="w-24 h-24 sm:w-40 sm:h-40 rounded-full object-cover border-4 transition-colors duration-300"
                   style={{ borderColor: colorScheme.styles.primaryLight }}
                 />
               ) : (
                 <div 
-                  className="w-40 h-40 rounded-full flex items-center justify-center border-4 transition-colors duration-300"
+                  className="w-24 h-24 sm:w-40 sm:h-40 rounded-full flex items-center justify-center border-4 transition-colors duration-300"
                   style={{ 
                     background: `linear-gradient(135deg, ${colorScheme.styles.primary}, ${colorScheme.styles.accent})`,
                     borderColor: colorScheme.styles.primaryLight
                   }}
                 >
-                  <span className="text-6xl font-bold text-white">
+                  <span className="text-3xl sm:text-6xl font-bold text-white">
                     {teacher.name[0]}
                   </span>
                 </div>
@@ -202,16 +202,16 @@ export default async function TeacherProfilePage({
             </div>
 
             {/* Info */}
-            <div className="flex-1">
+            <div className="flex-1 text-center sm:text-left">
               <h2 
-                className="text-2xl font-semibold mb-4 transition-colors duration-300"
+                className="text-lg sm:text-2xl font-semibold mb-3 sm:mb-4 transition-colors duration-300"
                 style={{ color: colorScheme.styles.textPrimary }}
               >
                 About Me
               </h2>
               {teacher.bio && (
                 <p 
-                  className="text-lg leading-relaxed mb-6 transition-colors duration-300"
+                  className="text-sm sm:text-lg leading-relaxed mb-4 sm:mb-6 transition-colors duration-300"
                   style={{ color: colorScheme.styles.textSecondary }}
                 >
                   {teacher.bio}
@@ -220,23 +220,23 @@ export default async function TeacherProfilePage({
               
               {teacher.hourlyRate && (
                 <div 
-                  className="flex items-baseline gap-3 rounded-lg p-4 inline-block transition-colors duration-300"
+                  className="flex flex-col sm:flex-row items-center sm:items-baseline gap-1 sm:gap-3 rounded-lg p-3 sm:p-4 inline-block transition-colors duration-300"
                   style={{ backgroundColor: colorScheme.styles.primaryLight }}
                 >
                   <span 
-                    className="text-sm font-medium transition-colors duration-300"
+                    className="text-xs sm:text-sm font-medium transition-colors duration-300"
                     style={{ color: colorScheme.styles.textSecondary }}
                   >
                     Hourly Rate
                   </span>
                   <p 
-                    className="text-3xl font-bold transition-colors duration-300"
+                    className="text-2xl sm:text-3xl font-bold transition-colors duration-300"
                     style={{ color: colorScheme.styles.primary }}
                   >
                     ${teacher.hourlyRate.toString()}
                   </p>
                   <span 
-                    className="transition-colors duration-300"
+                    className="text-sm sm:text-base transition-colors duration-300"
                     style={{ color: colorScheme.styles.textSecondary }}
                   >
                     /hour
@@ -245,15 +245,15 @@ export default async function TeacherProfilePage({
               )}
 
               {teacher.phone && (
-                <div className="mt-4">
+                <div className="mt-3 sm:mt-4">
                   <span 
-                    className="text-sm transition-colors duration-300"
+                    className="text-xs sm:text-sm transition-colors duration-300"
                     style={{ color: colorScheme.styles.textSecondary }}
                   >
-                    Contact: 
+                    Contact:{' '}
                   </span>
                   <span 
-                    className="transition-colors duration-300"
+                    className="text-sm sm:text-base transition-colors duration-300"
                     style={{ color: colorScheme.styles.textPrimary }}
                   >
                     {teacher.phone}
@@ -266,7 +266,7 @@ export default async function TeacherProfilePage({
 
         {/* Booking Section */}
         <div 
-          className="rounded-2xl shadow-lg p-8 transition-colors duration-300"
+          className="rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-8 transition-colors duration-300"
           style={{ 
             backgroundColor: colorScheme.styles.background,
             borderColor: colorScheme.styles.border,
@@ -274,13 +274,13 @@ export default async function TeacherProfilePage({
           }}
         >
           <h2 
-            className="text-3xl font-bold mb-6 transition-colors duration-300"
+            className="text-xl sm:text-3xl font-bold mb-4 sm:mb-6 transition-colors duration-300"
             style={{ color: colorScheme.styles.textPrimary }}
           >
             Book a Session
           </h2>
           <p 
-            className="mb-8 text-lg transition-colors duration-300"
+            className="mb-6 sm:mb-8 text-sm sm:text-lg transition-colors duration-300"
             style={{ color: colorScheme.styles.textSecondary }}
           >
             Select an available time window below to schedule your session.

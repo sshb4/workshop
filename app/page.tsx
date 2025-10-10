@@ -1,6 +1,46 @@
+'use client'
+
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function Home() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    // If user is authenticated, redirect to dashboard
+    if (status === 'authenticated' && session?.user) {
+      router.push('/admin/dashboard')
+    }
+  }, [status, session, router])
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // If user is authenticated, show loading while redirecting
+  if (status === 'authenticated') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show landing page for unauthenticated users
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
       <div className="container mx-auto px-4 py-16">
@@ -73,6 +113,9 @@ export default function Home() {
           <div className="mt-16 pt-8 border-t border-gray-200">
             <p className="text-gray-500">
               Ready to get started? <Link href="/admin/signup" className="text-indigo-600 hover:text-indigo-500 font-medium">Create your account</Link> and set up your booking page in under 5 minutes.
+            </p>
+            <p className="text-gray-500 mt-2">
+              Already have an account? <Link href="/admin/login" className="text-indigo-600 hover:text-indigo-500 font-medium">Sign in to your dashboard</Link>
             </p>
           </div>
         </div>

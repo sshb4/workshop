@@ -194,9 +194,9 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
     <>
       {/* Time Selector Modal */}
       {showTimeSelector && currentSlot && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div 
-            className="bg-white rounded-2xl p-6 max-w-md w-full mx-4"
+            className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 max-w-md w-full"
             style={{ 
               backgroundColor: colorScheme.styles.background,
               borderColor: colorScheme.styles.border,
@@ -204,28 +204,28 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
             }}
           >
             <h3 
-              className="text-xl font-semibold mb-4"
+              className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4"
               style={{ color: colorScheme.styles.textPrimary }}
             >
               Select Your Time
             </h3>
             <p 
-              className="text-sm mb-4"
+              className="text-xs sm:text-sm mb-3 sm:mb-4"
               style={{ color: colorScheme.styles.textSecondary }}
             >
               Choose your preferred start and end time within the available window for {daysOfWeek.find(d => d.id === currentSlot.dayOfWeek)?.name}
             </p>
             <p 
-              className="text-sm mb-6 font-medium"
+              className="text-xs sm:text-sm mb-4 sm:mb-6 font-medium"
               style={{ color: colorScheme.styles.primary }}
             >
               Available: {currentSlot.startTime} - {currentSlot.endTime}
             </p>
 
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
               <div>
                 <label 
-                  className="block text-sm font-medium mb-2"
+                  className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2"
                   style={{ color: colorScheme.styles.textPrimary }}
                 >
                   Start Time
@@ -233,7 +233,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                 <select
                   value={customStartTime}
                   onChange={(e) => setCustomStartTime(e.target.value)}
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:border-transparent"
+                  className="w-full p-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent"
                   style={{ 
                     borderColor: colorScheme.styles.border
                   }}
@@ -246,7 +246,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
 
               <div>
                 <label 
-                  className="block text-sm font-medium mb-2"
+                  className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2"
                   style={{ color: colorScheme.styles.textPrimary }}
                 >
                   End Time
@@ -254,7 +254,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                 <select
                   value={customEndTime}
                   onChange={(e) => setCustomEndTime(e.target.value)}
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:border-transparent"
+                  className="w-full p-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent"
                   style={{ 
                     borderColor: colorScheme.styles.border
                   }}
@@ -266,10 +266,10 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
               </div>
             </div>
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
               <button
                 onClick={() => setShowTimeSelector(false)}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50 transition-colors"
                 style={{ 
                   borderColor: colorScheme.styles.border,
                   color: colorScheme.styles.textSecondary
@@ -279,7 +279,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
               </button>
               <button
                 onClick={handleTimeSelection}
-                className="px-4 py-2 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
+                className="px-4 py-2 text-sm rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
                 style={{ backgroundColor: colorScheme.styles.primary }}
               >
                 Select Time
@@ -289,19 +289,19 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
       {/* Instructions */}
       <div 
-        className="rounded-lg p-4 border transition-colors duration-300"
+        className="rounded-lg p-3 sm:p-4 border transition-colors duration-300"
         style={{ 
           backgroundColor: colorScheme.styles.primaryLight,
           borderColor: colorScheme.styles.border
         }}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-2 sm:gap-3">
           <div className="flex-shrink-0">
             <svg 
-              className="w-5 h-5 mt-0.5 transition-colors duration-300" 
+              className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 transition-colors duration-300" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -312,13 +312,13 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
           </div>
           <div>
             <h4 
-              className="font-medium mb-1 transition-colors duration-300"
+              className="text-sm sm:text-base font-medium mb-1 transition-colors duration-300"
               style={{ color: colorScheme.styles.textPrimary }}
             >
               Select Time Slots
             </h4>
             <p 
-              className="text-sm transition-colors duration-300"
+              className="text-xs sm:text-sm transition-colors duration-300"
               style={{ color: colorScheme.styles.textSecondary }}
             >
               Click on available time windows to customize your booking times. You can select specific hours within each window.
@@ -328,22 +328,22 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
       </div>
 
       {/* Calendar Navigation */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <button
           onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
-          className="p-2 rounded-lg border transition-colors hover:bg-opacity-50"
+          className="p-1.5 sm:p-2 rounded-lg border transition-colors hover:bg-opacity-50"
           style={{ 
             borderColor: colorScheme.styles.border,
             color: colorScheme.styles.textPrimary
           }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         
         <h3 
-          className="text-xl font-semibold"
+          className="text-lg sm:text-xl font-semibold px-2"
           style={{ color: colorScheme.styles.textPrimary }}
         >
           {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
@@ -351,26 +351,26 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
         
         <button
           onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
-          className="p-2 rounded-lg border transition-colors hover:bg-opacity-50"
+          className="p-1.5 sm:p-2 rounded-lg border transition-colors hover:bg-opacity-50"
           style={{ 
             borderColor: colorScheme.styles.border,
             color: colorScheme.styles.textPrimary
           }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
 
       {/* Calendar Grid */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         {/* Day Headers */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
             <div 
               key={day}
-              className="text-center text-sm font-medium py-2"
+              className="text-center text-xs sm:text-sm font-medium py-1 sm:py-2"
               style={{ color: colorScheme.styles.textSecondary }}
             >
               {day}
@@ -379,7 +379,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
         </div>
 
         {/* Calendar Days */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
           {(() => {
             const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
             const startDate = new Date(firstDay)
@@ -408,7 +408,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                     }
                   }}
                   disabled={!isCurrentMonth || !hasAvailability || isPast}
-                  className="aspect-square p-1 text-sm rounded-lg transition-all duration-200 relative"
+                  className="aspect-square p-0.5 sm:p-1 text-xs sm:text-sm rounded-md sm:rounded-lg transition-all duration-200 relative"
                   style={{ 
                     backgroundColor: isSelected 
                       ? colorScheme.styles.primary
@@ -427,7 +427,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                   <div>{currentDate.getDate()}</div>
                   {hasAvailability && !isPast && isCurrentMonth && (
                     <div 
-                      className="w-1 h-1 rounded-full absolute bottom-1 left-1/2 transform -translate-x-1/2"
+                      className="w-1 h-1 rounded-full absolute bottom-0.5 sm:bottom-1 left-1/2 transform -translate-x-1/2"
                       style={{ backgroundColor: isSelected ? 'white' : colorScheme.styles.primary }}
                     />
                   )}
@@ -443,30 +443,30 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
       {/* Available Times for Selected Date */}
       {selectedDate && (
         <div 
-          className="rounded-xl p-4 border mb-6"
+          className="rounded-lg sm:rounded-xl p-3 sm:p-4 border mb-4 sm:mb-6"
           style={{ 
             background: `linear-gradient(135deg, ${colorScheme.styles.backgroundSecondary}, ${colorScheme.styles.primaryLight})`,
             borderColor: colorScheme.styles.border
           }}
         >
           <h4 
-            className="font-semibold mb-3"
+            className="text-sm sm:text-base font-semibold mb-2 sm:mb-3"
             style={{ color: colorScheme.styles.textPrimary }}
           >
             Available Times - {selectedDate.toLocaleDateString('en-US', { 
               weekday: 'long', 
-              month: 'long', 
+              month: 'short', 
               day: 'numeric' 
             })}
           </h4>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {getAvailableSlotsForDate(selectedDate).map(slot => {
               const selected = isSlotSelected(slot.id)
               return (
                 <button
                   key={slot.id}
                   onClick={() => handleSlotClick(slot)}
-                  className="rounded-lg px-4 py-3 text-sm transition-all duration-200 border"
+                  className="rounded-md sm:rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm transition-all duration-200 border"
                   style={{ 
                     backgroundColor: selected 
                       ? colorScheme.styles.primary 
@@ -502,29 +502,29 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
       {/* Selected Slots Summary & Checkout */}
       {selectedSlots.length > 0 && (
         <div 
-          className="rounded-xl p-6 border-2 transition-colors duration-300"
+          className="rounded-lg sm:rounded-xl p-4 sm:p-6 border-2 transition-colors duration-300"
           style={{ 
             backgroundColor: colorScheme.styles.background,
             borderColor: colorScheme.styles.primary
           }}
         >
           <h3 
-            className="text-lg font-semibold mb-4 transition-colors duration-300"
+            className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 transition-colors duration-300"
             style={{ color: colorScheme.styles.textPrimary }}
           >
             Selected Time Slots
           </h3>
           
-          <div className="space-y-2 mb-4">
+          <div className="space-y-2 mb-3 sm:mb-4">
             {selectedSlots.map(slot => (
               <div 
                 key={slot.id}
-                className="flex justify-between items-center py-2 px-3 rounded-lg transition-colors duration-300"
+                className="flex justify-between items-center py-2 px-2 sm:px-3 rounded-md sm:rounded-lg transition-colors duration-300"
                 style={{ backgroundColor: colorScheme.styles.primaryLight }}
               >
                 <div className="flex flex-col">
                   <span 
-                    className="font-medium transition-colors duration-300"
+                    className="text-sm sm:text-base font-medium transition-colors duration-300"
                     style={{ color: colorScheme.styles.textPrimary }}
                   >
                     {slot.dayName}
@@ -549,10 +549,10 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
 
           {teacher.hourlyRate && (
             <div 
-              className="border-t pt-4 mb-4 transition-colors duration-300"
+              className="border-t pt-3 sm:pt-4 mb-3 sm:mb-4 transition-colors duration-300"
               style={{ borderColor: colorScheme.styles.border }}
             >
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-2 text-sm">
                 <span 
                   className="transition-colors duration-300"
                   style={{ color: colorScheme.styles.textSecondary }}
@@ -563,10 +563,10 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                   className="transition-colors duration-300"
                   style={{ color: colorScheme.styles.textSecondary }}
                 >
-                  Rate: ${teacher.hourlyRate}/hour
+                  Rate: ${teacher.hourlyRate}/hr
                 </span>
               </div>
-              <div className="flex justify-between items-center text-xl font-bold">
+              <div className="flex justify-between items-center text-lg sm:text-xl font-bold">
                 <span 
                   className="transition-colors duration-300"
                   style={{ color: colorScheme.styles.textPrimary }}
@@ -585,7 +585,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
 
           <button
             onClick={handleProceedToCheckout}
-            className="w-full py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-200 hover:shadow-lg"
+            className="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-lg transition-all duration-200 hover:shadow-lg"
             style={{ 
               backgroundColor: colorScheme.styles.primary,
               color: 'white'

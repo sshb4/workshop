@@ -29,6 +29,30 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
   const searchParams = useSearchParams()
   const [showSuccess, setShowSuccess] = useState(false)
   const [origin, setOrigin] = useState('your-domain.com')
+  const [phoneValue, setPhoneValue] = useState(teacher.phone || '')
+
+  // Phone number formatting function
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digits
+    const phoneNumber = value.replace(/\D/g, '')
+    
+    // Format based on length
+    if (phoneNumber.length <= 3) {
+      return phoneNumber
+    } else if (phoneNumber.length <= 6) {
+      return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`
+    } else if (phoneNumber.length <= 10) {
+      return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`
+    } else {
+      // For numbers longer than 10 digits, format as +1-XXX-XXX-XXXX
+      return `+${phoneNumber.slice(0, 1)}-${phoneNumber.slice(1, 4)}-${phoneNumber.slice(4, 7)}-${phoneNumber.slice(7, 11)}`
+    }
+  }
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setPhoneValue(formatted)
+  }
 
   useEffect(() => {
     if (searchParams.get('updated') === 'true') {
@@ -42,7 +66,12 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
   useEffect(() => {
     // Set origin on client side to avoid hydration mismatch
     setOrigin(window.location.origin)
-  }, [])
+    
+    // Format existing phone number on load
+    if (teacher.phone) {
+      setPhoneValue(formatPhoneNumber(teacher.phone))
+    }
+  }, [teacher.phone])
 
   return (
     <>
@@ -134,10 +163,15 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
                 id="phone"
                 name="phone"
                 type="tel"
-                defaultValue={teacher.phone || ''}
+                value={phoneValue}
+                onChange={handlePhoneChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
-                placeholder="+1 555-123-4567"
+                placeholder="555-123-4567"
+                maxLength={14}
               />
+              <p className="mt-1 text-sm text-gray-500">
+                Phone number will be automatically formatted as you type.
+              </p>
             </div>
 
             <div>
