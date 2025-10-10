@@ -56,11 +56,13 @@ export default async function DashboardPage() {
     where: { teacherId: teacher.id },
   })
 
+  const today = new Date()
+  today.setHours(0, 0, 0, 0) // Start of today
+  
   const upcomingBookings = await prisma.booking.count({
     where: {
       teacherId: teacher.id,
-      bookingDate: { gte: new Date() },
-      paymentStatus: 'paid',
+      bookingDate: { gte: today },
     },
   })
 
