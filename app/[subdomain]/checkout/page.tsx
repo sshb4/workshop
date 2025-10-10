@@ -53,7 +53,7 @@ export default function CheckoutPage() {
     
     if (!savedSlots || !savedTeacher) {
       // Redirect back to booking page if no data
-      router.push(`/teacher/${subdomain}`)
+      router.push(`/${subdomain}`)
       return
     }
 
@@ -62,7 +62,7 @@ export default function CheckoutPage() {
       setTeacherInfo(JSON.parse(savedTeacher))
     } catch (error) {
       console.error('Error parsing booking data:', error)
-      router.push(`/teacher/${subdomain}`)
+      router.push(`/${subdomain}`)
     }
   }, [subdomain, router])
 

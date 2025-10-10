@@ -1,4 +1,4 @@
-// app/teacher/[subdomain]/page.tsx
+// app/[subdomain]/page.tsx
 
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
@@ -45,7 +45,7 @@ export async function generateMetadata({
       title: teacherTitle ? `${teacher.name} - ${teacherTitle}` : teacher.name,
       description: teacher.bio || `Professional services available for $${teacher.hourlyRate}/hour.`,
       images: teacher.profileImage ? [teacher.profileImage] : [],
-      url: `/teacher/${teacher.subdomain}`,
+      url: `/${teacher.subdomain}`,
     },
     twitter: {
       card: 'summary_large_image',

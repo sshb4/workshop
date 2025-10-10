@@ -201,7 +201,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
             </label>
             <div className="flex">
               <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                {origin}/teacher/
+                {origin}/
               </span>
               <input
                 id="subdomain"
@@ -354,7 +354,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
           </div>
           <p className="text-sm text-gray-600 mb-4">See how your profile looks to potential students</p>
           <Link
-            href={`/teacher/${teacher.subdomain}`}
+            href={`/${teacher.subdomain}`}
             target="_blank"
             className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium"
           >

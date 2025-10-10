@@ -147,9 +147,9 @@ export default async function DashboardPage() {
           </Link>
 
           <Link
-            href={`/teacher/${teacher.subdomain}`}
+            href={`/${teacher.subdomain}`}
             target="_blank"
-            className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 hover:border-green-300 hover:shadow-md transition group sm:col-span-2 lg:col-span-1"
+            className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 hover:border-indigo-300 hover:shadow-md transition group"
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition">
@@ -158,8 +158,8 @@ export default async function DashboardPage() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">View Public Page</h3>
-                <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">See your booking page</p>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">View My Page</h3>
+                <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Preview booking page</p>
               </div>
             </div>
           </Link>
@@ -284,7 +284,7 @@ export default async function DashboardPage() {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings yet</h3>
                 <p className="text-gray-600 mb-4">Share your booking page to get started!</p>
                 <Link
-                  href={`/teacher/${teacher.subdomain}`}
+                  href={`/${teacher.subdomain}`}
                   target="_blank"
                   className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                 >
