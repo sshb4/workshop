@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
+// Force this page to be client-only
+export const dynamic = 'force-dynamic'
+
 interface AvailabilitySlot {
   id: string
   title: string | null
@@ -404,5 +407,20 @@ function AvailabilityContent() {
 }
 
 export default function AvailabilityPage() {
-  return <AvailabilityContent />
+  try {
+    return <AvailabilityContent />
+  } catch (error) {
+    console.error('Availability page error:', error)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-xl font-bold text-red-600">Error loading page</h1>
+          <p className="text-gray-600 mt-2">Please try refreshing or contact support.</p>
+          <a href="/admin/dashboard" className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded">
+            Back to Dashboard
+          </a>
+        </div>
+      </div>
+    )
+  }
 }
