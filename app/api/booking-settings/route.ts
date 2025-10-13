@@ -37,9 +37,20 @@ export async function GET() {
     // Try to fetch booking settings using raw SQL
     let settings = defaultSettings
     try {
+      interface BookingSettingsRow {
+        min_advance_booking: number;
+        max_advance_booking: number;
+        session_duration: number;
+        buffer_time: number;
+        allow_weekends: boolean;
+        allow_same_day_booking: boolean;
+        cancellation_policy: number;
+        max_sessions_per_day: number;
+      }
+      
       const bookingSettings = await prisma.$queryRaw`
         SELECT * FROM booking_settings WHERE teacher_id = ${session.user.id} LIMIT 1
-      ` as any[]
+      ` as BookingSettingsRow[]
       
       if (bookingSettings.length > 0) {
         const dbSettings = bookingSettings[0]
@@ -54,7 +65,7 @@ export async function GET() {
           maxSessionsPerDay: dbSettings.max_sessions_per_day
         }
       }
-    } catch (error) {
+    } catch {
       console.log('Booking settings table may not exist yet, using defaults')
     }
 
@@ -73,7 +84,7 @@ export async function GET() {
         isRecurring: date.is_recurring,
         recurringType: date.recurring_type
       }))
-    } catch (error) {
+    } catch {
       console.log('Blocked dates table may not exist yet, using empty array')
     }
 

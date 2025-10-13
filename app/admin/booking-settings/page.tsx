@@ -143,7 +143,7 @@ export default function BookingSettingsPage() {
       } else {
         setMessage('Blocked date added but failed to save - please click Save Settings')
       }
-    } catch (error) {
+    } catch {
       setMessage('Blocked date added but failed to save - please click Save Settings')
     }
     
@@ -174,7 +174,7 @@ export default function BookingSettingsPage() {
       } else {
         setMessage('Blocked date removed but failed to save - please click Save Settings')
       }
-    } catch (error) {
+    } catch {
       setMessage('Blocked date removed but failed to save - please click Save Settings')
     }
   }
