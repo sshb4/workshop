@@ -3,34 +3,28 @@
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure client-side hydration is complete
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
-    // Only redirect if we're certain the user is authenticated
-    if (status === 'authenticated' && session?.user) {
+    // Only redirect after component is mounted and user is authenticated
+    if (mounted && status === 'authenticated' && session?.user) {
       router.push('/admin/dashboard')
     }
-  }, [status, session, router])
+  }, [mounted, status, session, router])
 
-  // If user is authenticated, show loading while redirecting
-  if (status === 'authenticated' && session?.user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Redirecting to dashboard...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Show landing page for unauthenticated users
+  // Show landing page by default, redirect happens client-side
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center">
           {/* Header */}
