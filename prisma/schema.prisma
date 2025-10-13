@@ -17,14 +17,16 @@ model Teacher {
   bio               String?
   hourlyRate        Float?             @map("hourly_rate")
   profileImage      String?            @map("profile_image")
-  favicon           String?
   phone             String?
   colorScheme       String             @default("default") @map("color_scheme")
   emailVerified     DateTime?          @map("email_verified")
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
+  favicon           String?
   accounts          Account[]
   availabilitySlots AvailabilitySlot[]
+  blockedDates      BlockedDate[]
+  bookingSettings   BookingSettings?
   bookings          Booking[]
   sessions          Session[]
 
@@ -61,18 +63,18 @@ model Session {
 }
 
 model AvailabilitySlot {
-  id          String    @id @default(cuid())
-  teacherId   String    @map("teacher_id")
-  title       String?   // Optional title like "Regular Hours" or "Holiday Schedule"
-  startDate   DateTime  @map("start_date") // When this availability period starts
-  endDate     DateTime? @map("end_date")   // When it ends (null = ongoing)
-  dayOfWeek   Int       @map("day_of_week") // 0=Sunday, 1=Monday, etc.
-  startTime   String    @map("start_time") // "09:00"
-  endTime     String    @map("end_time")   // "17:00"
-  isActive    Boolean   @default(true) @map("is_active")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  teacher     Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  id        String    @id @default(cuid())
+  teacherId String    @map("teacher_id")
+  title     String?
+  startDate DateTime  @map("start_date")
+  endDate   DateTime? @map("end_date")
+  dayOfWeek Int       @map("day_of_week")
+  startTime String    @map("start_time")
+  endTime   String    @map("end_time")
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@index([teacherId, startDate, endDate])
   @@map("availability_slots")
@@ -97,4 +99,38 @@ model Booking {
 
   @@index([teacherId, bookingDate])
   @@map("bookings")
+}
+
+model BookingSettings {
+  id                  String   @id @default(cuid())
+  teacherId           String   @unique @map("teacher_id")
+  minAdvanceBooking   Int      @default(2) @map("min_advance_booking")
+  maxAdvanceBooking   Int      @default(30) @map("max_advance_booking")
+  sessionDuration     Int      @default(60) @map("session_duration")
+  bufferTime          Int      @default(15) @map("buffer_time")
+  allowWeekends       Boolean  @default(true) @map("allow_weekends")
+  allowSameDayBooking Boolean  @default(false) @map("allow_same_day_booking")
+  cancellationPolicy  Int      @default(24) @map("cancellation_policy")
+  maxSessionsPerDay   Int      @default(8) @map("max_sessions_per_day")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  teacher             Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("booking_settings")
+}
+
+model BlockedDate {
+  id            String   @id @default(cuid())
+  teacherId     String   @map("teacher_id")
+  startDate     DateTime @map("start_date")
+  endDate       DateTime @map("end_date")
+  reason        String
+  isRecurring   Boolean  @default(false) @map("is_recurring")
+  recurringType String?  @map("recurring_type")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  teacher       Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, startDate, endDate])
+  @@map("blocked_dates")
 }

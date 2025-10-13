@@ -10,8 +10,9 @@ export function middleware(request: NextRequest) {
   // Get subdomain from hostname
   const subdomain = getSubdomain(hostname)
   
-  // Skip middleware for admin routes, API routes, and static files
+  // Skip middleware for admin routes, API routes, static files, and root route
   if (
+    url.pathname === '/' ||
     url.pathname.startsWith('/admin') ||
     url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/_next') ||
