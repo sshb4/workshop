@@ -20,6 +20,36 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [passwordFocused, setPasswordFocused] = useState(false)
+
+  // Password strength validation
+  const validatePassword = (password: string) => {
+    const requirements = {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    }
+    
+    const isValid = Object.values(requirements).every(req => req)
+    return { requirements, isValid }
+  }
+
+  const passwordValidation = validatePassword(formData.password)
+  
+  // Calculate password strength
+  const getPasswordStrength = () => {
+    const { requirements } = passwordValidation
+    const metRequirements = Object.values(requirements).filter(Boolean).length
+    if (metRequirements === 0) return { level: 0, text: '', color: '' }
+    if (metRequirements <= 2) return { level: 1, text: 'Weak', color: 'text-red-600 bg-red-100' }
+    if (metRequirements <= 3) return { level: 2, text: 'Fair', color: 'text-yellow-600 bg-yellow-100' }
+    if (metRequirements <= 4) return { level: 3, text: 'Good', color: 'text-blue-600 bg-blue-100' }
+    return { level: 4, text: 'Strong', color: 'text-green-600 bg-green-100' }
+  }
+  
+  const passwordStrength = getPasswordStrength()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -47,8 +77,10 @@ export default function SignupPage() {
       return
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long')
+    // Validate password strength
+    const { isValid } = validatePassword(formData.password)
+    if (!isValid) {
+      setError('Password does not meet security requirements')
       setLoading(false)
       return
     }
@@ -177,6 +209,8 @@ export default function SignupPage() {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
+                  onFocus={() => setPasswordFocused(true)}
+                  onBlur={() => setPasswordFocused(false)}
                   className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900"
                   placeholder="Create a password"
                 />
@@ -197,6 +231,72 @@ export default function SignupPage() {
                   )}
                 </button>
               </div>
+              
+              {/* Password Strength Meter */}
+              {formData.password && (
+                <div className="mt-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs text-gray-600">Password Strength</span>
+                    {passwordStrength.level > 0 && (
+                      <span className={`text-xs px-2 py-1 rounded-full ${passwordStrength.color}`}>
+                        {passwordStrength.text}
+                      </span>
+                    )}
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        passwordStrength.level === 1 ? 'bg-red-500 w-1/4' :
+                        passwordStrength.level === 2 ? 'bg-yellow-500 w-2/4' :
+                        passwordStrength.level === 3 ? 'bg-blue-500 w-3/4' :
+                        passwordStrength.level === 4 ? 'bg-green-500 w-full' : 'w-0'
+                      }`}
+                    ></div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Password Requirements */}
+              {(passwordFocused || formData.password) && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-lg border">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</p>
+                  <ul className="space-y-1 text-xs">
+                    <li className={`flex items-center ${passwordValidation.requirements.minLength ? 'text-green-600' : 'text-gray-500'}`}>
+                      <svg className={`w-3 h-3 mr-2 ${passwordValidation.requirements.minLength ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      At least 8 characters
+                    </li>
+                    <li className={`flex items-center ${passwordValidation.requirements.hasUppercase ? 'text-green-600' : 'text-gray-500'}`}>
+                      <svg className={`w-3 h-3 mr-2 ${passwordValidation.requirements.hasUppercase ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      One uppercase letter (A-Z)
+                    </li>
+                    <li className={`flex items-center ${passwordValidation.requirements.hasLowercase ? 'text-green-600' : 'text-gray-500'}`}>
+                      <svg className={`w-3 h-3 mr-2 ${passwordValidation.requirements.hasLowercase ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      One lowercase letter (a-z)
+                    </li>
+                    <li className={`flex items-center ${passwordValidation.requirements.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
+                      <svg className={`w-3 h-3 mr-2 ${passwordValidation.requirements.hasNumber ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      One number (0-9)
+                    </li>
+                    <li className={`flex items-center ${passwordValidation.requirements.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}`}>
+                      <svg className={`w-3 h-3 mr-2 ${passwordValidation.requirements.hasSpecialChar ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      One special character (!@#$%^&*(),.?":{}|&lt;&gt;)
+                    </li>
+                  </ul>
+                  {passwordValidation.isValid && (
+                    <p className="mt-2 text-sm text-green-600 font-medium">✓ Password meets all requirements</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>

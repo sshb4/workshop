@@ -35,10 +35,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check minimum password length
-    if (password.length < 6) {
+    // Validate password strength
+    const passwordRequirements = {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    }
+
+    const failedRequirements = []
+    if (!passwordRequirements.minLength) failedRequirements.push('at least 8 characters')
+    if (!passwordRequirements.hasUppercase) failedRequirements.push('one uppercase letter')
+    if (!passwordRequirements.hasLowercase) failedRequirements.push('one lowercase letter')
+    if (!passwordRequirements.hasNumber) failedRequirements.push('one number')
+    if (!passwordRequirements.hasSpecialChar) failedRequirements.push('one special character')
+
+    if (failedRequirements.length > 0) {
       return NextResponse.json(
-        { error: 'Password must be at least 6 characters long' },
+        { error: `Password must contain: ${failedRequirements.join(', ')}` },
         { status: 400 }
       )
     }
