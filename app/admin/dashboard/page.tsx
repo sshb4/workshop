@@ -28,6 +28,17 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
+type BookingWithDetails = {
+  id: string
+  studentName: string
+  studentEmail: string
+  bookingDate: Date
+  startTime: string
+  endTime: string
+  amountPaid: number
+  paymentStatus: string
+}
+
 export default async function DashboardPage() {
   // Check if user is logged in
   const session = await getServerSession(authOptions)
@@ -242,7 +253,7 @@ export default async function DashboardPage() {
           <div className="p-6">
             {teacher.bookings.length > 0 ? (
               <div className="space-y-4">
-                {teacher.bookings.map((booking) => (
+                {teacher.bookings.map((booking: BookingWithDetails) => (
                   <div
                     key={booking.id}
                     className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
