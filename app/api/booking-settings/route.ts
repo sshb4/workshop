@@ -70,11 +70,29 @@ export async function GET() {
     }
 
     // Try to fetch blocked dates using raw SQL
-    let blockedDates: any[] = []
+    interface BlockedDateRow {
+      id: string;
+      start_date: Date;
+      end_date: Date;
+      reason: string;
+      is_recurring: boolean;
+      recurring_type: string | null;
+    }
+    
+    interface BlockedDate {
+      id: string;
+      startDate: string;
+      endDate: string;
+      reason: string;
+      isRecurring: boolean;
+      recurringType: string | null;
+    }
+    
+    let blockedDates: BlockedDate[] = []
     try {
       const dbBlockedDates = await prisma.$queryRaw`
         SELECT * FROM blocked_dates WHERE teacher_id = ${session.user.id} ORDER BY start_date ASC
-      ` as any[]
+      ` as BlockedDateRow[]
       
       blockedDates = dbBlockedDates.map(date => ({
         id: date.id,
