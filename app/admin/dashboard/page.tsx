@@ -114,6 +114,17 @@ export default async function DashboardPage() {
               <p className="text-xs sm:text-sm text-gray-600 sm:hidden">{teacher.name}</p>
             </div>
             <div className="flex gap-2 sm:gap-4">
+              <Link
+                href={`/${teacher.subdomain}`}
+                target="_blank"
+                className="inline-flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition"
+              >
+                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span className="hidden sm:inline">View My Page</span>
+                <span className="sm:hidden">View</span>
+              </Link>
               <form action="/api/auth/signout" method="POST">
                 <button
                   type="submit"
@@ -130,7 +141,7 @@ export default async function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Quick Actions - Moved Above Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Link
             href="/admin/availability"
             className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 hover:border-indigo-300 hover:shadow-md transition group"
@@ -217,23 +228,6 @@ export default async function DashboardPage() {
             </div>
           </Link>
 
-          <Link
-            href={`/${teacher.subdomain}`}
-            target="_blank"
-            className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 hover:border-green-300 hover:shadow-md transition group"
-          >
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="p-2 sm:p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">View My Page</h3>
-                <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Preview booking page</p>
-              </div>
-            </div>
-          </Link>
         </div>
 
         {/* Stats Grid */}
