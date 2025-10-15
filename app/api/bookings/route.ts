@@ -1,6 +1,7 @@
 // app/api/bookings/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { sendBookingConfirmationEmail, sendTeacherNotificationEmail } from '@/lib/email'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
@@ -109,6 +110,44 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`Created ${createdBookings.length} bookings for teacher ${teacherId}`)
+
+    // Send emails (student confirmation and teacher notification)
+    try {
+      // Send confirmation email to student for the first booking slot
+      const firstSlot = selectedSlots[0]
+      const startTime = firstSlot.customStartTime || firstSlot.startTime
+      const endTime = firstSlot.customEndTime || firstSlot.endTime
+      
+      await sendBookingConfirmationEmail({
+        to: customerEmail,
+        studentName: customerName,
+        teacherName: teacher.name || 'Teacher',
+        bookingDate: new Date().toLocaleDateString(),
+        startTime: startTime,
+        endTime: endTime,
+        teacherEmail: teacher.email,
+        notes: additionalNotes,
+        amountPaid: totalAmount
+      })
+
+      // Send notification email to teacher
+      await sendTeacherNotificationEmail({
+        to: teacher.email,
+        teacherName: teacher.name || 'Teacher',
+        studentName: customerName,
+        studentEmail: customerEmail,
+        bookingDate: new Date().toLocaleDateString(),
+        startTime: startTime,
+        endTime: endTime,
+        amountPaid: totalAmount,
+        notes: additionalNotes
+      })
+
+      console.log('Booking confirmation emails sent successfully')
+    } catch (emailError) {
+      console.error('Failed to send booking emails:', emailError)
+      // Don't fail the booking if email fails - just log the error
+    }
 
     return NextResponse.json({
       success: true,

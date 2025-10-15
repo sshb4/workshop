@@ -141,7 +141,7 @@ export default async function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Quick Actions - Moved Above Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Link
             href="/admin/availability"
             className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 hover:border-indigo-300 hover:shadow-md transition group"
@@ -195,35 +195,18 @@ export default async function DashboardPage() {
           </Link>
 
           <Link
-            href="/admin/manual-booking"
+            href="/admin/manage-bookings"
             className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 hover:border-blue-300 hover:shadow-md transition group"
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition">
                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Add Booking</h3>
-                <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Manual booking entry</p>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/admin/manage-bookings"
-            className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 hover:border-teal-300 hover:shadow-md transition group"
-          >
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="p-2 sm:p-3 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Manage Bookings</h3>
-                <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">View all bookings</p>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Bookings</h3>
+                <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Manage & add bookings</p>
               </div>
             </div>
           </Link>
