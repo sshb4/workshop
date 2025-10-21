@@ -16,10 +16,16 @@ function LoginForm() {
   const [successMessage, setSuccessMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showEmailVerification, setShowEmailVerification] = useState(false)
+  const [resendingEmail, setResendingEmail] = useState(false)
 
   useEffect(() => {
     const message = searchParams.get('message')
-    if (message) {
+    const verified = searchParams.get('verified')
+    
+    if (verified === 'true') {
+      setSuccessMessage('Email verified successfully! You can now log in.')
+    } else if (message) {
       setSuccessMessage(message)
     }
   }, [searchParams])
@@ -27,6 +33,7 @@ function LoginForm() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
+    setShowEmailVerification(false)
     setLoading(true)
 
     try {
@@ -37,7 +44,12 @@ function LoginForm() {
       })
 
       if (result?.error) {
-        setError('Invalid email or password')
+        if (result.error.includes('verify your email')) {
+          setShowEmailVerification(true)
+          setError('Please verify your email address before logging in.')
+        } else {
+          setError('Invalid email or password')
+        }
       } else {
         router.push('/admin/dashboard')
         router.refresh()
@@ -46,6 +58,39 @@ function LoginForm() {
       setError('Something went wrong')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleResendVerification() {
+    if (!email) {
+      setError('Please enter your email address first')
+      return
+    }
+
+    setResendingEmail(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setSuccessMessage('Verification email sent! Please check your inbox.')
+        setShowEmailVerification(false)
+      } else {
+        setError(data.error || 'Failed to send verification email')
+      }
+    } catch {
+      setError('Failed to send verification email')
+    } finally {
+      setResendingEmail(false)
     }
   }
 
@@ -92,6 +137,34 @@ function LoginForm() {
                 <div className="ml-3">
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Email Verification Resend */}
+          {showEmailVerification && (
+            <div className="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+              <div className="flex items-center justify-between">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-blue-700">
+                      Didn&apos;t receive the verification email?
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resendingEmail}
+                  className="text-sm bg-blue-100 text-blue-800 hover:bg-blue-200 px-3 py-1 rounded-md transition-colors disabled:opacity-50"
+                >
+                  {resendingEmail ? 'Sending...' : 'Resend Email'}
+                </button>
               </div>
             </div>
           )}
@@ -164,6 +237,16 @@ function LoginForm() {
               )}
             </button>
           </form>
+
+          {/* Forgot Password Link */}
+          <div className="mt-4 text-center">
+            <Link 
+              href="/admin/forgot-password" 
+              className="text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+            >
+              Forgot your password?
+            </Link>
+          </div>
 
           {/* Signup Link */}
           <div className="mt-6 text-center">

@@ -1,11 +1,12 @@
 // lib/email.ts
-let resend: any = null;
+import { Resend } from 'resend';
+
+let resend: Resend | null = null;
 
 // Try to initialize Resend, handle gracefully if not available
 try {
-  const { Resend } = require('resend');
   resend = new Resend(process.env.RESEND_API_KEY);
-} catch (error) {
+} catch {
   console.warn('Resend package not installed. Email functionality will be simulated.');
 }
 
@@ -39,6 +40,169 @@ interface BookingCancellationEmail {
   startTime: string
   endTime: string
   reason?: string
+}
+
+interface EmailVerificationEmail {
+  to: string
+  teacherName: string
+  verificationUrl: string
+}
+
+interface PasswordResetEmail {
+  to: string
+  teacherName: string
+  resetUrl: string
+}
+
+export async function sendEmailVerificationEmail({
+  to,
+  teacherName,
+  verificationUrl
+}: EmailVerificationEmail) {
+  // If Resend is not available, simulate email sending
+  if (!resend) {
+    console.log('📧 [SIMULATED] Email verification email would be sent to:', {
+      to,
+      subject: 'Verify Your Email Address',
+      teacherName,
+      verificationUrl
+    });
+    return { success: true, message: 'Email simulated (Resend not installed)' };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+      to: [to],
+      subject: 'Welcome! Please verify your email address',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Our Platform! 🎉</h1>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e2e8f0;">
+            <h2 style="color: #1a202c; margin-top: 0;">Hi ${teacherName},</h2>
+            <p style="color: #4a5568; line-height: 1.6;">
+              Thank you for signing up! To complete your registration and start accepting bookings, please verify your email address.
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${verificationUrl}" style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+                Verify Email Address
+              </a>
+            </div>
+
+            <div style="background: #e6fffa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #38b2ac;">
+              <h4 style="color: #1a202c; margin-top: 0;">🔒 Why verify your email?</h4>
+              <ul style="color: #4a5568; margin-bottom: 0; padding-left: 20px;">
+                <li>Secure your account</li>
+                <li>Receive booking notifications</li>
+                <li>Enable password recovery</li>
+                <li>Access all platform features</li>
+              </ul>
+            </div>
+
+            <p style="color: #4a5568; line-height: 1.6;">
+              If you didn't create this account, you can safely ignore this email.
+            </p>
+
+            <p style="color: #a0aec0; font-size: 12px; margin-top: 30px;">
+              This verification link will expire in 24 hours for security reasons.
+            </p>
+          </div>
+          
+          <div style="text-align: center; padding: 20px; color: #a0aec0; font-size: 12px;">
+            This is an automated email. Please do not reply to this message.
+          </div>
+        </div>
+      `
+    });
+
+    if (error) {
+      console.error('Error sending email verification:', error);
+      return { success: false, error };
+    }
+
+    console.log('Email verification sent successfully:', data);
+    return { success: true, data };
+
+  } catch (error) {
+    console.error('Error sending email verification:', error);
+    return { success: false, error };
+  }
+}
+
+export async function sendPasswordResetEmail({
+  to,
+  teacherName,
+  resetUrl
+}: PasswordResetEmail) {
+  // If Resend is not available, simulate email sending
+  if (!resend) {
+    console.log('📧 [SIMULATED] Password reset email would be sent to:', {
+      to,
+      subject: 'Password Reset Request',
+      teacherName,
+      resetUrl
+    });
+    return { success: true, message: 'Email simulated (Resend not installed)' };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+      to: [to],
+      subject: 'Reset Your Password',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">Password Reset Request 🔒</h1>
+          </div>
+          
+          <div style="background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e2e8f0;">
+            <h2 style="color: #1a202c; margin-top: 0;">Hi ${teacherName},</h2>
+            <p style="color: #4a5568; line-height: 1.6;">
+              We received a request to reset your password. Click the button below to create a new password:
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" style="background: #f093fb; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+                Reset Password
+              </a>
+            </div>
+
+            <div style="background: #fef5e7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f6ad55;">
+              <h4 style="color: #1a202c; margin-top: 0;">⚠️ Security Notice</h4>
+              <p style="color: #4a5568; margin-bottom: 0;">
+                If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
+              </p>
+            </div>
+
+            <p style="color: #a0aec0; font-size: 12px; margin-top: 30px;">
+              This reset link will expire in 1 hour for security reasons.
+            </p>
+          </div>
+          
+          <div style="text-align: center; padding: 20px; color: #a0aec0; font-size: 12px;">
+            This is an automated email. Please do not reply to this message.
+          </div>
+        </div>
+      `
+    });
+
+    if (error) {
+      console.error('Error sending password reset email:', error);
+      return { success: false, error };
+    }
+
+    console.log('Password reset email sent successfully:', data);
+    return { success: true, data };
+
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return { success: false, error };
+  }
 }
 
 export async function sendBookingConfirmationEmail({
@@ -186,6 +350,19 @@ export async function sendBookingReminderEmail({
   endTime,
   teacherEmail
 }: BookingReminderEmail) {
+  // If Resend is not available, simulate email sending
+  if (!resend) {
+    console.log('📧 [SIMULATED] Booking reminder email would be sent to:', {
+      to,
+      subject: 'Session Reminder',
+      studentName,
+      teacherName,
+      bookingDate,
+      startTime
+    });
+    return { success: true, message: 'Email simulated (Resend not installed)' };
+  }
+
   try {
     const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
       weekday: 'long',
@@ -253,6 +430,19 @@ export async function sendBookingCancellationEmail({
   endTime,
   reason
 }: BookingCancellationEmail) {
+  // If Resend is not available, simulate email sending
+  if (!resend) {
+    console.log('📧 [SIMULATED] Booking cancellation email would be sent to:', {
+      to,
+      subject: 'Booking Cancelled',
+      studentName,
+      teacherName,
+      bookingDate,
+      startTime
+    });
+    return { success: true, message: 'Email simulated (Resend not installed)' };
+  }
+
   try {
     const formattedDate = new Date(bookingDate).toLocaleDateString('en-US', {
       weekday: 'long',

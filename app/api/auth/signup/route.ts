@@ -2,7 +2,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
+import { sendEmailVerificationEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,6 +88,10 @@ export async function POST(request: NextRequest) {
     const saltRounds = 12
     const hashedPassword = await bcrypt.hash(password, saltRounds)
 
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex')
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
     // Create the new teacher
     const newTeacher = await prisma.teacher.create({
       data: {
@@ -93,17 +99,38 @@ export async function POST(request: NextRequest) {
         email: email as string,
         passwordHash: hashedPassword,
         subdomain: subdomain as string,
-      }
+        verificationToken,
+        tokenExpiry,
+        emailVerified: null // Not verified yet
+      } as any // Temporary type assertion until Prisma types refresh
     })
+
+    // Send verification email
+    try {
+      const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`
+      
+      await sendEmailVerificationEmail({
+        to: email,
+        teacherName: name,
+        verificationUrl
+      })
+
+      console.log('Verification email sent to:', email)
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError)
+      // Don't fail signup if email fails - user can resend later
+    }
 
     // Return success (don't return password hash)
     return NextResponse.json({
       success: true,
+      message: 'Account created successfully! Please check your email to verify your account.',
       teacher: {
         id: newTeacher.id,
         name: newTeacher.name,
         email: newTeacher.email,
         subdomain: newTeacher.subdomain,
+        emailVerified: false
       }
     })
 

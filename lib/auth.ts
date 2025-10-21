@@ -40,6 +40,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid credentials')
         }
 
+        // Check if email is verified
+        if (!teacher.emailVerified) {
+          throw new Error('Please verify your email address before logging in')
+        }
+
         return {
           id: teacher.id,
           email: teacher.email,

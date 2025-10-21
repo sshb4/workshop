@@ -20,6 +20,10 @@ model Teacher {
   phone             String?
   colorScheme       String             @default("default") @map("color_scheme")
   emailVerified     DateTime?          @map("email_verified")
+  verificationToken String?            @map("verification_token")
+  tokenExpiry       DateTime?          @map("token_expiry")
+  resetToken        String?            @map("reset_token")
+  resetTokenExpiry  DateTime?          @map("reset_token_expiry")
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
   favicon           String?
