@@ -41,9 +41,12 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Check if email is verified
+        // TODO: Re-enable when production database has verification fields
+        /*
         if (!teacher.emailVerified) {
           throw new Error('Please verify your email address before logging in')
         }
+        */
 
         return {
           id: teacher.id,

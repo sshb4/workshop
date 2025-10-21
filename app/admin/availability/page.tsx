@@ -19,6 +19,15 @@ interface AvailabilitySlot {
   isActive: boolean
 }
 
+interface BlockedDate {
+  id: string
+  startDate: string
+  endDate: string
+  reason: string
+  isRecurring: boolean
+  recurringType?: 'weekly' | 'monthly'
+}
+
 const DAYS = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 ]
@@ -27,19 +36,29 @@ function AvailabilityContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [slots, setSlots] = useState<AvailabilitySlot[]>([])
+  const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [showBlockForm, setShowBlockForm] = useState(false)
   
   // Form state
   const [formData, setFormData] = useState({
     title: '',
     startDate: '',
     endDate: '',
-    dayOfWeek: 1,
+    selectedDays: [] as number[], // Changed to array for multiple days
     startTime: '09:00',
     endTime: '17:00'
+  })
+
+  const [blockFormData, setBlockFormData] = useState({
+    startDate: '',
+    endDate: '',
+    reason: '',
+    isRecurring: false,
+    recurringType: 'weekly' as 'weekly' | 'monthly'
   })
 
   const fetchAvailability = useCallback(async () => {
@@ -88,31 +107,49 @@ function AvailabilityContent() {
     setError('')
     setSuccess('')
 
+    if (formData.selectedDays.length === 0) {
+      setError('Please select at least one day of the week')
+      return
+    }
+
     try {
-      const response = await fetch('/api/availability', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      })
+      // Create multiple availability slots - one for each selected day
+      const promises = formData.selectedDays.map(dayOfWeek => 
+        fetch('/api/availability', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...formData,
+            dayOfWeek,
+            title: formData.title || `${DAYS[dayOfWeek]} Availability`
+          })
+        })
+      )
 
-      const result = await response.json()
+      const responses = await Promise.all(promises)
+      const results = await Promise.all(responses.map(r => r.json()))
 
-      if (response.ok) {
-        setSuccess(result.message)
+      // Check if all requests were successful
+      const allSuccessful = responses.every(r => r.ok)
+      
+      if (allSuccessful) {
+        const dayNames = formData.selectedDays.map(day => DAYS[day]).join(', ')
+        setSuccess(`Availability created for: ${dayNames}`)
         setShowForm(false)
         setFormData({
           title: '',
           startDate: '',
           endDate: '',
-          dayOfWeek: 1,
+          selectedDays: [],
           startTime: '09:00',
           endTime: '17:00'
         })
         fetchAvailability() // Refresh the list
       } else {
-        setError(result.error)
+        const errors = results.filter((result, index) => !responses[index].ok)
+        setError(errors[0]?.error || 'Some availability periods could not be created')
       }
     } catch (error) {
       console.error('Error creating availability:', error)
@@ -142,6 +179,94 @@ function AvailabilityContent() {
     }
   }
 
+  async function handleBlockSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+
+    if (!blockFormData.startDate) {
+      setError('Please select a start date')
+      return
+    }
+
+    try {
+      const blocked: BlockedDate = {
+        id: Date.now().toString(),
+        startDate: blockFormData.startDate,
+        endDate: blockFormData.endDate || blockFormData.startDate,
+        reason: blockFormData.reason || 'Unavailable',
+        isRecurring: blockFormData.isRecurring,
+        recurringType: blockFormData.isRecurring ? blockFormData.recurringType : undefined
+      }
+
+      const response = await fetch('/api/blocked-dates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(blocked)
+      })
+
+      if (response.ok) {
+        setSuccess('Blocked date added successfully!')
+        setShowBlockForm(false)
+        setBlockFormData({
+          startDate: '',
+          endDate: '',
+          reason: '',
+          isRecurring: false,
+          recurringType: 'weekly'
+        })
+        // Refresh blocked dates
+        fetchBlockedDates()
+      } else {
+        const result = await response.json()
+        setError(result.error || 'Failed to add blocked date')
+      }
+    } catch (error) {
+      console.error('Error adding blocked date:', error)
+      setError('Something went wrong. Please try again.')
+    }
+  }
+
+  async function fetchBlockedDates() {
+    try {
+      const response = await fetch('/api/blocked-dates')
+      if (response.ok) {
+        const data = await response.json()
+        setBlockedDates(data.blockedDates || [])
+      }
+    } catch (error) {
+      console.error('Error fetching blocked dates:', error)
+    }
+  }
+
+  async function removeBlockedDate(id: string) {
+    if (!confirm('Are you sure you want to remove this blocked date?')) return
+
+    try {
+      const response = await fetch(`/api/blocked-dates?id=${id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        setSuccess('Blocked date removed successfully!')
+        fetchBlockedDates()
+      } else {
+        const result = await response.json()
+        setError(result.error || 'Failed to remove blocked date')
+      }
+    } catch (error) {
+      console.error('Error removing blocked date:', error)
+      setError('Failed to remove blocked date')
+    }
+  }
+
+  // Load blocked dates on component mount
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchBlockedDates()
+    }
+  }, [status])
+
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString()
   }
@@ -150,7 +275,7 @@ function AvailabilityContent() {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'dayOfWeek' ? parseInt(value) : value
+      [name]: value
     }))
   }
 
@@ -240,19 +365,70 @@ function AvailabilityContent() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Day of Week
+                    Quick Select
                   </label>
-                  <select
-                    name="dayOfWeek"
-                    value={formData.dayOfWeek}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
-                  >
-                    {DAYS.map((day, index) => (
-                      <option key={index} value={index}>{day}</option>
-                    ))}
-                  </select>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, selectedDays: [1, 2, 3, 4, 5] }))} // Mon-Fri
+                      className="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
+                    >
+                      Weekdays
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, selectedDays: [0, 6] }))} // Sun, Sat
+                      className="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors"
+                    >
+                      Weekends
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, selectedDays: [] }))}
+                      className="px-3 py-1 text-xs bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                      Clear
+                    </button>
+                  </div>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Select Days of Week
+                </label>
+                <div className="grid grid-cols-7 gap-2">
+                  {DAYS.map((day, index) => (
+                    <label key={index} className="flex flex-col items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.selectedDays.includes(index)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormData(prev => ({
+                              ...prev,
+                              selectedDays: [...prev.selectedDays, index].sort()
+                            }))
+                          } else {
+                            setFormData(prev => ({
+                              ...prev,
+                              selectedDays: prev.selectedDays.filter(d => d !== index)
+                            }))
+                          }
+                        }}
+                        className="mb-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      />
+                      <span className="text-xs text-gray-700 text-center">
+                        {day.slice(0, 3)}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {formData.selectedDays.length > 0 && (
+                  <p className="text-sm text-indigo-600 mt-2">
+                    Selected: {formData.selectedDays.map(day => DAYS[day]).join(', ')}
+                  </p>
+                )}
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -390,6 +566,147 @@ function AvailabilityContent() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Blocked Dates Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mt-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Blocked Dates</h2>
+              <p className="text-sm text-gray-600">Block out dates when you're unavailable</p>
+            </div>
+            <button
+              onClick={() => setShowBlockForm(!showBlockForm)}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
+            >
+              {showBlockForm ? 'Cancel' : 'Block Date'}
+            </button>
+          </div>
+
+          {/* Block Date Form */}
+          {showBlockForm && (
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Add Blocked Date</h3>
+              
+              <form onSubmit={handleBlockSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                    <input
+                      type="date"
+                      value={blockFormData.startDate}
+                      onChange={(e) => setBlockFormData({...blockFormData, startDate: e.target.value})}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-gray-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">End Date (Optional)</label>
+                    <input
+                      type="date"
+                      value={blockFormData.endDate}
+                      onChange={(e) => setBlockFormData({...blockFormData, endDate: e.target.value})}
+                      min={blockFormData.startDate}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-gray-900"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">Leave empty for single day</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                    <input
+                      type="text"
+                      value={blockFormData.reason}
+                      onChange={(e) => setBlockFormData({...blockFormData, reason: e.target.value})}
+                      placeholder="e.g., Vacation, Holiday, Personal"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-gray-900"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="isRecurring"
+                      checked={blockFormData.isRecurring}
+                      onChange={(e) => setBlockFormData({...blockFormData, isRecurring: e.target.checked})}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="isRecurring" className="ml-2 text-sm text-gray-700">
+                      Make this recurring
+                    </label>
+                  </div>
+
+                  {blockFormData.isRecurring && (
+                    <div className="ml-6">
+                      <select
+                        value={blockFormData.recurringType}
+                        onChange={(e) => setBlockFormData({...blockFormData, recurringType: e.target.value as 'weekly' | 'monthly'})}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      >
+                        <option value="weekly">Every week</option>
+                        <option value="monthly">Every month</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowBlockForm(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Block Date
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Blocked Dates List */}
+          <div className="space-y-3">
+            {blockedDates.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">No blocked dates yet</p>
+            ) : (
+              blockedDates.map((blocked) => (
+                <div key={blocked.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-900">
+                        {blocked.startDate === blocked.endDate || !blocked.endDate
+                          ? formatDate(blocked.startDate)
+                          : `${formatDate(blocked.startDate)} - ${formatDate(blocked.endDate)}`
+                        }
+                      </span>
+                      {blocked.isRecurring && (
+                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                          {blocked.recurringType}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600">{blocked.reason}</p>
+                  </div>
+                  <button
+                    onClick={() => removeBlockedDate(blocked.id)}
+                    className="text-red-600 hover:text-red-800 transition"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         {/* Example Usage */}
