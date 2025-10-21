@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     const verificationToken = crypto.randomBytes(32).toString('hex')
     const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
-    // Create the new teacher
+        // Create the new teacher
     const newTeacher = await prisma.teacher.create({
       data: {
         name: name as string,
@@ -102,7 +102,15 @@ export async function POST(request: NextRequest) {
         verificationToken,
         tokenExpiry,
         emailVerified: null // Not verified yet
-      } as any // Temporary type assertion until Prisma types refresh
+      } as {
+        name: string
+        email: string
+        passwordHash: string
+        subdomain: string
+        verificationToken: string
+        tokenExpiry: Date
+        emailVerified: null
+      }
     })
 
     // Send verification email

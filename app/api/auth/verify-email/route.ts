@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Find teacher with matching token and email
+        // Find teacher with matching token and email
     const teacher = await prisma.teacher.findFirst({
       where: {
         email: email,
@@ -23,7 +23,11 @@ export async function GET(request: NextRequest) {
         tokenExpiry: {
           gt: new Date() // Token hasn't expired
         }
-      } as any // Temporary type assertion until Prisma types refresh
+      } as {
+        email: string
+        verificationToken: string
+        tokenExpiry: { gt: Date }
+      }
     })
 
     if (!teacher) {
@@ -33,14 +37,18 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Update teacher to mark email as verified
+        // Update teacher to mark email as verified
     await prisma.teacher.update({
       where: { id: teacher.id },
       data: {
         emailVerified: new Date(),
         verificationToken: null,
         tokenExpiry: null
-      } as any // Temporary type assertion until Prisma types refresh
+      } as {
+        emailVerified: Date
+        verificationToken: null
+        tokenExpiry: null
+      }
     })
 
     // Redirect to success page
@@ -95,7 +103,10 @@ export async function POST(request: NextRequest) {
       data: {
         verificationToken,
         tokenExpiry
-      } as any // Temporary type assertion until Prisma types refresh
+      } as {
+        verificationToken: string
+        tokenExpiry: Date
+      }
     })
 
     // Send verification email

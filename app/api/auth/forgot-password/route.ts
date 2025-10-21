@@ -31,13 +31,16 @@ export async function POST(request: NextRequest) {
     const resetToken = crypto.randomBytes(32).toString('hex')
     const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 
-    // Update teacher with reset token
+        // Update teacher with reset token
     await prisma.teacher.update({
       where: { id: teacher.id },
       data: {
         resetToken,
         resetTokenExpiry
-      } as any // Temporary type assertion until Prisma types refresh
+      } as {
+        resetToken: string
+        resetTokenExpiry: Date
+      }
     })
 
     // Send password reset email

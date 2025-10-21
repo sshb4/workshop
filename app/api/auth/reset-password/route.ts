@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Find teacher with valid reset token
+        // Find teacher with valid reset token
     const teacher = await prisma.teacher.findFirst({
       where: {
         email: email,
@@ -44,7 +44,11 @@ export async function POST(request: NextRequest) {
         resetTokenExpiry: {
           gt: new Date() // Token hasn't expired
         }
-      } as any // Temporary type assertion until Prisma types refresh
+      } as {
+        email: string
+        resetToken: string
+        resetTokenExpiry: { gt: Date }
+      }
     })
 
     if (!teacher) {
@@ -57,14 +61,18 @@ export async function POST(request: NextRequest) {
     // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 12)
 
-    // Update teacher with new password and clear reset token
+        // Update teacher with new password and clear reset token
     await prisma.teacher.update({
       where: { id: teacher.id },
       data: {
         passwordHash: hashedPassword,
         resetToken: null,
         resetTokenExpiry: null
-      } as any // Temporary type assertion until Prisma types refresh
+      } as {
+        passwordHash: string
+        resetToken: null
+        resetTokenExpiry: null
+      }
     })
 
     return NextResponse.json({
