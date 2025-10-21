@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
           studentName: customerName,
           studentEmail: customerEmail,
           studentPhone: customerPhone || '',
-          bookingDate: new Date(), // For now, using current date
+          bookingDate: new Date(slot.date), // Use actual selected date
           startTime: startTime,
           endTime: endTime,
           amountPaid: slotAmount,
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
         to: customerEmail,
         studentName: customerName,
         teacherName: teacher.name || 'Teacher',
-        bookingDate: new Date().toLocaleDateString(),
+        bookingDate: new Date(firstSlot.date).toLocaleDateString(),
         startTime: startTime,
         endTime: endTime,
         teacherEmail: teacher.email,
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
         teacherName: teacher.name || 'Teacher',
         studentName: customerName,
         studentEmail: customerEmail,
-        bookingDate: new Date().toLocaleDateString(),
+        bookingDate: new Date(firstSlot.date).toLocaleDateString(),
         startTime: startTime,
         endTime: endTime,
         amountPaid: totalAmount,
