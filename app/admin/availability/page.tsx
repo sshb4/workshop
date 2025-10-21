@@ -84,6 +84,18 @@ function AvailabilityContent() {
     }
   }, [session, status])
 
+  const fetchBlockedDates = useCallback(async () => {
+    try {
+      const response = await fetch('/api/blocked-dates')
+      if (response.ok) {
+        const data = await response.json()
+        setBlockedDates(data.blockedDates || [])
+      }
+    } catch (error) {
+      console.error('Error fetching blocked dates:', error)
+    }
+  }, [])
+
   useEffect(() => {
     if (status === 'authenticated' && session?.user && 'id' in session.user) {
       fetchAvailability()
@@ -98,6 +110,13 @@ function AvailabilityContent() {
       router.push('/admin/login')
     }
   }, [status, router])
+
+  // Load blocked dates on component mount
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchBlockedDates()
+    }
+  }, [status, fetchBlockedDates])
 
   if (status === 'loading') return <div>Loading...</div>
   if (status === 'unauthenticated') return null
@@ -227,18 +246,6 @@ function AvailabilityContent() {
     }
   }
 
-  async function fetchBlockedDates() {
-    try {
-      const response = await fetch('/api/blocked-dates')
-      if (response.ok) {
-        const data = await response.json()
-        setBlockedDates(data.blockedDates || [])
-      }
-    } catch (error) {
-      console.error('Error fetching blocked dates:', error)
-    }
-  }
-
   async function removeBlockedDate(id: string) {
     if (!confirm('Are you sure you want to remove this blocked date?')) return
 
@@ -259,13 +266,6 @@ function AvailabilityContent() {
       setError('Failed to remove blocked date')
     }
   }
-
-  // Load blocked dates on component mount
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchBlockedDates()
-    }
-  }, [status])
 
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString()
@@ -573,7 +573,7 @@ function AvailabilityContent() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Blocked Dates</h2>
-              <p className="text-sm text-gray-600">Block out dates when you're unavailable</p>
+              <p className="text-sm text-gray-600">Block out dates when you&apos;re unavailable</p>
             </div>
             <button
               onClick={() => setShowBlockForm(!showBlockForm)}
