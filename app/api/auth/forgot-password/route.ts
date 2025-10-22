@@ -5,9 +5,23 @@ import { sendPasswordResetEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json()
+    console.log('=== PASSWORD RESET REQUEST START ===')
+    
+    let email
+    try {
+      const body = await request.json()
+      email = body.email
+      console.log('Request body parsed successfully')
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError)
+      return NextResponse.json(
+        { error: 'Invalid request format' },
+        { status: 400 }
+      )
+    }
 
     if (!email) {
+      console.log('Error: Email is required')
       return NextResponse.json(
         { error: 'Email is required' },
         { status: 400 }
@@ -16,10 +30,40 @@ export async function POST(request: NextRequest) {
 
     console.log('Processing password reset request for:', email)
 
-    // Find teacher
-    const teacher = await prisma.teacher.findUnique({
-      where: { email }
+    // Log environment info (without sensitive data)
+    console.log('Environment check:', {
+      NODE_ENV: process.env.NODE_ENV,
+      hasNextAuthUrl: !!process.env.NEXTAUTH_URL,
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      hasFromEmail: !!process.env.FROM_EMAIL
     })
+
+    // Test database connection first
+    try {
+      await prisma.$connect()
+      console.log('Database connection successful')
+    } catch (dbConnError) {
+      console.error('Database connection failed:', dbConnError)
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      )
+    }
+
+    // Find teacher
+    let teacher
+    try {
+      teacher = await prisma.teacher.findUnique({
+        where: { email }
+      })
+      console.log('Database query completed, teacher found:', !!teacher)
+    } catch (findError) {
+      console.error('Database find operation failed:', findError)
+      return NextResponse.json(
+        { error: 'Database query failed' },
+        { status: 500 }
+      )
+    }
 
     // Always return success to prevent email enumeration
     if (!teacher) {
@@ -88,9 +132,18 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Forgot password error:', error)
+    console.error('=== PASSWORD RESET ERROR ===')
+    console.error('Error type:', typeof error)
+    console.error('Error name:', error instanceof Error ? error.name : 'Unknown')
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error')
+    console.error('Full error:', error)
+    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace')
+    
     return NextResponse.json(
-      { error: 'Failed to process password reset request' },
+      { 
+        error: 'Failed to process password reset request',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
