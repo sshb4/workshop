@@ -19,8 +19,26 @@
   }
 }
 
+html {
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  position: fixed;
+  width: 100%;
+}
+
+#__next {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }

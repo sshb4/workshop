@@ -120,8 +120,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
-      <div className="max-w-md w-full mx-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 py-12 overscroll-none">
+      <div className="max-w-md w-full mx-6">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
