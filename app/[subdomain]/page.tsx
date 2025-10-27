@@ -332,7 +332,7 @@ export default async function TeacherProfilePage({
                   className="transition-colors duration-300"
                   style={{ color: colorScheme.styles.textSecondary }}
                 >
-                  Contact directly: 
+                  Contact directly: <br />
                 </span>
                 <a 
                   href={`mailto:${teacher.email}`} 

@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import SignOutModal from '../../../components/SignOutModal'
 import { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -103,7 +104,7 @@ export default async function DashboardPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -125,14 +126,8 @@ export default async function DashboardPage() {
                 <span className="hidden sm:inline">View My Page</span>
                 <span className="sm:hidden">View</span>
               </Link>
-              <form action="/api/auth/signout" method="POST">
-                <button
-                  type="submit"
-                  className="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-                >
-                  Sign Out
-                </button>
-              </form>
+              {/* Sign Out Modal Popup */}
+              <SignOutModal />
             </div>
           </div>
         </div>
@@ -148,9 +143,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <img src="/clock (1).svg" alt="Availability" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Set Availability</h3>
@@ -165,10 +158,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <img src="/settings.svg" alt="Booking Settings" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(60%) sepia(80%) saturate(2000%) hue-rotate(20deg) brightness(100%) contrast(100%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Booking Settings</h3>
@@ -183,9 +173,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                <img src="/profile-circle (1).svg" alt="Edit Profile" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Edit Profile</h3>
@@ -200,9 +188,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
+                <img src="/calendar (1).svg" alt="Bookings" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Bookings</h3>
@@ -223,9 +209,7 @@ export default async function DashboardPage() {
                 <p className="text-xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{totalBookings}</p>
               </div>
               <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-                <svg className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+                <img src="/calendar (1).svg" alt="Total Bookings" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
               </div>
             </div>
           </div>
@@ -238,9 +222,7 @@ export default async function DashboardPage() {
                 <p className="text-xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{upcomingBookings}</p>
               </div>
               <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
-                <svg className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <img src="/clock (1).svg" alt="Upcoming" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
               </div>
             </div>
           </div>
@@ -255,9 +237,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="p-2 sm:p-3 bg-purple-100 rounded-lg">
-                <svg className="w-4 h-4 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <img src="/dollar-circle (1).svg" alt="This Month Revenue" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
               </div>
             </div>
           </div>
@@ -272,9 +252,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg">
-                <svg className="w-4 h-4 sm:w-6 sm:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
+                <img src="/graph-up.svg" alt="Total Revenue" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
               </div>
             </div>
           </div>
@@ -343,6 +321,9 @@ export default async function DashboardPage() {
           </div>
         </div>
       </main>
+      <footer className="w-full py-2 bg-white border-t mt-auto text-center text-sm text-gray-500">
+        Powered by Buzz Financial
+      </footer>
     </div>
   )
 }

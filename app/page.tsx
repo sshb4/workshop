@@ -56,9 +56,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="inline-block p-3 bg-indigo-100 rounded-full mb-4">
-                <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+                <img src="/calendar (1).svg" alt="Easy Scheduling" className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Easy Scheduling</h3>
               <p className="text-gray-600">
@@ -68,9 +66,7 @@ export default function Home() {
 
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="inline-block p-3 bg-purple-100 rounded-full mb-4">
-                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                <img src="/profile-circle (1).svg" alt="Professional Branding" className="w-8 h-8" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Professional Branding</h3>
               <p className="text-gray-600">
@@ -80,9 +76,7 @@ export default function Home() {
 
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="inline-block p-3 bg-pink-100 rounded-full mb-4">
-                <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
+                <img src="/globe.svg" alt="Custom URL" className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(320deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Custom URL</h3>
               <p className="text-gray-600">
