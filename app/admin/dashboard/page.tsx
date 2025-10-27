@@ -8,6 +8,11 @@ import Link from 'next/link'
 import SignOutModal from '../../../components/SignOutModal'
 import { Metadata } from 'next'
 
+// Force this page to be rendered dynamically because it depends on per-request
+// server data (session/headers). This prevents Next.js from attempting to
+// prerender it statically and avoids the DYNAMIC_SERVER_USAGE error.
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata(): Promise<Metadata> {
   const session = await getServerSession(authOptions)
   

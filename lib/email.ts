@@ -61,9 +61,9 @@ export async function sendEmailVerificationEmail({
 }: EmailVerificationEmail) {
   // If Resend is not available, simulate email sending
   if (!resend) {
-    console.log('📧 [SIMULATED] Email verification email would be sent to:', {
+    console.log('📧 [SIMULATED] Teacher notification email would be sent to:', {
       to,
-      subject: 'Verify Your Email Address',
+      subject: 'New Booking Notification',
       teacherName,
       verificationUrl
     });
@@ -132,7 +132,6 @@ export async function sendEmailVerificationEmail({
     return { success: false, error };
   }
 }
-
 export async function sendPasswordResetEmail({
   to,
   teacherName,
@@ -532,13 +531,15 @@ export async function sendTeacherNotificationEmail({
   if (!resend) {
     console.log('📧 [SIMULATED] Teacher notification email would be sent to:', {
       to,
-      subject: 'New Booking Received',
+      subject: 'New Booking',
+      teacherName,
       studentName,
       studentEmail,
       bookingDate,
       startTime,
       endTime,
-      amountPaid
+      amountPaid,
+      notes
     });
     return { success: true, message: 'Email simulated (Resend not installed)' };
   }
@@ -549,88 +550,77 @@ export async function sendTeacherNotificationEmail({
       year: 'numeric',
       month: 'long',
       day: 'numeric'
-    })
+    });
 
     const formattedStartTime = new Date(`2000-01-01T${startTime}:00`).toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
-    })
+    });
 
     const formattedEndTime = new Date(`2000-01-01T${endTime}:00`).toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
-    })
+    });
 
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL || 'bookings@yourdomain.com',
       to: [to],
       subject: `New Booking: ${studentName} - ${formattedDate}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">New Booking Received! 📅</h1>
-          </div>
-          
-          <div style="background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e2e8f0;">
-            <h2 style="color: #1a202c; margin-top: 0;">Hi ${teacherName},</h2>
-            <p style="color: #4a5568; line-height: 1.6;">
-              You have a new booking! Here are the student details:
-            </p>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4facfe;">
-              <h3 style="color: #1a202c; margin-top: 0;">Booking Details</h3>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Student:</td>
-                  <td style="padding: 8px 0; color: #1a202c;">${studentName}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Email:</td>
-                  <td style="padding: 8px 0; color: #1a202c;">${studentEmail}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Date:</td>
-                  <td style="padding: 8px 0; color: #1a202c;">${formattedDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Time:</td>
-                  <td style="padding: 8px 0; color: #1a202c;">${formattedStartTime} - ${formattedEndTime}</td>
-                </tr>
-                ${amountPaid ? `
-                <tr>
-                  <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Amount Paid:</td>
-                  <td style="padding: 8px 0; color: #1a202c;">$${amountPaid.toFixed(2)}</td>
-                </tr>
-                ` : ''}
-              </table>
-            </div>
-
-            ${notes ? `
-            <div style="background: #fef5e7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f6ad55;">
-              <h4 style="color: #1a202c; margin-top: 0;">Student Notes:</h4>
-              <p style="color: #4a5568; margin-bottom: 0;">${notes}</p>
-            </div>
-            ` : ''}
-
-            <p style="color: #4a5568; line-height: 1.6;">
-              The student has been sent a confirmation email with your contact information. Make sure to prepare for the session and reach out if you need to make any changes.
-            </p>
-          </div>
+      html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">New Booking Received! 📅</h1>
         </div>
-      `
-    })
+        <div style="background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e2e8f0;">
+          <h2 style="color: #1a202c; margin-top: 0;">Hi ${teacherName},</h2>
+          <p style="color: #4a5568; line-height: 1.6;">
+            You have a new booking! Here are the student details:
+          </p>
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4facfe;">
+            <h3 style="color: #1a202c; margin-top: 0;">Booking Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Student:</td>
+                <td style="padding: 8px 0; color: #1a202c;">${studentName}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Email:</td>
+                <td style="padding: 8px 0; color: #1a202c;">${studentEmail}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Date:</td>
+                <td style="padding: 8px 0; color: #1a202c;">${formattedDate}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Time:</td>
+                <td style="padding: 8px 0; color: #1a202c;">${formattedStartTime} - ${formattedEndTime}</td>
+              </tr>
+              ${(amountPaid !== undefined && amountPaid !== null) ? `<tr>
+                <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Amount Paid:</td>
+                <td style="padding: 8px 0; color: #1a202c;">$${amountPaid.toFixed(2)}</td>
+              </tr>` : ''}
+            </table>
+          </div>
+          ${notes ? `<div style="background: #fef5e7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f6ad55;">
+            <h4 style="color: #1a202c; margin-top: 0;">Student Notes:</h4>
+            <p style="color: #4a5568; margin-bottom: 0;">${notes}</p>
+          </div>` : ''}
+          <p style="color: #4a5568; line-height: 1.6;">
+            The student has been sent a confirmation email with your contact information. Make sure to prepare for the session and reach out if you need to make any changes.
+          </p>
+        </div>
+      </div>`
+    });
 
     if (error) {
-      console.error('Error sending teacher notification email:', error)
-      return { success: false, error }
+      console.error('Error sending teacher notification email:', error);
+      return { success: false, error };
     }
 
-    return { success: true, data }
-
+    return { success: true, data };
   } catch (error) {
-    console.error('Error sending teacher notification email:', error)
-    return { success: false, error }
+    console.error('Error sending teacher notification email:', error);
+    return { success: false, error };
   }
 }
