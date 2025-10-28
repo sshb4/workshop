@@ -26,7 +26,7 @@ const SignOutModal: React.FC = () => {
               >
                 Cancel
               </button>
-              <form action="/api/auth/signout" method="POST">
+              <form action="/api/auth/signout?callbackUrl=/" method="POST">
                 <button
                   type="submit"
                   className="px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white border border-red-400"

@@ -17,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ subdomain: string }>
 }): Promise<Metadata> {
   const { subdomain } = await params
-  const teacher = await prisma.teacher.findUnique({
+  const teacher = await prisma.teacher.findUnique({ 
     where: { subdomain },
   })
 
@@ -139,7 +139,7 @@ export default async function TeacherProfilePage({
     >
       {/* Header */}
       <header 
-        className="shadow-sm border-b transition-colors duration-300"
+        className="shadow-sm border-b transition-colors duration-300 sticky top-0 z-30"
         style={{ 
           backgroundColor: colorScheme.styles.background,
           borderColor: colorScheme.styles.border

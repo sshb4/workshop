@@ -111,7 +111,7 @@ export default async function DashboardPage() {
   return (
   <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+  <header className="bg-white shadow-sm border-b sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-3 sm:py-4">
             <div>
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition">
-                <img src="/settings.svg" alt="Booking Settings" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(60%) sepia(80%) saturate(2000%) hue-rotate(20deg) brightness(100%) contrast(100%)' }} />
+                  <img src="/settings.svg" alt="Booking Settings" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(60%) sepia(80%) saturate(2000%) hue-rotate(20deg) brightness(100%) contrast(100%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Booking Settings</h3>
@@ -257,7 +257,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg">
-                <img src="/graph-up.svg" alt="Total Revenue" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
+                  <img src="/graph-up.svg" alt="Total Revenue" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
               </div>
             </div>
           </div>

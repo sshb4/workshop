@@ -271,9 +271,6 @@ export default function ManageBookingsPage() {
               // Manage Bookings Tab
               bookings.length === 0 ? (
                 <div className="text-center py-12">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a4 4 0 118 0v4M3 17v2a4 4 0 004 4h10a4 4 0 004-4v-2M8 11v6h8v-6" />
-                  </svg>
                   <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings yet</h3>
                   <p className="mt-1 text-sm text-gray-500">Get started by creating a booking.</p>
                   <div className="mt-6">

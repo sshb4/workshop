@@ -76,7 +76,7 @@ export default function Home() {
 
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="inline-block p-3 bg-pink-100 rounded-full mb-4">
-                <img src="/globe.svg" alt="Custom URL" className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(320deg) brightness(100%) contrast(100%)' }} />
+                  <img src="/globe.svg" alt="Custom URL" className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(320deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Custom URL</h3>
               <p className="text-gray-600">
