@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import { signOut } from 'next-auth/react';
 
 const SignOutModal: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -26,14 +27,13 @@ const SignOutModal: React.FC = () => {
               >
                 Cancel
               </button>
-              <form action="/api/auth/signout?callbackUrl=/" method="POST">
-                <button
-                  type="submit"
-                  className="px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white border border-red-400"
-                >
-                  Sign Out
-                </button>
-              </form>
+              <button
+                type="button"
+                className="px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white border border-red-400"
+                onClick={() => signOut({ callbackUrl: '/admin/login' })}
+              >
+                Sign Out
+              </button>
             </div>
           </div>
         </div>
