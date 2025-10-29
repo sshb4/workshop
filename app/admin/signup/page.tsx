@@ -6,6 +6,9 @@ import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ErrorMessage from '@/components/ErrorMessage'
+import EyeIcon from '@/components/icons/EyeIcon';
+import EyeClosedIcon from '@/components/icons/EyeClosedIcon';
+import UserPlusIcon from '@/components/icons/UserPlusIcon'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -126,9 +129,7 @@ export default function SignupPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-block p-3 bg-indigo-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+              <UserPlusIcon className="w-8 h-8 text-indigo-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
             <p className="text-gray-600">Set up your booking page in minutes</p>
@@ -220,9 +221,9 @@ export default function SignupPage() {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? (
-                    <img src="/eye (1).svg" alt="Show password" className="w-5 h-5" />
+                    <EyeIcon className="w-5 h-5" />
                   ) : (
-                    <img src="/eye-closed (1).svg" alt="Hide password" className="w-5 h-5" />
+                    <EyeClosedIcon className="w-5 h-5" />
                   )}
                 </button>
               </div>
@@ -315,9 +316,9 @@ export default function SignupPage() {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showConfirmPassword ? (
-                    <img src="/eye (1).svg" alt="Show password" className="w-5 h-5" />
+                    <EyeIcon className="w-5 h-5" />
                   ) : (
-                    <img src="/eye-closed (1).svg" alt="Hide password" className="w-5 h-5" />
+                    <EyeClosedIcon className="w-5 h-5" />
                   )}
                 </button>
               </div>

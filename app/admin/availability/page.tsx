@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import BackArrowIcon from '@/components/icons/BackArrowIcon';
 
 // Force this page to be client-only
 export const dynamic = 'force-dynamic'
@@ -317,14 +318,15 @@ function AvailabilityContent() {
 
         {/* Messages */}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
-        
-        {success && (
-          <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded">
-            <p className="text-green-700">{success}</p>
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded flex items-center gap-3">
+            <p className="text-red-700 flex-1">{error}</p>
+            <Link 
+              href="/admin/dashboard"
+              className="text-gray-500 hover:text-gray-700"
+              title="Back to Dashboard"
+            >
+              <BackArrowIcon className="w-6 h-6" />
+            </Link>
           </div>
         )}
 

@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import CalendarIcon from '@/components/icons/CalendarIcon';
+import ProfileIcon from '@/components/icons/ProfileIcon';
+import GlobeIcon from '@/components/icons/GlobeIcon';
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -56,7 +59,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="inline-block p-3 bg-indigo-100 rounded-full mb-4">
-                <img src="/calendar (1).svg" alt="Easy Scheduling" className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
+                <CalendarIcon className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Easy Scheduling</h3>
               <p className="text-gray-600">
@@ -66,7 +69,7 @@ export default function Home() {
 
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="inline-block p-3 bg-purple-100 rounded-full mb-4">
-                <img src="/profile-circle (1).svg" alt="Professional Branding" className="w-8 h-8" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
+                <ProfileIcon className="w-8 h-8" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Professional Branding</h3>
               <p className="text-gray-600">
@@ -76,7 +79,7 @@ export default function Home() {
 
             <div className="bg-white rounded-2xl p-8 shadow-lg">
               <div className="inline-block p-3 bg-pink-100 rounded-full mb-4">
-                  <img src="/globe.svg" alt="Custom URL" className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(320deg) brightness(100%) contrast(100%)' }} />
+                  <GlobeIcon className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(320deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Custom URL</h3>
               <p className="text-gray-600">

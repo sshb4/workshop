@@ -1,3 +1,9 @@
+import ClockIcon from '@/components/icons/ClockIcon';
+import SettingsIcon from '@/components/icons/SettingsIcon';
+import ProfileIcon from '@/components/icons/ProfileIcon';
+import CalendarIcon from '@/components/icons/CalendarIcon';
+import DollarIcon from '@/components/icons/DollarIcon';
+import GraphUpIcon from '@/components/icons/GraphUpIcon';
 // app/admin/dashboard/page.tsx
 
 import { redirect } from 'next/navigation'
@@ -148,7 +154,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition">
-                <img src="/clock (1).svg" alt="Availability" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
+                <ClockIcon className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Set Availability</h3>
@@ -163,7 +169,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition">
-                  <img src="/settings.svg" alt="Booking Settings" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(60%) sepia(80%) saturate(2000%) hue-rotate(20deg) brightness(100%) contrast(100%)' }} />
+                  <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(60%) sepia(80%) saturate(2000%) hue-rotate(20deg) brightness(100%) contrast(100%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Booking Settings</h3>
@@ -178,7 +184,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition">
-                <img src="/profile-circle (1).svg" alt="Edit Profile" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
+                <ProfileIcon className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Edit Profile</h3>
@@ -193,7 +199,7 @@ export default async function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition">
-                <img src="/calendar (1).svg" alt="Bookings" className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
+                <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Bookings</h3>
@@ -214,7 +220,7 @@ export default async function DashboardPage() {
                 <p className="text-xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{totalBookings}</p>
               </div>
               <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
-                <img src="/calendar (1).svg" alt="Total Bookings" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
+                <CalendarIcon className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
               </div>
             </div>
           </div>
@@ -227,7 +233,7 @@ export default async function DashboardPage() {
                 <p className="text-xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{upcomingBookings}</p>
               </div>
               <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
-                <img src="/clock (1).svg" alt="Upcoming" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
+                <ClockIcon className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
               </div>
             </div>
           </div>
@@ -242,7 +248,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="p-2 sm:p-3 bg-purple-100 rounded-lg">
-                <img src="/dollar-circle (1).svg" alt="This Month Revenue" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
+                <DollarIcon className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
               </div>
             </div>
           </div>
@@ -257,7 +263,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg">
-                  <img src="/graph-up.svg" alt="Total Revenue" className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
+                  <GraphUpIcon className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
               </div>
             </div>
           </div>
