@@ -38,6 +38,21 @@ function AvailabilityContent() {
   const router = useRouter()
   const [slots, setSlots] = useState<AvailabilitySlot[]>([])
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([])
+
+  // Helper to check if a date is blocked
+  function isDateBlocked(dateStr: string) {
+    const date = new Date(dateStr)
+    return blockedDates.some(blocked => {
+      const start = new Date(blocked.startDate)
+      const end = new Date(blocked.endDate || blocked.startDate)
+      // If recurring, only block matching day of week
+      if (blocked.isRecurring && blocked.recurringType === 'weekly') {
+        return date.getDay() === start.getDay()
+      }
+      // Otherwise block date range
+      return date >= start && date <= end
+    })
+  }
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -73,7 +88,21 @@ function AvailabilityContent() {
       const data = await response.json()
       
       if (response.ok) {
-        setSlots(data.availabilitySlots)
+        // Filter out slots that fall on blocked dates
+  const filteredSlots = (data.availabilitySlots || []).filter((slot: AvailabilitySlot) => {
+          // Check if any day in slot's date range is blocked
+          let blocked = false
+          const start = new Date(slot.startDate)
+          const end = slot.endDate ? new Date(slot.endDate) : start
+          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            if (isDateBlocked(d.toISOString().split('T')[0])) {
+              blocked = true
+              break
+            }
+          }
+          return !blocked
+        })
+        setSlots(filteredSlots)
       } else {
         setError(data.error || 'Failed to fetch availability')
       }
@@ -133,31 +162,56 @@ function AvailabilityContent() {
     }
 
     try {
-      // Create multiple availability slots - one for each selected day
-      const promises = formData.selectedDays.map(dayOfWeek => 
-        fetch('/api/availability', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...formData,
-            dayOfWeek,
-            title: formData.title || `${DAYS[dayOfWeek]} Availability`
-          })
-        })
-      )
-
-      const responses = await Promise.all(promises)
-      const results = await Promise.all(responses.map(r => r.json()))
-
-      // Check if all requests were successful
-      const allSuccessful = responses.every(r => r.ok)
-      
+      // Prevent creating slots on blocked days
+      // Create slots for all unblocked dates in the selected range for each selected day
+      const start = new Date(formData.startDate)
+      const end = formData.endDate ? new Date(formData.endDate) : start
+  const slotRequests: Promise<Response>[] = [];
+      let createdDates: string[] = [];
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        formData.selectedDays.forEach(dayOfWeek => {
+          if (d.getDay() === dayOfWeek && !isDateBlocked(d.toISOString().split('T')[0])) {
+            // If the range is only one day, omit endDate
+            const isSingleDay = start.toISOString().split('T')[0] === end.toISOString().split('T')[0];
+            // Format date as US YYYY-MM-DD
+            const formatUSDate = (date: Date) => {
+              const yyyy = date.getFullYear();
+              const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+              const dd = date.getDate().toString().padStart(2, '0');
+              return `${yyyy}-${mm}-${dd}`;
+            };
+            const slotPayload: any = {
+              ...formData,
+              dayOfWeek,
+              startDate: formatUSDate(d),
+              title: formData.title || `${DAYS[dayOfWeek]} Availability`
+            };
+            if (!isSingleDay) {
+              slotPayload.endDate = formatUSDate(end);
+            }
+            slotRequests.push(
+              fetch('/api/availability', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(slotPayload)
+              })
+            );
+            createdDates.push(d.toISOString().split('T')[0]);
+          }
+        });
+      }
+      if (slotRequests.length === 0) {
+        setError('No availability created: all selected dates are blocked.')
+        return;
+      }
+      const responses = await Promise.all(slotRequests);
+      const results = await Promise.all(responses.map(r => r.json()));
+      const allSuccessful = responses.every(r => r.ok);
       if (allSuccessful) {
-        const dayNames = formData.selectedDays.map(day => DAYS[day]).join(', ')
-        setSuccess(`Availability created for: ${dayNames}`)
-        setShowForm(false)
+        setSuccess(`Availability created for dates: ${createdDates.join(', ')}`);
+        setShowForm(false);
         setFormData({
           title: '',
           startDate: '',
@@ -165,15 +219,15 @@ function AvailabilityContent() {
           selectedDays: [],
           startTime: '09:00',
           endTime: '17:00'
-        })
-        fetchAvailability() // Refresh the list
+        });
+        fetchAvailability();
       } else {
-        const errors = results.filter((result, index) => !responses[index].ok)
-        setError(errors[0]?.error || 'Some availability periods could not be created')
+        const errors = results.filter((result, index) => !responses[index].ok);
+        setError(errors[0]?.error || 'Some availability periods could not be created');
       }
     } catch (error) {
-      console.error('Error creating availability:', error)
-      setError('Something went wrong. Please try again.')
+      console.error('Error creating availability:', error);
+      setError('Something went wrong. Please try again.');
     }
   }
 

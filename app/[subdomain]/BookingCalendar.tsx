@@ -20,6 +20,7 @@ interface Teacher {
   name: string
   hourlyRate?: number
   title?: string
+  timeFormat?: string
 }
 
 interface ColorScheme {
@@ -76,6 +77,8 @@ const daysOfWeek = [
 ]
 
 export default function BookingCalendar({ teacher, availabilitySlots, colorScheme }: BookingCalendarProps) {
+  // Force 12-hour (AM/PM) format everywhere
+  const timeFormatOptions: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
   const [selectedSlots, setSelectedSlots] = useState<SelectedSlot[]>([])
   const [showTimeSelector, setShowTimeSelector] = useState(false)
   const [currentSlot, setCurrentSlot] = useState<AvailabilitySlot | null>(null)
@@ -397,11 +400,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                 >
                   {generateTimeOptions(currentSlot.startTime, currentSlot.endTime, 15).slice(0, -1).map(time => (
                     <option key={time} value={time}>
-                      {new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', { 
-                        hour: 'numeric', 
-                        minute: '2-digit',
-                        hour12: true 
-                      })}
+                      {new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', timeFormatOptions)}
                     </option>
                   ))}
                 </select>
@@ -427,11 +426,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                     .filter(time => time > customStartTime)
                     .map(time => (
                     <option key={time} value={time}>
-                      {new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', { 
-                        hour: 'numeric', 
-                        minute: '2-digit',
-                        hour12: true 
-                      })}
+                      {new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', timeFormatOptions)}
                     </option>
                   ))}
                 </select>
@@ -734,16 +729,33 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                   }`
                 }}
               >
-                <div className="text-sm font-medium">{day.date.getDate()}</div>
+                <div className="absolute top-1 left-1 text-xs font-bold opacity-80">
+                  {day.date.getDate()}
+                </div>
                 {day.hasAvailability && !day.isPast && day.isCurrentMonth && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <div 
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: day.isSelected ? 'white' : colorScheme.styles.primary }}
-                    />
-                    <span className="text-xs opacity-70">
-                      {day.availableSlots.length}
-                    </span>
+                  <div className="flex flex-col items-center justify-center mt-4 w-full">
+                    {day.availableSlots.slice(0, 3).map(slot => (
+                      <button
+                        key={slot.id}
+                        onClick={e => {
+                          e.stopPropagation();
+                          setSelectedDate(day.date);
+                          handleSlotClick(slot, day.date);
+                        }}
+                        className="w-full px-1 py-0.5 mb-1 rounded bg-white bg-opacity-80 text-xs font-medium border border-gray-200 hover:bg-primary hover:text-white transition-colors"
+                        style={{
+                          backgroundColor: day.isSelected ? colorScheme.styles.primary : 'white',
+                          color: day.isSelected ? 'white' : colorScheme.styles.primary,
+                          borderColor: colorScheme.styles.primaryLight
+                        }}
+                      >
+                        {new Date(`2000-01-01T${slot.startTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)} - {new Date(`2000-01-01T${slot.endTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)}
+                        {slot.title ? ` • ${slot.title}` : ''}
+                      </button>
+                    ))}
+                    {day.availableSlots.length > 3 && (
+                      <span className="text-xs opacity-60">+{day.availableSlots.length - 3} more</span>
+                    )}
                   </div>
                 )}
                 {day.isToday && (
@@ -862,15 +874,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                     <div className="flex items-center justify-between">
                       <div className="text-left">
                         <div className="font-semibold">
-                          {new Date(`2000-01-01T${slot.startTime}:00`).toLocaleTimeString('en-US', { 
-                            hour: 'numeric', 
-                            minute: '2-digit', 
-                            hour12: true 
-                          })} - {new Date(`2000-01-01T${slot.endTime}:00`).toLocaleTimeString('en-US', { 
-                            hour: 'numeric', 
-                            minute: '2-digit', 
-                            hour12: true 
-                          })}
+                          {new Date(`2000-01-01T${slot.startTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)} - {new Date(`2000-01-01T${slot.endTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)}
                         </div>
                         {slot.title && (
                           <div className="text-xs mt-1 opacity-80">
@@ -879,7 +883,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                         )}
                         {isSelected && selectedSlot && (
                           <div className="text-xs mt-1 opacity-90 font-medium">
-                            Selected: {selectedSlot.customStartTime} - {selectedSlot.customEndTime} 
+                            Selected: {new Date(`2000-01-01T${selectedSlot.customStartTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)} - {new Date(`2000-01-01T${selectedSlot.customEndTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)} 
                             ({selectedSlot.duration?.toFixed(1)}h)
                           </div>
                         )}
@@ -970,15 +974,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                         className="text-sm"
                         style={{ color: colorScheme.styles.textSecondary }}
                       >
-                        {new Date(`2000-01-01T${slot.customStartTime || slot.startTime}:00`).toLocaleTimeString('en-US', { 
-                          hour: 'numeric', 
-                          minute: '2-digit', 
-                          hour12: true 
-                        })} - {new Date(`2000-01-01T${slot.customEndTime || slot.endTime}:00`).toLocaleTimeString('en-US', { 
-                          hour: 'numeric', 
-                          minute: '2-digit', 
-                          hour12: true 
-                        })}
+                        {new Date(`2000-01-01T${slot.customStartTime || slot.startTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)} - {new Date(`2000-01-01T${slot.customEndTime || slot.endTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)}
                       </div>
                     </div>
                   </div>

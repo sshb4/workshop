@@ -20,6 +20,7 @@ interface Teacher {
   profileImage: string | null
   favicon: string | null
   colorScheme: string
+  timeFormat?: string
 }
 
 interface ProfileFormProps {
@@ -244,7 +245,6 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
             <p className="text-sm text-gray-500 mb-4">
               Choose a color theme for your booking page. This affects the colors and overall look of your public profile.
             </p>
-            
             {/* Theme Preview */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {colorSchemes.map(scheme => (
@@ -280,6 +280,36 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Time Format Preference */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Time Format
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="timeFormat"
+                  value="12"
+                  defaultChecked={teacher.timeFormat !== '24'}
+                  className="form-radio"
+                />
+                <span className="text-sm text-gray-800">12-hour (AM/PM)</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="timeFormat"
+                  value="24"
+                  defaultChecked={teacher.timeFormat === '24'}
+                  className="form-radio"
+                />
+                <span className="text-sm text-gray-800">24-hour</span>
+              </label>
+            </div>
+            <p className="mt-1 text-sm text-gray-500">Choose how times are displayed on your booking calendar.</p>
           </div>
 
           {/* Profile Image URL */}
