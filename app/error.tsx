@@ -1,12 +1,12 @@
 "use client";
 import Link from 'next/link';
-import { FiAlertCircle } from 'react-icons/fi';
+import WarningWindowIcon from '../components/icons/WarningWindowIcon';
 
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="min-h-screen bg-red-50 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 text-center">
-        <FiAlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+  <WarningWindowIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
         <h1 className="text-3xl font-bold text-red-700 mb-2">Something Went Wrong</h1>
         <p className="text-lg text-gray-700 leading-relaxed mb-4">
           {error?.message || 'An unexpected error occurred. Please try again.'}
