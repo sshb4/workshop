@@ -37,6 +37,7 @@ function AvailabilityContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [slots, setSlots] = useState<AvailabilitySlot[]>([])
+  const [sortType, setSortType] = useState<'added' | 'furthest' | 'closest'>('added')
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([])
 
   // Helper to check if a date is blocked
@@ -148,7 +149,15 @@ function AvailabilityContent() {
     }
   }, [status, fetchBlockedDates])
 
-  if (status === 'loading') return <div>Loading...</div>
+  if (status === 'loading') return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex flex-col items-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500 mb-6"></div>
+        <h2 className="text-xl font-semibold text-indigo-700 mb-2">Loading Availability</h2>
+        <p className="text-gray-500">Please wait while we fetch your schedule...</p>
+      </div>
+    </div>
+  )
   if (status === 'unauthenticated') return null
 
   async function handleSubmit(e: React.FormEvent) {
@@ -166,20 +175,21 @@ function AvailabilityContent() {
       // Create slots for all unblocked dates in the selected range for each selected day
       const start = new Date(formData.startDate)
       const end = formData.endDate ? new Date(formData.endDate) : start
-  const slotRequests: Promise<Response>[] = [];
+      const slotRequests: Promise<Response>[] = [];
       let createdDates: string[] = [];
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const formatUSDate = (date: Date) => {
+        const yyyy = date.getFullYear();
+        const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+        const dd = date.getDate().toString().padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      };
+      const dayCount = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      for (let i = 0; i <= dayCount; i++) {
+        const d = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
         formData.selectedDays.forEach(dayOfWeek => {
-          if (d.getDay() === dayOfWeek && !isDateBlocked(d.toISOString().split('T')[0])) {
+          if (d.getDay() === dayOfWeek && !isDateBlocked(formatUSDate(d))) {
             // If the range is only one day, omit endDate
-            const isSingleDay = start.toISOString().split('T')[0] === end.toISOString().split('T')[0];
-            // Format date as US YYYY-MM-DD
-            const formatUSDate = (date: Date) => {
-              const yyyy = date.getFullYear();
-              const mm = (date.getMonth() + 1).toString().padStart(2, '0');
-              const dd = date.getDate().toString().padStart(2, '0');
-              return `${yyyy}-${mm}-${dd}`;
-            };
+            const isSingleDay = start.getTime() === end.getTime();
             const slotPayload: any = {
               ...formData,
               dayOfWeek,
@@ -198,7 +208,7 @@ function AvailabilityContent() {
                 body: JSON.stringify(slotPayload)
               })
             );
-            createdDates.push(d.toISOString().split('T')[0]);
+            createdDates.push(formatUSDate(d));
           }
         });
       }
@@ -386,177 +396,189 @@ function AvailabilityContent() {
 
         {/* Current Availability Section */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
-          <div className="flex justify-between items-center p-6 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-between items-center p-6 border-b border-gray-200 gap-4">
             <h2 className="text-xl font-semibold text-gray-900">Current Availability Periods</h2>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-            >
-              {showForm ? 'Cancel' : 'Add Period'}
-            </button>
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-gray-900 font-medium">Sort by:</label>
+              <select
+                value={sortType}
+                onChange={e => setSortType(e.target.value as 'added' | 'furthest' | 'closest')}
+                className="px-2 py-1 border rounded-md text-sm text-gray-900 bg-gray-100"
+              >
+                <option value="added">Added Date</option>
+                <option value="furthest">Furthest</option>
+                <option value="closest">Closest</option>
+              </select>
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+              >
+                {showForm ? 'Cancel' : 'Add Period'}
+              </button>
+            </div>
           </div>
           {showForm && (
             <div className="p-6 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Add Availability Period</h3>
               <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Title (optional)
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Regular Hours, Holiday Schedule"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Quick Select
-                  </label>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, selectedDays: [1, 2, 3, 4, 5] }))} // Mon-Fri
-                      className="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
-                    >
-                      Weekdays
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, selectedDays: [0, 6] }))} // Sun, Sat
-                      className="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors"
-                    >
-                      Weekends
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, selectedDays: [] }))}
-                      className="px-3 py-1 text-xs bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors"
-                    >
-                      Clear
-                    </button>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Title (optional)
+                    </label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      placeholder="e.g., Regular Hours, Holiday Schedule"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Quick Select
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, selectedDays: [1, 2, 3, 4, 5] }))} // Mon-Fri
+                        className="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
+                      >
+                        Weekdays
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, selectedDays: [0, 6] }))} // Sun, Sat
+                        className="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors"
+                      >
+                        Weekends
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, selectedDays: [] }))}
+                        className="px-3 py-1 text-xs bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Select Days of Week
-                </label>
-                <div className="grid grid-cols-7 gap-2">
-                  {DAYS.map((day, index) => (
-                    <label key={index} className="flex flex-col items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.selectedDays.includes(index)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setFormData(prev => ({
-                              ...prev,
-                              selectedDays: [...prev.selectedDays, index].sort()
-                            }))
-                          } else {
-                            setFormData(prev => ({
-                              ...prev,
-                              selectedDays: prev.selectedDays.filter(d => d !== index)
-                            }))
-                          }
-                        }}
-                        className="mb-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                      />
-                      <span className="text-xs text-gray-700 text-center">
-                        {day.slice(0, 3)}
-                      </span>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Select Days of Week
+                  </label>
+                  <div className="grid grid-cols-7 gap-2">
+                    {DAYS.map((day, index) => (
+                      <label key={index} className="flex flex-col items-center">
+                        <input
+                          type="checkbox"
+                          checked={formData.selectedDays.includes(index)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData(prev => ({
+                                ...prev,
+                                selectedDays: [...prev.selectedDays, index].sort()
+                              }))
+                            } else {
+                              setFormData(prev => ({
+                                ...prev,
+                                selectedDays: prev.selectedDays.filter(d => d !== index)
+                              }))
+                            }
+                          }}
+                          className="mb-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
+                        <span className="text-xs text-gray-700 text-center">
+                          {day.slice(0, 3)}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  {formData.selectedDays.length > 0 && (
+                    <p className="text-sm text-indigo-600 mt-2">
+                      Selected: {formData.selectedDays.map(day => DAYS[day]).join(', ')}
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Start Date
                     </label>
-                  ))}
+                    <input
+                      type="date"
+                      name="startDate"
+                      value={formData.startDate}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      End Date (optional)
+                    </label>
+                    <input
+                      type="date"
+                      name="endDate"
+                      value={formData.endDate}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Leave empty for ongoing availability</p>
+                  </div>
                 </div>
-                {formData.selectedDays.length > 0 && (
-                  <p className="text-sm text-indigo-600 mt-2">
-                    Selected: {formData.selectedDays.map(day => DAYS[day]).join(', ')}
-                  </p>
-                )}
-              </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    name="startDate"
-                    value={formData.startDate}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
-                  />
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Start Time
+                    </label>
+                    <input
+                      type="time"
+                      name="startTime"
+                      value={formData.startTime}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      End Time
+                    </label>
+                    <input
+                      type="time"
+                      name="endTime"
+                      value={formData.endTime}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date (optional)
-                  </label>
-                  <input
-                    type="date"
-                    name="endDate"
-                    value={formData.endDate}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Leave empty for ongoing availability</p>
-                </div>
-              </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Time
-                  </label>
-                  <input
-                    type="time"
-                    name="startTime"
-                    value={formData.startTime}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
-                  />
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    Add Period
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Time
-                  </label>
-                  <input
-                    type="time"
-                    name="endTime"
-                    value={formData.endTime}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                >
-                  Add Period
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+              </form>
+            </div>
+          )}
 
           {slots.length === 0 ? (
             <div className="p-6 text-center">
@@ -570,40 +592,56 @@ function AvailabilityContent() {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {slots.map((slot) => (
-                <div key={slot.id} className="p-6 flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-medium text-gray-900">
-                        {slot.title || 'Unnamed Period'}
-                      </h3>
-                      <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
-                        {DAYS[slot.dayOfWeek]}
-                      </span>
+              {(() => {
+                let sortedSlots = [...slots];
+                if (sortType === 'furthest') {
+                  sortedSlots.sort((a, b) => {
+                    const aDate = new Date(a.startDate);
+                    const bDate = new Date(b.startDate);
+                    return bDate.getTime() - aDate.getTime();
+                  });
+                } else if (sortType === 'closest') {
+                  sortedSlots.sort((a, b) => {
+                    const aDate = new Date(a.startDate);
+                    const bDate = new Date(b.startDate);
+                    return aDate.getTime() - bDate.getTime();
+                  });
+                } // 'added' is default order
+                return sortedSlots.map((slot) => (
+                  <div key={slot.id} className="p-6 flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-medium text-gray-900">
+                          {slot.title || 'Unnamed Period'}
+                        </h3>
+                        <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-gray-900 rounded-full">
+                          {DAYS[slot.dayOfWeek]}
+                        </span>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-900">
+                        <div>
+                          <span className="font-medium">Time:</span> {slot.startTime} - {slot.endTime}
+                        </div>
+                        <div>
+                          <span className="font-medium">Start:</span> {formatDate(slot.startDate)}
+                        </div>
+                        <div>
+                          <span className="font-medium">End:</span> {slot.endDate ? formatDate(slot.endDate) : 'Ongoing'}
+                        </div>
+                      </div>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
-                      <div>
-                        <span className="font-medium">Time:</span> {slot.startTime} - {slot.endTime}
-                      </div>
-                      <div>
-                        <span className="font-medium">Start:</span> {formatDate(slot.startDate)}
-                      </div>
-                      <div>
-                        <span className="font-medium">End:</span> {slot.endDate ? formatDate(slot.endDate) : 'Ongoing'}
-                      </div>
-                    </div>
+                    <button
+                      onClick={() => deleteSlot(slot.id)}
+                      className="text-red-600 hover:text-red-800 transition-colors p-2"
+                      title="Delete this availability period"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => deleteSlot(slot.id)}
-                    className="text-red-600 hover:text-red-800 transition-colors p-2"
-                    title="Delete this availability period"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
+                ));
+              })()}
             </div>
           )}
         </div>
