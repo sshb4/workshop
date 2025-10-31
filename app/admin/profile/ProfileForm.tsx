@@ -247,7 +247,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
             </p>
             {/* Theme Preview */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {colorSchemes.map(scheme => (
+              {Array.isArray(colorSchemes) && colorSchemes.map(scheme => (
                 <div key={scheme.id} className="relative">
                   <input
                     type="radio"
