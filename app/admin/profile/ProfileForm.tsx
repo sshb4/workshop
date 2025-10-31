@@ -20,7 +20,7 @@ interface Teacher {
   profileImage: string | null
   favicon: string | null
   colorScheme: string
-  timeFormat?: string
+  timeFormat?: string | null
 }
 
 interface ProfileFormProps {

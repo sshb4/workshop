@@ -176,7 +176,7 @@ function AvailabilityContent() {
       const start = new Date(formData.startDate)
       const end = formData.endDate ? new Date(formData.endDate) : start
       const slotRequests: Promise<Response>[] = [];
-      let createdDates: string[] = [];
+      const createdDates: string[] = [];
       const formatUSDate = (date: Date) => {
         const yyyy = date.getFullYear();
         const mm = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -190,7 +190,7 @@ function AvailabilityContent() {
           if (d.getDay() === dayOfWeek && !isDateBlocked(formatUSDate(d))) {
             // If the range is only one day, omit endDate
             const isSingleDay = start.getTime() === end.getTime();
-            const slotPayload: any = {
+            const slotPayload: Partial<AvailabilitySlot> = {
               ...formData,
               dayOfWeek,
               startDate: formatUSDate(d),
@@ -593,7 +593,7 @@ function AvailabilityContent() {
           ) : (
             <div className="divide-y divide-gray-200">
               {(() => {
-                let sortedSlots = [...slots];
+                const sortedSlots = [...slots];
                 if (sortType === 'furthest') {
                   sortedSlots.sort((a, b) => {
                     const aDate = new Date(a.startDate);

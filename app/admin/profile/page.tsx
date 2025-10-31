@@ -48,13 +48,20 @@ export default async function ProfilePage() {
   }
 
   // Convert Decimal to number for client component
-  const teacherData = {
-    ...teacher,
-    hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : null,
-    title: (teacher as typeof teacher & { title?: string }).title || null,
-    favicon: (teacher as typeof teacher & { favicon?: string }).favicon || null,
-    colorScheme: (teacher as typeof teacher & { colorScheme?: string }).colorScheme || 'default'
-  }
+    const teacherData = {
+      ...teacher,
+      // convert nullable DB values to null so they match Prisma/Teacher types (string | null, number | null)
+      hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : null,
+      title: (teacher as typeof teacher & { title?: string | null }).title ?? null,
+      favicon: (teacher as typeof teacher & { favicon?: string | null }).favicon ?? null,
+      colorScheme: (teacher as typeof teacher & { colorScheme?: string | null }).colorScheme || 'default',
+      // ensure timeFormat is undefined if null, to match type 'string | undefined'
+      timeFormat:
+        typeof (teacher as typeof teacher & { timeFormat?: string | null }).timeFormat === 'string'
+          ? (teacher as typeof teacher & { timeFormat?: string | null }).timeFormat
+          : undefined,
+      bio: (teacher as typeof teacher & { bio?: string | null }).bio ?? null,
+    }
 
   return (
     <div className="min-h-screen bg-gray-50">
