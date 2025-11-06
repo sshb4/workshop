@@ -22,7 +22,8 @@ export function middleware(request: NextRequest) {
     url.pathname.startsWith('/apple-touch-icon') ||
     url.pathname.startsWith('/android-chrome') ||
     url.pathname.startsWith('/favicon-16x16.png') ||
-    url.pathname.startsWith('/favicon-32x32.png')
+    url.pathname.startsWith('/favicon-32x32.png') ||
+    url.pathname.startsWith('/icon.png')
   ) {
     return NextResponse.next()
   }
@@ -73,7 +74,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization)
      * - favicon.png
+     * - icon.png
      */
-    '/((?!api|_next/static|_next/image|favicon.png).*)',
+    '/((?!api|_next/static|_next/image|favicon.png|icon.png).*)',
   ],
 }
