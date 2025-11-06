@@ -17,13 +17,17 @@ export function middleware(request: NextRequest) {
     url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/_next') ||
     url.pathname.startsWith('/favicon.ico') ||
+    url.pathname.startsWith('/favicon.png') ||
+    url.pathname.startsWith('/icon.png') ||
     url.pathname.startsWith('/site.webmanifest') ||
     url.pathname.startsWith('/robots.txt') ||
     url.pathname.startsWith('/apple-touch-icon') ||
     url.pathname.startsWith('/android-chrome') ||
     url.pathname.startsWith('/favicon-16x16.png') ||
     url.pathname.startsWith('/favicon-32x32.png') ||
-    url.pathname.startsWith('/icon.png')
+    url.pathname.startsWith('/vercel.svg') ||
+    url.pathname.startsWith('/public') ||
+    url.pathname.startsWith('/static')
   ) {
     return NextResponse.next()
   }
@@ -73,9 +77,19 @@ export const config = {
      * - api routes
      * - _next/static (static files)
      * - _next/image (image optimization)
+     * - favicon.ico
      * - favicon.png
      * - icon.png
+     * - site.webmanifest
+     * - robots.txt
+     * - apple-touch-icon
+     * - android-chrome
+     * - favicon-16x16.png
+     * - favicon-32x32.png
+     * - vercel.svg
+     * - public
+     * - static
      */
-    '/((?!api|_next/static|_next/image|favicon.png|icon.png).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|favicon.png|icon.png|site.webmanifest|robots.txt|apple-touch-icon|android-chrome|favicon-16x16.png|favicon-32x32.png|vercel.svg|public|static).*)',
   ],
 }
