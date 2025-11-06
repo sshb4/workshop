@@ -108,7 +108,12 @@ export default function SignupPage() {
       const result = await response.json()
 
       if (!response.ok) {
-        setError(result.error || 'Registration failed')
+        if (typeof result.error === 'string') {
+          setError(result.error)
+        } else {
+          console.log('Unexpected error value from signup API:', result.error)
+          setError('Registration failed')
+        }
         return
       }
 

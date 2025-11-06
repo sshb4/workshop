@@ -121,6 +121,18 @@ export default async function TeacherProfilePage({
     availabilitySlots: mappedSlots
   }
 
+  // Fetch booking settings for this teacher
+  let bookingSettings = null
+  try {
+    const settingsResult = await prisma.$queryRaw`SELECT * FROM booking_settings WHERE teacher_id = ${teacher.id} LIMIT 1`
+    bookingSettings = Array.isArray(settingsResult) && settingsResult.length > 0 ? settingsResult[0] : null
+  } catch (err) {
+    bookingSettings = null
+  }
+
+  const allowCustomerBook = bookingSettings?.allow_customer_book !== undefined ? !!bookingSettings.allow_customer_book : true
+  const allowManualBook = bookingSettings?.allow_manual_book !== undefined ? !!bookingSettings.allow_manual_book : true
+
   // Get the selected color scheme
   const colorScheme = getColorScheme((teacher as typeof teacher & { colorScheme?: string }).colorScheme || 'default')
 
@@ -283,65 +295,87 @@ export default async function TeacherProfilePage({
             className="mb-6 sm:mb-8 text-sm sm:text-lg transition-colors duration-300"
             style={{ color: colorScheme.styles.textSecondary }}
           >
-            Select an available time window below to schedule your session.
+            {allowCustomerBook ? 'Select an available time window below to schedule your session.' : 'Please call to schedule an appointment.'}
           </p>
-          
-          {/* Booking Calendar */}
-          {teacherWithActiveSlots.availabilitySlots.length > 0 ? (
-            <BookingCalendar 
-              teacher={{
-                id: teacher.id,
-                subdomain: teacher.subdomain,
-                name: teacher.name,
-                hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : undefined,
-                title: (teacher as { title?: string }).title
-              }}
-              availabilitySlots={teacherWithActiveSlots.availabilitySlots}
-              colorScheme={colorScheme}
-            />
-          ) : (
-            <div 
-              className="border-2 border-dashed rounded-xl p-16 text-center transition-colors duration-300"
-              style={{ 
-                borderColor: colorScheme.styles.border,
-                backgroundColor: colorScheme.styles.backgroundSecondary
-              }}
-            >
+          {/* Hide calendar if only manual booking is enabled */}
+          {allowCustomerBook ? (
+            teacherWithActiveSlots.availabilitySlots.length > 0 ? (
+              <BookingCalendar 
+                teacher={{
+                  id: teacher.id,
+                  subdomain: teacher.subdomain,
+                  name: teacher.name,
+                  hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : undefined,
+                  title: (teacher as { title?: string }).title
+                }}
+                availabilitySlots={teacherWithActiveSlots.availabilitySlots}
+                colorScheme={colorScheme}
+              />
+            ) : (
               <div 
-                className="mb-4 transition-colors duration-300"
-                style={{ color: colorScheme.styles.textSecondary }}
+                className="border-2 border-dashed rounded-xl p-16 text-center transition-colors duration-300"
+                style={{ 
+                  borderColor: colorScheme.styles.border,
+                  backgroundColor: colorScheme.styles.backgroundSecondary
+                }}
               >
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <p 
-                className="text-lg font-medium transition-colors duration-300"
-                style={{ color: colorScheme.styles.textSecondary }}
-              >
-                No availability set
-              </p>
-              <p 
-                className="text-sm mt-2 transition-colors duration-300"
-                style={{ color: colorScheme.styles.textSecondary }}
-              >
-                The provider hasn&apos;t set their available times yet
-              </p>
-              <p className="text-sm mt-4">
-                <span 
-                  className="transition-colors duration-300"
+                <div 
+                  className="mb-4 transition-colors duration-300"
                   style={{ color: colorScheme.styles.textSecondary }}
                 >
-                  Contact directly: <br />
-                </span>
-                <a 
-                  href={`mailto:${teacher.email}`} 
-                  className="font-medium transition-colors duration-200 hover:opacity-80"
-                  style={{ color: colorScheme.styles.primary }}
+                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p 
+                  className="text-lg font-medium transition-colors duration-300"
+                  style={{ color: colorScheme.styles.textSecondary }}
                 >
-                  {teacher.email}
-                </a>
+                  No availability set
+                </p>
+                <p 
+                  className="text-sm mt-2 transition-colors duration-300"
+                  style={{ color: colorScheme.styles.textSecondary }}
+                >
+                  The provider hasn&apos;t set their available times yet
+                </p>
+                <p className="text-sm mt-4">
+                  <span 
+                    className="transition-colors duration-300"
+                    style={{ color: colorScheme.styles.textSecondary }}
+                  >
+                    Contact directly: <br />
+                  </span>
+                  <a 
+                    href={`mailto:${teacher.email}`} 
+                    className="font-medium transition-colors duration-200 hover:opacity-80"
+                    style={{ color: colorScheme.styles.primary }}
+                  >
+                    {teacher.email}
+                  </a>
+                </p>
+              </div>
+            )
+          ) : (
+            <div className="rounded-xl p-8 text-center shadow-lg transition-colors duration-300" style={{ backgroundColor: colorScheme.styles.backgroundSecondary, border: `1px solid ${colorScheme.styles.primary}` }}>
+              <h3 className="text-2xl font-bold mb-2" style={{ color: colorScheme.styles.primary }}>
+                Schedule an Appointment
+              </h3>
+              <p className="text-base mb-4" style={{ color: colorScheme.styles.textSecondary }}>
+                This provider only accepts appointments by phone or email. Please use the contact information below to schedule your session.
               </p>
+              {teacher.phone && (
+                <div className="mb-2">
+                  <span className="text-sm font-medium" style={{ color: colorScheme.styles.textPrimary }}>Phone: </span>
+                  <a href={`tel:${teacher.phone}`} className="font-semibold" style={{ color: colorScheme.styles.primary }}>{teacher.phone}</a>
+                </div>
+              )}
+              {teacher.email && (
+                <div>
+                  <span className="text-sm font-medium" style={{ color: colorScheme.styles.textPrimary }}>Email: </span>
+                  <a href={`mailto:${teacher.email}`} className="font-semibold" style={{ color: colorScheme.styles.primary }}>{teacher.email}</a>
+                </div>
+              )}
             </div>
           )}
         </div>

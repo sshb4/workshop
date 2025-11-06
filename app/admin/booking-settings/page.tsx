@@ -16,6 +16,8 @@ interface BookingSettings {
   allowSameDayBooking: boolean
   cancellationPolicy: number // hours before session
   maxSessionsPerDay: number
+  allowCustomerBook: boolean
+  allowManualBook: boolean
 }
 
 export default function BookingSettingsPage() {
@@ -32,7 +34,9 @@ export default function BookingSettingsPage() {
     bufferTime: 15,
     allowSameDayBooking: false,
     cancellationPolicy: 24,
-    maxSessionsPerDay: 8
+    maxSessionsPerDay: 8,
+    allowCustomerBook: true,
+    allowManualBook: true
   })
 
   useEffect(() => {
@@ -135,6 +139,39 @@ export default function BookingSettingsPage() {
         )}
 
         <div className="space-y-8">
+          {/* Booking Mode Selection */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Booking Mode</h2>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="allowCustomerBook"
+                  checked={settings.allowCustomerBook}
+                  onChange={e => setSettings({ ...settings, allowCustomerBook: e.target.checked })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="allowCustomerBook" className="text-sm text-gray-700 font-medium flex items-center gap-2">
+                  Customer Book
+                </label>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="allowManualBook"
+                  checked={settings.allowManualBook}
+                  onChange={e => setSettings({ ...settings, allowManualBook: e.target.checked })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="allowManualBook" className="text-sm text-gray-700 font-medium flex items-center gap-2">
+                  Manual Book
+                </label>
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                You can enable both options. If only <span className="font-semibold">Manual Book</span> is selected, the public calendar will be hidden and customers will see a &quot;Call to schedule an appointment&quot; message.
+              </div>
+            </div>
+          </div>
           {/* General Settings */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">General Booking Settings</h2>

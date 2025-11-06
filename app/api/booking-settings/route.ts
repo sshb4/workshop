@@ -31,21 +31,25 @@ export async function GET() {
       allowWeekends: true,
       allowSameDayBooking: false,
       cancellationPolicy: 24,
-      maxSessionsPerDay: 8
+      maxSessionsPerDay: 8,
+      allowCustomerBook: true,
+      allowManualBook: true
     }
 
     // Try to fetch booking settings using raw SQL
     let settings = defaultSettings
     try {
       interface BookingSettingsRow {
-        min_advance_booking: number;
-        max_advance_booking: number;
-        session_duration: number;
-        buffer_time: number;
-        allow_weekends: boolean;
-        allow_same_day_booking: boolean;
-        cancellation_policy: number;
-        max_sessions_per_day: number;
+  min_advance_booking: number;
+  max_advance_booking: number;
+  session_duration: number;
+  buffer_time: number;
+  allow_weekends: boolean;
+  allow_same_day_booking: boolean;
+  cancellation_policy: number;
+  max_sessions_per_day: number;
+  allow_customer_book?: number;
+  allow_manual_book?: number;
       }
       
       const bookingSettings = await prisma.$queryRaw`
@@ -62,7 +66,9 @@ export async function GET() {
           allowWeekends: dbSettings.allow_weekends,
           allowSameDayBooking: dbSettings.allow_same_day_booking,
           cancellationPolicy: dbSettings.cancellation_policy,
-          maxSessionsPerDay: dbSettings.max_sessions_per_day
+          maxSessionsPerDay: dbSettings.max_sessions_per_day,
+          allowCustomerBook: dbSettings.allow_customer_book !== undefined ? !!dbSettings.allow_customer_book : true,
+          allowManualBook: dbSettings.allow_manual_book !== undefined ? !!dbSettings.allow_manual_book : true
         }
       }
     } catch {
@@ -131,12 +137,12 @@ export async function POST(request: Request) {
       INSERT INTO booking_settings (
         id, teacher_id, min_advance_booking, max_advance_booking, session_duration,
         buffer_time, allow_weekends, allow_same_day_booking, cancellation_policy,
-        max_sessions_per_day, created_at, updated_at
+        max_sessions_per_day, allow_customer_book, allow_manual_book, created_at, updated_at
       ) VALUES (
         ${crypto.randomUUID()}, ${session.user.id}, ${settings.minAdvanceBooking}, 
         ${settings.maxAdvanceBooking}, ${settings.sessionDuration}, ${settings.bufferTime},
         ${settings.allowWeekends}, ${settings.allowSameDayBooking}, ${settings.cancellationPolicy},
-        ${settings.maxSessionsPerDay}, datetime('now'), datetime('now')
+  ${settings.maxSessionsPerDay}, ${settings.allowCustomerBook ? 1 : 0}, ${settings.allowManualBook ? 1 : 0}, NOW(), NOW()
       ) ON CONFLICT (teacher_id) DO UPDATE SET
         min_advance_booking = ${settings.minAdvanceBooking},
         max_advance_booking = ${settings.maxAdvanceBooking},
@@ -146,7 +152,9 @@ export async function POST(request: Request) {
         allow_same_day_booking = ${settings.allowSameDayBooking},
         cancellation_policy = ${settings.cancellationPolicy},
         max_sessions_per_day = ${settings.maxSessionsPerDay},
-        updated_at = datetime('now')
+        allow_customer_book = ${settings.allowCustomerBook ? 1 : 0},
+        allow_manual_book = ${settings.allowManualBook ? 1 : 0},
+  updated_at = NOW()
     `
 
     // Delete existing blocked dates
@@ -167,7 +175,7 @@ export async function POST(request: Request) {
           ) VALUES (
             '${crypto.randomUUID()}', '${session.user.id}', '${startDateISO}', 
             '${endDateISO}', '${date.reason}', ${date.isRecurring ? 1 : 0},
-            ${date.recurringType ? `'${date.recurringType}'` : 'NULL'}, datetime('now'), datetime('now')
+            ${date.recurringType ? `'${date.recurringType}'` : 'NULL'}, NOW(), NOW()
           )
         `)
       }

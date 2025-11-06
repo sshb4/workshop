@@ -695,14 +695,16 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
           {/* Calendar Days */}
           <div className="grid grid-cols-7 gap-1">
             {calendarDays.map((day, index) => (
-              <button
+              <div
                 key={day.date.toISOString()}
                 onClick={() => {
                   if (day.isCurrentMonth && day.hasAvailability && !day.isPast) {
                     setSelectedDate(day.date)
                   }
                 }}
-                disabled={!day.isCurrentMonth || !day.hasAvailability || day.isPast}
+                role="button"
+                tabIndex={day.isCurrentMonth && day.hasAvailability && !day.isPast ? 0 : -1}
+                aria-disabled={!day.isCurrentMonth || !day.hasAvailability || day.isPast}
                 className="aspect-square p-2 rounded-lg transition-all duration-200 relative min-h-16 flex flex-col items-center justify-center group"
                 style={{ 
                   backgroundColor: day.isSelected 
@@ -735,14 +737,16 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                 {day.hasAvailability && !day.isPast && day.isCurrentMonth && (
                   <div className="flex flex-col items-center justify-center mt-4 w-full">
                     {day.availableSlots.slice(0, 3).map(slot => (
-                      <button
+                      <div
                         key={slot.id}
                         onClick={e => {
                           e.stopPropagation();
                           setSelectedDate(day.date);
                           handleSlotClick(slot, day.date);
                         }}
-                        className="w-full px-1 py-0.5 mb-1 rounded bg-white bg-opacity-80 text-xs font-medium border border-gray-200 hover:bg-primary hover:text-white transition-colors"
+                        role="button"
+                        tabIndex={0}
+                        className="w-full px-1 py-0.5 mb-1 rounded bg-white bg-opacity-80 text-xs font-medium border border-gray-200 hover:bg-primary hover:text-white transition-colors cursor-pointer"
                         style={{
                           backgroundColor: day.isSelected ? colorScheme.styles.primary : 'white',
                           color: day.isSelected ? 'white' : colorScheme.styles.primary,
@@ -751,7 +755,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                       >
                         {new Date(`2000-01-01T${slot.startTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)} - {new Date(`2000-01-01T${slot.endTime}:00`).toLocaleTimeString('en-US', timeFormatOptions)}
                         {slot.title ? ` • ${slot.title}` : ''}
-                      </button>
+                      </div>
                     ))}
                     {day.availableSlots.length > 3 && (
                       <span className="text-xs opacity-60">+{day.availableSlots.length - 3} more</span>
@@ -763,7 +767,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
                        style={{ backgroundColor: colorScheme.styles.accent }}>
                   </div>
                 )}
-              </button>
+              </div>
             ))}
           </div>
         </div>
