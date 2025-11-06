@@ -19,7 +19,6 @@ model Teacher {
   profileImage      String?            @map("profile_image")
   phone             String?
   colorScheme       String             @default("default") @map("color_scheme")
-  timeFormat        String?            @default("12") @map("time_format")
   emailVerified     DateTime?          @map("email_verified")
   verificationToken String?            @map("verification_token")
   tokenExpiry       DateTime?          @map("token_expiry")
