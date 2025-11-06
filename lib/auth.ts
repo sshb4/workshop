@@ -17,7 +17,9 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        console.log('Authorize called with:', credentials)
         if (!credentials?.email || !credentials?.password) {
+          console.log('Missing email or password')
           throw new Error('Email and password required')
         }
 
@@ -25,8 +27,10 @@ export const authOptions: NextAuthOptions = {
         const teacher = await prisma.teacher.findUnique({
           where: { email: credentials.email },
         })
+        console.log('Teacher found:', teacher)
 
         if (!teacher || !teacher.passwordHash) {
+          console.log('No teacher or missing passwordHash')
           throw new Error('Invalid credentials')
         }
 
@@ -35,8 +39,10 @@ export const authOptions: NextAuthOptions = {
           credentials.password,
           teacher.passwordHash
         )
+        console.log('Password valid:', passwordValid)
 
         if (!passwordValid) {
+          console.log('Password did not match')
           throw new Error('Invalid credentials')
         }
 
