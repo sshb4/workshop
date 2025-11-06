@@ -61,8 +61,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/buzz-icon.png" type="image/png" />
-        <link rel="shortcut icon" href="/buzz-icon.png" type="image/png" />
+        <link rel="icon" href="/icon.png" type="image/png" />
+        <link rel="shortcut icon" href="/icon.png" type="image/png" />
       </head>
       <body
         className="antialiased font-sans"
