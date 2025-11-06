@@ -11,25 +11,17 @@ export function middleware(request: NextRequest) {
   const subdomain = getSubdomain(hostname)
   
   // Skip middleware for admin routes, API routes, static files, and root route
+  const staticFileRegex = /\.(ico|png|svg|jpg|jpeg|webp|gif|css|js|json|txt|webmanifest|xml|map)$/i;
   if (
     url.pathname === '/' ||
     url.pathname.startsWith('/admin') ||
     url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/_next') ||
-    url.pathname.startsWith('/favicon.ico') ||
-    url.pathname.startsWith('/favicon.png') ||
-    url.pathname.startsWith('/icon.png') ||
-    url.pathname.startsWith('/site.webmanifest') ||
-    url.pathname.startsWith('/robots.txt') ||
-    url.pathname.startsWith('/apple-touch-icon') ||
-    url.pathname.startsWith('/android-chrome') ||
-    url.pathname.startsWith('/favicon-16x16.png') ||
-    url.pathname.startsWith('/favicon-32x32.png') ||
-    url.pathname.startsWith('/vercel.svg') ||
     url.pathname.startsWith('/public') ||
-    url.pathname.startsWith('/static')
+    url.pathname.startsWith('/static') ||
+    staticFileRegex.test(url.pathname)
   ) {
-    return NextResponse.next()
+    return NextResponse.next();
   }
   
   // If we have a valid subdomain, rewrite to tenant-specific route
@@ -72,24 +64,7 @@ function isReservedSubdomain(subdomain: string): boolean {
 
 export const config = {
   matcher: [
-    /*
-     * Match all paths except:
-     * - api routes
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - favicon.png
-     * - icon.png
-     * - site.webmanifest
-     * - robots.txt
-     * - apple-touch-icon
-     * - android-chrome
-     * - favicon-16x16.png
-     * - favicon-32x32.png
-     * - vercel.svg
-     * - public
-     * - static
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|favicon.png|icon.png|site.webmanifest|robots.txt|apple-touch-icon|android-chrome|favicon-16x16.png|favicon-32x32.png|vercel.svg|public|static).*)',
+    // Exclude all static files and common asset extensions
+    '/((?!api|_next/static|_next/image|favicon\\.ico|favicon\\.png|icon\\.png|site\\.webmanifest|robots\\.txt|apple-touch-icon|android-chrome|favicon-16x16\\.png|favicon-32x32\\.png|vercel\\.svg|public|static|\\.ico$|\\.png$|\\.svg$|\\.jpg$|\\.jpeg$|\\.webp$|\\.gif$|\\.css$|\\.js$|\\.json$|\\.txt$|\\.webmanifest$|\\.xml$|\\.map$).*)',
   ],
 }
