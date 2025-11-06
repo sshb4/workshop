@@ -16,7 +16,13 @@ export function middleware(request: NextRequest) {
     url.pathname.startsWith('/admin') ||
     url.pathname.startsWith('/api') ||
     url.pathname.startsWith('/_next') ||
-    url.pathname.startsWith('/favicon.ico')
+    url.pathname.startsWith('/favicon.ico') ||
+    url.pathname.startsWith('/site.webmanifest') ||
+    url.pathname.startsWith('/robots.txt') ||
+    url.pathname.startsWith('/apple-touch-icon') ||
+    url.pathname.startsWith('/android-chrome') ||
+    url.pathname.startsWith('/favicon-16x16.png') ||
+    url.pathname.startsWith('/favicon-32x32.png')
   ) {
     return NextResponse.next()
   }
