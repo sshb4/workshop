@@ -1,4 +1,4 @@
-// app/[subdomain]/page.tsx
+// app/[subdomain]/page.tsx 
 
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
