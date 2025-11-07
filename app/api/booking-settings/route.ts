@@ -149,7 +149,7 @@ export async function POST(request: Request) {
         ${crypto.randomUUID()}, ${session.user.id}, ${settings.minAdvanceBooking}, 
         ${settings.maxAdvanceBooking}, ${settings.sessionDuration}, ${settings.bufferTime},
         ${settings.allowWeekends}, ${settings.allowSameDayBooking}, ${settings.cancellationPolicy},
-        ${settings.maxSessionsPerDay}, ${settings.allowCustomerBook ? 1 : 0}, ${settings.allowManualBook ? 1 : 0},
+  ${settings.maxSessionsPerDay}, ${settings.allowCustomerBook}, ${settings.allowManualBook},
         ${JSON.stringify(settings.formFields)}::jsonb, NOW(), NOW()
       ) ON CONFLICT (teacher_id) DO UPDATE SET
         min_advance_booking = ${settings.minAdvanceBooking},
@@ -160,8 +160,8 @@ export async function POST(request: Request) {
         allow_same_day_booking = ${settings.allowSameDayBooking},
         cancellation_policy = ${settings.cancellationPolicy},
         max_sessions_per_day = ${settings.maxSessionsPerDay},
-        allow_customer_book = ${settings.allowCustomerBook ? 1 : 0},
-        allow_manual_book = ${settings.allowManualBook ? 1 : 0},
+  allow_customer_book = ${settings.allowCustomerBook},
+  allow_manual_book = ${settings.allowManualBook},
         form_fields = ${JSON.stringify(settings.formFields)}::jsonb,
         updated_at = NOW()
     `
