@@ -18,6 +18,14 @@ interface BookingSettings {
   maxSessionsPerDay: number
   allowCustomerBook: boolean
   allowManualBook: boolean
+  formFields?: {
+    address?: boolean
+    dates?: boolean
+    description?: boolean
+    phone?: boolean
+    email?: boolean
+    name?: boolean
+  }
 }
 
 export default function BookingSettingsPage() {
@@ -36,7 +44,15 @@ export default function BookingSettingsPage() {
     cancellationPolicy: 24,
     maxSessionsPerDay: 8,
     allowCustomerBook: true,
-    allowManualBook: true
+    allowManualBook: true,
+    formFields: {
+      address: true,
+      dates: true,
+      description: true,
+      phone: true,
+      email: true,
+      name: true
+    }
   })
 
   useEffect(() => {
@@ -139,6 +155,67 @@ export default function BookingSettingsPage() {
         )}
 
         <div className="space-y-8">
+          {/* Form Field Selection */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Booking Request Form Fields</h2>
+            <div className="flex flex-col gap-4">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!settings.formFields?.name}
+                  onChange={e => setSettings({ ...settings, formFields: { ...settings.formFields, name: e.target.checked } })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span className="text-sm text-gray-700 font-medium">Name</span>
+              </label>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!settings.formFields?.email}
+                  onChange={e => setSettings({ ...settings, formFields: { ...settings.formFields, email: e.target.checked } })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span className="text-sm text-gray-700 font-medium">Email</span>
+              </label>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!settings.formFields?.phone}
+                  onChange={e => setSettings({ ...settings, formFields: { ...settings.formFields, phone: e.target.checked } })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span className="text-sm text-gray-700 font-medium">Phone</span>
+              </label>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!settings.formFields?.address}
+                  onChange={e => setSettings({ ...settings, formFields: { ...settings.formFields, address: e.target.checked } })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span className="text-sm text-gray-700 font-medium">Address</span>
+              </label>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!settings.formFields?.dates}
+                  onChange={e => setSettings({ ...settings, formFields: { ...settings.formFields, dates: e.target.checked } })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span className="text-sm text-gray-700 font-medium">Date(s) Requested</span>
+              </label>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!settings.formFields?.description}
+                  onChange={e => setSettings({ ...settings, formFields: { ...settings.formFields, description: e.target.checked } })}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                />
+                <span className="text-sm text-gray-700 font-medium">Description</span>
+              </label>
+            </div>
+            <div className="text-xs text-gray-500 mt-2">Select which fields customers must fill out when requesting a booking.</div>
+          </div>
           {/* Booking Mode Selection */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Booking Mode</h2>
@@ -168,7 +245,7 @@ export default function BookingSettingsPage() {
                 </label>
               </div>
               <div className="text-xs text-gray-500 mt-2">
-                You can enable both options. If only <span className="font-semibold">Manual Book</span> is selected, the public calendar will be hidden and customers will see a &quot;Call to schedule an appointment&quot; message.
+                <span className="font-semibold">Customer Book</span> requires them to fill out a booking & invoice form. If only <span className="font-semibold">Manual Book</span> is selected, the calendar with your availability will be hidden and customers will see a "Call to schedule an appointment" message instead.
               </div>
             </div>
           </div>

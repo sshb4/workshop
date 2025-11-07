@@ -28,6 +28,9 @@ interface BookingFormData {
   customerEmail: string
   customerPhone: string
   additionalNotes: string
+  invoiceAddress?: string
+  invoiceDates?: string[]
+  invoiceDescription?: string
 }
 
 export default function CheckoutPage() {
@@ -41,8 +44,18 @@ export default function CheckoutPage() {
     customerName: '',
     customerEmail: '',
     customerPhone: '',
-    additionalNotes: ''
+    additionalNotes: '',
+    invoiceAddress: '',
+    invoiceDates: [],
+    invoiceDescription: ''
   })
+  // Track if customer booking is enabled (simulate fetch from settings for now)
+  const [allowCustomerBook, setAllowCustomerBook] = useState(true)
+  useEffect(() => {
+    // TODO: Replace with actual fetch from booking settings
+    // For now, simulate as enabled
+    setAllowCustomerBook(true)
+  }, [])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
@@ -287,6 +300,57 @@ export default function CheckoutPage() {
                   placeholder="Any special requirements or notes for your booking..."
                 />
               </div>
+
+              {/* Invoice Form Section */}
+              {allowCustomerBook && (
+                <div className="mt-8 border-t pt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking & Invoice Form</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <label htmlFor="invoiceAddress" className="block text-sm font-medium text-gray-700 mb-2">
+                        Address
+                      </label>
+                      <input
+                        type="text"
+                        id="invoiceAddress"
+                        name="invoiceAddress"
+                        value={formData.invoiceAddress}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
+                        placeholder="Enter address for invoice"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="invoiceDates" className="block text-sm font-medium text-gray-700 mb-2">
+                        Date(s)
+                      </label>
+                      <input
+                        type="date"
+                        id="invoiceDates"
+                        name="invoiceDates"
+                        multiple
+                        value={formData.invoiceDates?.[0] || ''}
+                        onChange={e => setFormData({ ...formData, invoiceDates: [e.target.value] })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="invoiceDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                      </label>
+                      <textarea
+                        id="invoiceDescription"
+                        name="invoiceDescription"
+                        rows={3}
+                        value={formData.invoiceDescription}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
+                        placeholder="Describe the invoice purpose or details"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <button
                 type="submit"

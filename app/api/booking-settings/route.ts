@@ -33,29 +33,36 @@ export async function GET() {
       cancellationPolicy: 24,
       maxSessionsPerDay: 8,
       allowCustomerBook: true,
-      allowManualBook: true
+      allowManualBook: true,
+      formFields: {
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        dates: true,
+        description: true
+      }
     }
 
     // Try to fetch booking settings using raw SQL
     let settings = defaultSettings
     try {
       interface BookingSettingsRow {
-  min_advance_booking: number;
-  max_advance_booking: number;
-  session_duration: number;
-  buffer_time: number;
-  allow_weekends: boolean;
-  allow_same_day_booking: boolean;
-  cancellation_policy: number;
-  max_sessions_per_day: number;
-  allow_customer_book?: number;
-  allow_manual_book?: number;
+        min_advance_booking: number;
+        max_advance_booking: number;
+        session_duration: number;
+        buffer_time: number;
+        allow_weekends: boolean;
+        allow_same_day_booking: boolean;
+        cancellation_policy: number;
+        max_sessions_per_day: number;
+        allow_customer_book?: number;
+        allow_manual_book?: number;
+        form_fields?: any;
       }
-      
       const bookingSettings = await prisma.$queryRaw`
         SELECT * FROM booking_settings WHERE teacher_id = ${session.user.id} LIMIT 1
       ` as BookingSettingsRow[]
-      
       if (bookingSettings.length > 0) {
         const dbSettings = bookingSettings[0]
         settings = {
@@ -68,7 +75,8 @@ export async function GET() {
           cancellationPolicy: dbSettings.cancellation_policy,
           maxSessionsPerDay: dbSettings.max_sessions_per_day,
           allowCustomerBook: dbSettings.allow_customer_book !== undefined ? !!dbSettings.allow_customer_book : true,
-          allowManualBook: dbSettings.allow_manual_book !== undefined ? !!dbSettings.allow_manual_book : true
+          allowManualBook: dbSettings.allow_manual_book !== undefined ? !!dbSettings.allow_manual_book : true,
+          formFields: dbSettings.form_fields ? (typeof dbSettings.form_fields === 'string' ? JSON.parse(dbSettings.form_fields) : dbSettings.form_fields) : defaultSettings.formFields
         }
       }
     } catch {
@@ -131,18 +139,18 @@ export async function POST(request: Request) {
 
     const { settings, blockedDates } = await request.json()
 
-    // Use raw SQL to handle the database operations until Prisma client is regenerated
-    // Upsert booking settings
+    // Upsert booking settings, including formFields as JSON
     await prisma.$executeRaw`
       INSERT INTO booking_settings (
         id, teacher_id, min_advance_booking, max_advance_booking, session_duration,
         buffer_time, allow_weekends, allow_same_day_booking, cancellation_policy,
-        max_sessions_per_day, allow_customer_book, allow_manual_book, created_at, updated_at
+        max_sessions_per_day, allow_customer_book, allow_manual_book, form_fields, created_at, updated_at
       ) VALUES (
         ${crypto.randomUUID()}, ${session.user.id}, ${settings.minAdvanceBooking}, 
         ${settings.maxAdvanceBooking}, ${settings.sessionDuration}, ${settings.bufferTime},
         ${settings.allowWeekends}, ${settings.allowSameDayBooking}, ${settings.cancellationPolicy},
-  ${settings.maxSessionsPerDay}, ${settings.allowCustomerBook ? 1 : 0}, ${settings.allowManualBook ? 1 : 0}, NOW(), NOW()
+        ${settings.maxSessionsPerDay}, ${settings.allowCustomerBook ? 1 : 0}, ${settings.allowManualBook ? 1 : 0},
+        ${JSON.stringify(settings.formFields)}::jsonb, NOW(), NOW()
       ) ON CONFLICT (teacher_id) DO UPDATE SET
         min_advance_booking = ${settings.minAdvanceBooking},
         max_advance_booking = ${settings.maxAdvanceBooking},
@@ -154,7 +162,8 @@ export async function POST(request: Request) {
         max_sessions_per_day = ${settings.maxSessionsPerDay},
         allow_customer_book = ${settings.allowCustomerBook ? 1 : 0},
         allow_manual_book = ${settings.allowManualBook ? 1 : 0},
-  updated_at = NOW()
+        form_fields = ${JSON.stringify(settings.formFields)}::jsonb,
+        updated_at = NOW()
     `
 
     // Delete existing blocked dates
