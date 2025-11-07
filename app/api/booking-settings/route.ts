@@ -58,7 +58,7 @@ export async function GET() {
         max_sessions_per_day: number;
         allow_customer_book?: number;
         allow_manual_book?: number;
-        form_fields?: any;
+        form_fields?: Record<string, boolean>;
       }
       const bookingSettings = await prisma.$queryRaw`
         SELECT * FROM booking_settings WHERE teacher_id = ${session.user.id} LIMIT 1

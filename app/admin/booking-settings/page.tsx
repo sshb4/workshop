@@ -245,7 +245,7 @@ export default function BookingSettingsPage() {
                 </label>
               </div>
               <div className="text-xs text-gray-500 mt-2">
-                <span className="font-semibold">Customer Book</span> requires them to fill out a booking & invoice form. If only <span className="font-semibold">Manual Book</span> is selected, the calendar with your availability will be hidden and customers will see a "Call to schedule an appointment" message instead.
+                <span className="font-semibold">Customer Book</span> requires them to fill out a booking & invoice form. If only <span className="font-semibold">Manual Book</span> is selected, the calendar with your availability will be hidden and customers will see a &quot;Call to schedule an appointment&quot; message instead.
               </div>
             </div>
           </div>
