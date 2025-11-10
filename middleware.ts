@@ -6,12 +6,13 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const url = request.nextUrl.clone()
-  
   // Get subdomain from hostname
   const subdomain = getSubdomain(hostname)
-  
-  // Skip middleware for admin routes, API routes, static files, and root route
+  // Strengthened static file exclusion
   const staticFileRegex = /\.(ico|png|svg|jpg|jpeg|webp|gif|css|js|json|txt|webmanifest|xml|map)$/i;
+  const staticAssetPaths = [
+    '/favicon.ico', '/favicon.png', '/icon.png', '/site.webmanifest', '/robots.txt', '/apple-touch-icon.png', '/vercel.svg',
+  ];
   if (
     url.pathname === '/' ||
     url.pathname.startsWith('/admin') ||
@@ -19,8 +20,11 @@ export function middleware(request: NextRequest) {
     url.pathname.startsWith('/_next') ||
     url.pathname.startsWith('/public') ||
     url.pathname.startsWith('/static') ||
-    staticFileRegex.test(url.pathname)
+    staticFileRegex.test(url.pathname) ||
+    staticAssetPaths.includes(url.pathname)
   ) {
+    // Debug log for static asset exclusion
+    console.log('[middleware] Skipping static asset:', url.pathname)
     return NextResponse.next();
   }
   
@@ -64,7 +68,7 @@ function isReservedSubdomain(subdomain: string): boolean {
 
 export const config = {
   matcher: [
-    // Exclude all static files and common asset extensions
-    '/((?!api|_next/static|_next/image|favicon\\.ico|favicon\\.png|icon\\.png|site\\.webmanifest|robots\\.txt|apple-touch-icon|android-chrome|favicon-16x16\\.png|favicon-32x32\\.png|vercel\\.svg|public|static|\\.ico$|\\.png$|\\.svg$|\\.jpg$|\\.jpeg$|\\.webp$|\\.gif$|\\.css$|\\.js$|\\.json$|\\.txt$|\\.webmanifest$|\\.xml$|\\.map$).*)',
+    // Exclude all static files and common asset extensions (strengthened)
+    '/((?!api|_next/static|_next/image|favicon\\.ico|favicon\\.png|icon\\.png|site\\.webmanifest|robots\\.txt|apple-touch-icon\\.png|vercel\\.svg|public|static|\\.ico$|\\.png$|\\.svg$|\\.jpg$|\\.jpeg$|\\.webp$|\\.gif$|\\.css$|\\.js$|\\.json$|\\.txt$|\\.webmanifest$|\\.xml$|\\.map$).*)',
   ],
 }
