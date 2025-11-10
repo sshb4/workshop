@@ -27,13 +27,22 @@ export function middleware(request: NextRequest) {
     console.log('[middleware] Skipping static asset:', url.pathname)
     return NextResponse.next();
   }
-  
-  // If we have a valid subdomain, rewrite to tenant-specific route
+
+  // Path-based subdomain support: rewrite /subdomain to /[subdomain]/page
+  const pathParts = url.pathname.split('/').filter(Boolean)
+  if (pathParts.length === 1 && !isReservedSubdomain(pathParts[0])) {
+    // Rewrite /subdomain to /[subdomain]
+    url.pathname = `/${pathParts[0]}`
+    console.log('[middleware] Rewriting path-based subdomain:', url.pathname)
+    return NextResponse.rewrite(url)
+  }
+
+  // If we have a valid subdomain in hostname, rewrite to tenant-specific route
   if (subdomain && !isReservedSubdomain(subdomain)) {
     url.pathname = `/${subdomain}${url.pathname}`
     return NextResponse.rewrite(url)
   }
-  
+
   // Default: continue normally
   return NextResponse.next()
 }
