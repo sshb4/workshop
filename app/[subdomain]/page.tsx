@@ -75,7 +75,7 @@ export default async function TeacherProfilePage({
   // Fetch teacher by subdomain (without includes to isolate the issue)
   let teacher
   try {
-    teacher = await prisma.teacher.findUnique({
+    teacher = await prisma.teacher.findFirst({
       where: {
         subdomain,
       }
