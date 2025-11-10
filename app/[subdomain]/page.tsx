@@ -79,6 +79,21 @@ export default async function TeacherProfilePage({
     notFound()
   }
 
+  // Extra error logging for runtime issues
+  try {
+    if (!teacher) {
+      throw new Error('Teacher not found for subdomain: ' + subdomain)
+    }
+    // Add more checks for required properties
+    if (!teacher.name) {
+      throw new Error('Teacher record missing name property: ' + JSON.stringify(teacher))
+    }
+    // You can add more property checks here as needed
+  } catch (err) {
+    console.error('Server component render error:', err)
+    throw err
+  }
+
   // Fetch availability slots separately
   let availabilitySlots: SlotLike[] = []
   if (teacher) {
