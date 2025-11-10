@@ -76,6 +76,7 @@ export default async function DashboardPage() {
     },
   })
 
+
   if (!teacher) {
     redirect('/admin/login')
   }
@@ -268,6 +269,7 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+
 
         {/* Recent Bookings */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
