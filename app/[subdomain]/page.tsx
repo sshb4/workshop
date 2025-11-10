@@ -65,6 +65,13 @@ export default async function TeacherProfilePage({
 }) {
   const { subdomain } = await params
   console.log('Requested subdomain:', subdomain)
+  // Print all subdomains in the DB for debugging
+  try {
+    const allTeachers = await prisma.teacher.findMany({ select: { subdomain: true } })
+    console.log('All teacher subdomains in DB:', allTeachers.map(t => t.subdomain))
+  } catch (err) {
+    console.error('Error fetching all teacher subdomains:', err)
+  }
   // Fetch teacher by subdomain (without includes to isolate the issue)
   let teacher
   try {
