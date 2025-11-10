@@ -64,7 +64,7 @@ export default async function TeacherProfilePage({
   params: Promise<{ subdomain: string }>
 }) {
   const { subdomain } = await params
-  
+  console.log('Requested subdomain:', subdomain)
   // Fetch teacher by subdomain (without includes to isolate the issue)
   let teacher
   try {
@@ -73,6 +73,7 @@ export default async function TeacherProfilePage({
         subdomain,
       }
     })
+    console.log('Teacher query result:', teacher)
   } catch (error) {
     console.error('Error fetching teacher:', error)
     notFound()
