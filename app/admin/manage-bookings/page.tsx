@@ -37,6 +37,22 @@ export default function ManageBookingsPage() {
   const [message, setMessage] = useState('')
   const [activeTab, setActiveTab] = useState<'manage' | 'add'>('manage')
   const [addBookingLoading, setAddBookingLoading] = useState(false)
+  
+  // Modal states
+  const [deleteBookingId, setDeleteBookingId] = useState<string | null>(null)
+  const [contactBooking, setContactBooking] = useState<Booking | null>(null)
+  const [quoteBooking, setQuoteBooking] = useState<Booking | null>(null)
+  const [quoteForm, setQuoteForm] = useState({
+    description: '',
+    amount: '',
+    duration: '',
+    notes: ''
+  })
+  
+  // Sorting states
+  const [sortBy, setSortBy] = useState<'name' | 'status' | 'date'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  
   const [formData, setFormData] = useState<ManualBookingForm>({
     studentName: '',
     studentEmail: '',
@@ -73,10 +89,6 @@ export default function ManageBookingsPage() {
   }
 
   const handleDeleteBooking = async (bookingId: string) => {
-    if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
-      return
-    }
-
     try {
       const response = await fetch(`/api/bookings-manage?id=${bookingId}`, {
         method: 'DELETE'
@@ -93,7 +105,89 @@ export default function ManageBookingsPage() {
     } catch {
       setMessage('Failed to delete booking')
     }
+    setDeleteBookingId(null)
   }
+
+  const handleContactCustomer = (booking: Booking) => {
+    // Open email client with pre-filled information
+    const subject = `Re: Your booking request`
+    const body = `Hi ${booking.studentName},\n\nThank you for your booking request. I'd like to discuss the details with you.\n\nBest regards`
+    const mailtoUrl = `mailto:${booking.studentEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    window.open(mailtoUrl)
+    setContactBooking(null)
+  }
+
+  const handleCreateQuote = async () => {
+    if (!quoteBooking) return
+    
+    try {
+      const response = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bookingId: quoteBooking.id,
+          description: quoteForm.description,
+          amount: quoteForm.amount,
+          duration: quoteForm.duration,
+          notes: quoteForm.notes
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create quote')
+      }
+
+      setMessage(`Quote created and sent to ${quoteBooking.studentName}`)
+      setQuoteBooking(null)
+      setQuoteForm({ description: '', amount: '', duration: '', notes: '' })
+      
+      // Refresh bookings to show updated information
+      fetchBookings()
+      
+      setTimeout(() => setMessage(''), 3000)
+    } catch (error) {
+      setMessage(`Error: ${error instanceof Error ? error.message : 'Failed to create quote'}`)
+    }
+  }
+
+  const handleQuoteInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setQuoteForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  const sortBookings = (bookingsToSort: Booking[]) => {
+    return [...bookingsToSort].sort((a, b) => {
+      let aVal: string | number
+      let bVal: string | number
+
+      switch (sortBy) {
+        case 'name':
+          aVal = a.studentName.toLowerCase()
+          bVal = b.studentName.toLowerCase()
+          break
+        case 'status':
+          aVal = a.paymentStatus
+          bVal = b.paymentStatus
+          break
+        case 'date':
+        default:
+          aVal = new Date(a.createdAt).getTime()
+          bVal = new Date(b.createdAt).getTime()
+          break
+      }
+
+      if (sortOrder === 'asc') {
+        return aVal > bVal ? 1 : -1
+      } else {
+        return aVal < bVal ? 1 : -1
+      }
+    })
+  }
+
+  const sortedBookings = sortBookings(bookings)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -167,7 +261,8 @@ export default function ManageBookingsPage() {
       case 'paid': return 'bg-green-100 text-green-800'
       case 'pending': return 'bg-yellow-100 text-yellow-800'
       case 'request': return 'bg-orange-100 text-orange-800'
-      case 'partial': return 'bg-blue-100 text-blue-800'
+      case 'quote-sent': return 'bg-blue-100 text-blue-800'
+      case 'partial': return 'bg-purple-100 text-purple-800'
       case 'refunded': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
@@ -284,8 +379,33 @@ export default function ManageBookingsPage() {
                   </div>
                 </div>
               ) : (
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
+                <div>
+                  {/* Sorting Controls */}
+                  <div className="mb-4 flex justify-between items-center">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm font-medium text-gray-700">Sort by:</label>
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value as 'name' | 'status' | 'date')}
+                          className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                          <option value="date">Date</option>
+                          <option value="name">Student Name</option>
+                          <option value="status">Status</option>
+                        </select>
+                      </div>
+                      <button
+                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                        className="flex items-center px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md"
+                      >
+                        {sortOrder === 'asc' ? '↑' : '↓'} {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-300">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -306,7 +426,7 @@ export default function ManageBookingsPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {bookings.map((booking) => (
+                    {sortedBookings.map((booking) => (
                       <tr key={booking.id} className={isUpcoming(booking.bookingDate) ? 'bg-blue-50' : ''}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
@@ -324,17 +444,30 @@ export default function ManageBookingsPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {formatDate(booking.bookingDate)}
-                            {isUpcoming(booking.bookingDate) && (
-                              <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                Upcoming
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
-                          </div>
+                          {booking.paymentStatus === 'request' ? (
+                            <div>
+                              <div className="text-sm text-gray-900">
+                                Booking Request
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {new Date(booking.createdAt).toLocaleDateString()} - Submitted
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="text-sm text-gray-900">
+                                {formatDate(booking.bookingDate)}
+                                {isUpcoming(booking.bookingDate) && (
+                                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Upcoming
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+                              </div>
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
@@ -347,19 +480,46 @@ export default function ManageBookingsPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleDeleteBooking(booking.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Delete
-                          </button>
+                          {booking.paymentStatus === 'request' ? (
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => setQuoteBooking(booking)}
+                                className="text-indigo-600 hover:text-indigo-900 text-xs bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded"
+                                title="Create Quote"
+                              >
+                                Quote
+                              </button>
+                              <button
+                                onClick={() => setContactBooking(booking)}
+                                className="text-blue-600 hover:text-blue-900 text-xs bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded"
+                                title="Contact Customer"
+                              >
+                                Contact
+                              </button>
+                              <button
+                                onClick={() => setDeleteBookingId(booking.id)}
+                                className="text-red-600 hover:text-red-900 text-xs bg-red-50 hover:bg-red-100 px-2 py-1 rounded"
+                                title="Delete Request"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setDeleteBookingId(booking.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            )
+            </div>
+              )
             ) : (
               // Add New Booking Tab
               <form onSubmit={handleAddBooking} className="space-y-6">
@@ -545,6 +705,175 @@ export default function ManageBookingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteBookingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Delete Booking</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this booking? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setDeleteBookingId(null)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteBooking(deleteBookingId)}
+                className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Modal */}
+      {contactBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Contact Customer</h3>
+            <div className="space-y-3 mb-6">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Customer:</label>
+                <p className="text-gray-900">{contactBooking.studentName}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Email:</label>
+                <p className="text-gray-900">{contactBooking.studentEmail}</p>
+              </div>
+              {contactBooking.studentPhone && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Phone:</label>
+                  <p className="text-gray-900">{contactBooking.studentPhone}</p>
+                </div>
+              )}
+              {contactBooking.notes && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Notes:</label>
+                  <p className="text-gray-900 text-sm bg-gray-50 p-2 rounded">{contactBooking.notes}</p>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setContactBooking(null)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => handleContactCustomer(contactBooking)}
+                className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+              >
+                Send Email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quote Creation Modal */}
+      {quoteBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-lg w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">Create Quote for {quoteBooking.studentName}</h3>
+            
+            <form onSubmit={(e) => { e.preventDefault(); handleCreateQuote(); }} className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Service Description
+                </label>
+                <textarea
+                  name="description"
+                  value={quoteForm.description}
+                  onChange={handleQuoteInputChange}
+                  rows={4}
+                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 font-medium"
+                  placeholder="Describe the service you'll provide in detail..."
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    Quote Amount ($)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600 font-bold text-lg">$</span>
+                    <input
+                      type="number"
+                      name="amount"
+                      value={quoteForm.amount}
+                      onChange={handleQuoteInputChange}
+                      min="0"
+                      step="0.01"
+                      className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 font-bold text-lg"
+                      placeholder="0.00"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-800 mb-2">
+                    Duration (hours)
+                  </label>
+                  <input
+                    type="number"
+                    name="duration"
+                    value={quoteForm.duration}
+                    onChange={handleQuoteInputChange}
+                    min="0"
+                    step="0.5"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 font-bold text-lg"
+                    placeholder="1.0"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                  Additional Notes (Optional)
+                </label>
+                <textarea
+                  name="notes"
+                  value={quoteForm.notes}
+                  onChange={handleQuoteInputChange}
+                  rows={3}
+                  className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 font-medium"
+                  placeholder="Any additional information, terms, or special requirements..."
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuoteBooking(null)
+                    setQuoteForm({ description: '', amount: '', duration: '', notes: '' })
+                  }}
+                  className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold shadow-md transition-colors"
+                >
+                  Create & Send Quote
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

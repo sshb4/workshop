@@ -69,10 +69,10 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
     const fieldDefinitions = [
       { name: 'name', label: 'Full Name', type: 'text', required: true },
       { name: 'email', label: 'Email Address', type: 'email', required: true },
-      { name: 'phone', label: 'Phone Number', type: 'tel', required: false },
-      { name: 'address', label: 'Address', type: 'text', required: false },
-      { name: 'dates', label: 'Preferred Dates', type: 'text', required: false },
-      { name: 'description', label: 'Description/Notes', type: 'textarea', required: false }
+      { name: 'phone', label: 'Phone Number', type: 'tel', required: true },
+      { name: 'address', label: 'Address', type: 'text', required: true },
+      { name: 'dates', label: 'Preferred Dates', type: 'text', required: true },
+      { name: 'description', label: 'Description/Notes', type: 'textarea', required: true }
     ];
     
     customFields = fieldDefinitions.filter(field => formFields[field.name] === true);
@@ -80,7 +80,22 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Handle phone number formatting
+    if (name === 'phone') {
+      const cleaned = value.replace(/\D/g, '');
+      let formatted = cleaned;
+      
+      if (cleaned.length >= 6) {
+        formatted = `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6,10)}`;
+      } else if (cleaned.length >= 3) {
+        formatted = `(${cleaned.slice(0,3)}) ${cleaned.slice(3)}`;
+      }
+      
+      setFormData(prev => ({ ...prev, [name]: formatted }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -184,9 +199,34 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
                           required={field.required}
                           value={formData[field.name] || ''}
                           onChange={handleInputChange}
-                          className="w-full border rounded px-3 py-2 resize-vertical min-h-[80px]"
+                          className="w-full border border-gray-300 rounded px-3 py-2 resize-vertical min-h-[80px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder={`Enter your ${field.label?.toLowerCase() || field.name}`}
                           disabled={isSubmitting}
+                        />
+                      ) : field.name === 'phone' ? (
+                        <input
+                          id={`field-${idx}`}
+                          name={field.name}
+                          type="tel"
+                          required={field.required}
+                          value={formData[field.name] || ''}
+                          onChange={handleInputChange}
+                          className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="(555) 123-4567"
+                          disabled={isSubmitting}
+                          maxLength={14}
+                        />
+                      ) : field.name === 'dates' ? (
+                        <input
+                          id={`field-${idx}`}
+                          name={field.name}
+                          type="date"
+                          required={field.required}
+                          value={formData[field.name] || ''}
+                          onChange={handleInputChange}
+                          className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          disabled={isSubmitting}
+                          min={new Date().toISOString().split('T')[0]}
                         />
                       ) : (
                         <input
@@ -196,7 +236,7 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
                           required={field.required}
                           value={formData[field.name] || ''}
                           onChange={handleInputChange}
-                          className="w-full border rounded px-3 py-2"
+                          className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder={`Enter your ${field.label?.toLowerCase() || field.name}`}
                           disabled={isSubmitting}
                         />

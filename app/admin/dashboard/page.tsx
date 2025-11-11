@@ -131,7 +131,8 @@ export default async function DashboardPage() {
       case 'paid': return 'bg-green-100 text-green-800'
       case 'pending': return 'bg-yellow-100 text-yellow-800'
       case 'request': return 'bg-orange-100 text-orange-800'
-      case 'partial': return 'bg-blue-100 text-blue-800'
+      case 'quote-sent': return 'bg-blue-100 text-blue-800'
+      case 'partial': return 'bg-purple-100 text-purple-800'
       case 'refunded': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
@@ -291,43 +292,73 @@ export default async function DashboardPage() {
         </div>
 
 
-        {/* Recent Bookings */}
+        {/* Recent Bookings Calendar */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Bookings</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Upcoming Schedule</h2>
           </div>
           <div className="p-6">
             {teacher.bookings.length > 0 ? (
-              <div className="space-y-4">
-                {teacher.bookings.map((booking: BookingWithDetails) => (
-                  <div
-                    key={booking.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium text-gray-900">{booking.studentName}</p>
-                      <p className="text-sm text-gray-600">
-                        {booking.paymentStatus === 'request' 
-                          ? 'Booking request - pending confirmation'
-                          : `${new Date(booking.bookingDate).toLocaleDateString()} at ${booking.startTime}`
-                        }
-                      </p>
-                      {booking.notes && booking.paymentStatus === 'request' && (
-                        <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">
-                          {booking.notes.split('\n')[1] || booking.notes} {/* Show preferred dates */}
-                        </p>
+              <div className="space-y-6">
+                {/* Calendar Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {teacher.bookings
+                    .filter((booking: BookingWithDetails) => booking.paymentStatus !== 'request' || booking.paymentStatus === 'request')
+                    .map((booking: BookingWithDetails) => (
+                    <div
+                      key={booking.id}
+                      className={`p-4 rounded-lg border-l-4 ${
+                        booking.paymentStatus === 'request' 
+                          ? 'bg-orange-50 border-l-orange-400' 
+                          : booking.paymentStatus === 'paid'
+                          ? 'bg-green-50 border-l-green-400'
+                          : 'bg-yellow-50 border-l-yellow-400'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 text-sm">{booking.studentName}</p>
+                          <p className="text-xs text-gray-600 truncate">{booking.studentEmail}</p>
+                        </div>
+                        <span
+                          className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.paymentStatus)}`}
+                        >
+                          {booking.paymentStatus === 'request' ? 'Request' : booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}
+                        </span>
+                      </div>
+                      
+                      {booking.paymentStatus === 'request' ? (
+                        <div>
+                          <p className="text-sm text-orange-700 font-medium">Booking Request</p>
+                          <p className="text-xs text-orange-600">
+                            Submitted {new Date(booking.bookingDate).toLocaleDateString()}
+                          </p>
+                          {booking.notes && booking.notes.includes('Preferred Dates:') && (
+                            <p className="text-xs text-orange-600 mt-1">
+                              {booking.notes.split('\n')[0]}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">
+                            {new Date(booking.bookingDate).toLocaleDateString('en-US', { 
+                              weekday: 'short', 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {booking.startTime} - {booking.endTime}
+                          </p>
+                          <p className="text-xs font-medium text-gray-900 mt-1">
+                            ${booking.amountPaid.toString()}
+                          </p>
+                        </div>
                       )}
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900">${booking.amountPaid.toString()}</p>
-                      <span
-                        className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.paymentStatus)}`}
-                      >
-                        {booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="text-center py-12">
