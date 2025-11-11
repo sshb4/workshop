@@ -102,6 +102,31 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Create default booking settings with all form fields enabled
+    try {
+      await prisma.$executeRaw`
+        INSERT INTO booking_settings (
+          id, teacher_id, min_advance_booking, max_advance_booking, session_duration,
+          buffer_time, allow_weekends, allow_same_day_booking, cancellation_policy,
+          max_sessions_per_day, allow_customer_book, allow_manual_book, form_fields, created_at, updated_at
+        ) VALUES (
+          ${crypto.randomUUID()}, ${newTeacher.id}, 2, 30, 60, 15, true, false, 24, 8, true, true,
+          ${JSON.stringify({
+            name: true,
+            email: true,
+            phone: true,
+            address: true,
+            dates: true,
+            description: true
+          })}::jsonb, NOW(), NOW()
+        )
+      `
+      console.log('Default booking settings created for new teacher')
+    } catch (settingsError) {
+      console.error('Failed to create default booking settings:', settingsError)
+      // Don't fail the signup if booking settings creation fails
+    }
+
     // Return success (don't return password hash)
     return NextResponse.json({
       success: true,
