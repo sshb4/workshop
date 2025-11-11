@@ -49,6 +49,7 @@ type BookingWithDetails = {
   endTime: string
   amountPaid: number
   paymentStatus: string
+  notes: string | null
 }
 
 export default async function DashboardPage() {
@@ -70,7 +71,10 @@ export default async function DashboardPage() {
     where: { id: session.user.id },
     include: {
       bookings: {
-        orderBy: { bookingDate: 'asc' },
+        orderBy: [
+          { createdAt: 'desc' }, // Show newest first (including requests)
+          { bookingDate: 'asc' }
+        ],
         take: 10,
       },
     },
@@ -96,6 +100,13 @@ export default async function DashboardPage() {
     },
   })
 
+  const pendingRequests = await prisma.booking.count({
+    where: {
+      teacherId: teacher.id,
+      paymentStatus: 'request',
+    },
+  })
+
   const totalRevenue = await prisma.booking.aggregate({
     where: {
       teacherId: teacher.id,
@@ -114,6 +125,17 @@ export default async function DashboardPage() {
     },
     _sum: { amountPaid: true },
   })
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'paid': return 'bg-green-100 text-green-800'
+      case 'pending': return 'bg-yellow-100 text-yellow-800'
+      case 'request': return 'bg-orange-100 text-orange-800'
+      case 'partial': return 'bg-blue-100 text-blue-800'
+      case 'refunded': return 'bg-red-100 text-red-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
 
   return (
   <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -254,17 +276,15 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* Total Revenue */}
+          {/* Pending Requests */}
           <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-3 sm:p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Revenue</p>
-                <p className="text-xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
-                  ${totalRevenue._sum.amountPaid?.toFixed(0) || '0'}
-                </p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Pending Requests</p>
+                <p className="text-xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{pendingRequests}</p>
               </div>
-              <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg">
-                  <GraphUpIcon className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
+              <div className="p-2 sm:p-3 bg-orange-100 rounded-lg">
+                  <GraphUpIcon className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(50%) sepia(80%) saturate(2000%) hue-rotate(15deg) brightness(100%) contrast(100%)' }} />
               </div>
             </div>
           </div>
@@ -287,19 +307,23 @@ export default async function DashboardPage() {
                     <div>
                       <p className="font-medium text-gray-900">{booking.studentName}</p>
                       <p className="text-sm text-gray-600">
-                        {new Date(booking.bookingDate).toLocaleDateString()} at {booking.startTime}
+                        {booking.paymentStatus === 'request' 
+                          ? 'Booking request - pending confirmation'
+                          : `${new Date(booking.bookingDate).toLocaleDateString()} at ${booking.startTime}`
+                        }
                       </p>
+                      {booking.notes && booking.paymentStatus === 'request' && (
+                        <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">
+                          {booking.notes.split('\n')[1] || booking.notes} {/* Show preferred dates */}
+                        </p>
+                      )}
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-gray-900">${booking.amountPaid.toString()}</p>
                       <span
-                        className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                          booking.paymentStatus === 'paid'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
+                        className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.paymentStatus)}`}
                       >
-                        {booking.paymentStatus}
+                        {booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}
                       </span>
                     </div>
                   </div>

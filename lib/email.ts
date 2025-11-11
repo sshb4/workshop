@@ -624,3 +624,102 @@ export async function sendTeacherNotificationEmail({
     return { success: false, error };
   }
 }
+
+interface BookingRequestEmail {
+  to: string
+  studentName: string
+  teacherName: string
+  teacherEmail: string
+  preferredDates?: string
+  notes?: string
+}
+
+export async function sendBookingRequestEmail({
+  to,
+  studentName,
+  teacherName,
+  teacherEmail,
+  preferredDates,
+  notes
+}: BookingRequestEmail) {
+  // If Resend is not available, simulate email sending
+  if (!resend) {
+    console.log(`[SIMULATED] Booking request confirmation email would be sent to ${to}`);
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'noreply@yourdomain.com',
+      to: [to],
+      subject: `Booking Request Submitted - ${teacherName}`,
+      html: `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f7fafc;">
+        <div style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #2d3748; margin-bottom: 10px; font-size: 28px; font-weight: bold;">Booking Request Submitted</h1>
+            <p style="color: #4a5568; font-size: 16px; margin: 0;">Thank you for your booking request, ${studentName}!</p>
+          </div>
+          
+          <div style="background: #f0fff4; padding: 20px; border-radius: 8px; border-left: 4px solid #48bb78; margin: 20px 0;">
+            <h3 style="color: #2d3748; margin-top: 0; display: flex; align-items: center;">
+              <span style="margin-right: 10px;">✅</span> Request Received
+            </h3>
+            <p style="color: #4a5568; margin-bottom: 0;">
+              Your booking request has been successfully submitted to ${teacherName}. They will review your request and contact you soon to confirm the details.
+            </p>
+          </div>
+
+          <div style="background: #fafafa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2d3748; margin-top: 0;">Request Details:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Teacher:</td>
+                <td style="padding: 8px 0; color: #1a202c;">${teacherName}</td>
+              </tr>
+              ${preferredDates ? `<tr>
+                <td style="padding: 8px 0; color: #4a5568; font-weight: bold;">Preferred Dates:</td>
+                <td style="padding: 8px 0; color: #1a202c;">${preferredDates}</td>
+              </tr>` : ''}
+            </table>
+          </div>
+
+          ${notes ? `<div style="background: #fef5e7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f6ad55;">
+            <h4 style="color: #1a202c; margin-top: 0;">Your Notes:</h4>
+            <p style="color: #4a5568; margin-bottom: 0;">${notes}</p>
+          </div>` : ''}
+
+          <div style="background: #e6fffa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4fd1c7;">
+            <h3 style="color: #2d3748; margin-top: 0;">Next Steps:</h3>
+            <ol style="color: #4a5568; margin: 0; padding-left: 20px;">
+              <li style="margin-bottom: 10px;">${teacherName} will review your request</li>
+              <li style="margin-bottom: 10px;">They will contact you to confirm the booking details</li>
+              <li style="margin-bottom: 10px;">Once confirmed, you'll receive a final confirmation email</li>
+            </ol>
+          </div>
+
+          <p style="color: #4a5568; line-height: 1.6;">
+            If you need to make any changes to your request or have questions, you can contact ${teacherName} directly at:
+            <br><strong>${teacherEmail}</strong>
+          </p>
+
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #a0aec0; font-size: 14px; margin: 0;">
+              This is an automated message. Please do not reply to this email.
+            </p>
+          </div>
+        </div>
+      </div>`
+    });
+
+    if (error) {
+      console.error('Error sending booking request email:', error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error sending booking request email:', error);
+    return { success: false, error };
+  }
+}

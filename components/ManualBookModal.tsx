@@ -33,6 +33,11 @@ interface CustomField {
 
 export default function ManualBookModal({ colorScheme, bookingSettings, teacher }: ManualBookModalProps) {
   const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  
   let customFields: CustomField[] = [];
   
   // Parse form_fields from booking settings
@@ -72,6 +77,53 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
     
     customFields = fieldDefinitions.filter(field => formFields[field.name] === true);
   }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch('/api/booking-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teacherId: teacher.id,
+          formData
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit booking request');
+      }
+
+      setSubmitSuccess(true);
+      setTimeout(() => {
+        setOpen(false);
+        setSubmitSuccess(false);
+        setFormData({});
+      }, 3000);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'An error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeModal = () => {
+    setOpen(false);
+    setFormData({});
+    setSubmitError('');
+    setSubmitSuccess(false);
+  };
   return (
     <>
       <p className="mb-6 sm:mb-8 text-sm sm:text-lg transition-colors duration-300" style={{ color: colorScheme.styles.textSecondary }}>
@@ -87,41 +139,89 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full relative">
-            <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl" onClick={() => setOpen(false)}>&times;</button>
-            <h3 className="text-2xl font-bold mb-4" style={{ color: colorScheme.styles.primary }}>Booking Request</h3>
-            <form>
-              {/* Render custom fields from bookingSettings */}
-              {customFields.length > 0 ? (
-                customFields.map((field, idx) => (
-                  <div key={idx} className="mb-4">
-                    <label className="block font-medium mb-1" htmlFor={`field-${idx}`}>{field.label || field.name}</label>
-                    {field.type === 'textarea' ? (
-                      <textarea
-                        id={`field-${idx}`}
-                        name={field.name}
-                        required={field.required}
-                        className="w-full border rounded px-3 py-2 resize-vertical min-h-[80px]"
-                        placeholder={`Enter your ${field.label?.toLowerCase() || field.name}`}
-                      />
-                    ) : (
-                      <input
-                        id={`field-${idx}`}
-                        name={field.name}
-                        type={field.type || "text"}
-                        required={field.required}
-                        className="w-full border rounded px-3 py-2"
-                        placeholder={`Enter your ${field.label?.toLowerCase() || field.name}`}
-                      />
-                    )}
+            <button 
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl" 
+              onClick={closeModal}
+              disabled={isSubmitting}
+            >
+              &times;
+            </button>
+            <h3 className="text-2xl font-bold mb-4" style={{ color: colorScheme.styles.primary }}>
+              {submitSuccess ? 'Request Submitted!' : 'Booking Request'}
+            </h3>
+            
+            {submitSuccess ? (
+              <div className="text-center">
+                <div className="text-green-500 text-6xl mb-4">✅</div>
+                <p className="text-gray-600 mb-4">
+                  Your booking request has been submitted successfully! 
+                  {teacher.name} will review your request and contact you soon.
+                </p>
+                <p className="text-sm text-gray-500">
+                  You should receive a confirmation email shortly.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                {submitError && (
+                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                    {submitError}
                   </div>
-                ))
-              ) : (
-                <p className="mb-4 text-gray-500">No custom fields configured. Please contact the provider.</p>
-              )}
-              <button type="submit" className="bg-primary text-white px-6 py-3 rounded-lg font-bold shadow hover:bg-primaryHover transition-colors duration-200" style={{ backgroundColor: colorScheme.styles.primary }}>
-                Submit Request
-              </button>
-            </form>
+                )}
+                
+                {/* Render custom fields from bookingSettings */}
+                {customFields.length > 0 ? (
+                  customFields.map((field, idx) => (
+                    <div key={idx} className="mb-4">
+                      <label className="block font-medium mb-1" htmlFor={`field-${idx}`}>
+                        {field.label || field.name}
+                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                      </label>
+                      {field.type === 'textarea' ? (
+                        <textarea
+                          id={`field-${idx}`}
+                          name={field.name}
+                          required={field.required}
+                          value={formData[field.name] || ''}
+                          onChange={handleInputChange}
+                          className="w-full border rounded px-3 py-2 resize-vertical min-h-[80px]"
+                          placeholder={`Enter your ${field.label?.toLowerCase() || field.name}`}
+                          disabled={isSubmitting}
+                        />
+                      ) : (
+                        <input
+                          id={`field-${idx}`}
+                          name={field.name}
+                          type={field.type || "text"}
+                          required={field.required}
+                          value={formData[field.name] || ''}
+                          onChange={handleInputChange}
+                          className="w-full border rounded px-3 py-2"
+                          placeholder={`Enter your ${field.label?.toLowerCase() || field.name}`}
+                          disabled={isSubmitting}
+                        />
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-blue-800 font-medium mb-2">Contact Request</p>
+                    <p className="text-blue-600 text-sm">
+                      No custom fields are configured. Click below to send a general booking request to {teacher.name}.
+                    </p>
+                  </div>
+                )}
+                
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="w-full bg-primary text-white px-6 py-3 rounded-lg font-bold shadow hover:bg-primaryHover transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" 
+                  style={{ backgroundColor: isSubmitting ? '#gray' : colorScheme.styles.primary }}
+                >
+                  {isSubmitting ? 'Submitting...' : customFields.length > 0 ? 'Submit Request' : 'Send Contact Request'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
