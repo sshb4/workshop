@@ -1,10 +1,27 @@
 "use client";
 import React, { useState } from "react";
 
+import type { ColorScheme } from '@/lib/themes';
+
+interface BookingSettings {
+  form_fields?: string | object | Array<CustomField>;
+}
+
 interface ManualBookModalProps {
-  colorScheme: any;
-  bookingSettings: { form_fields?: string };
-  teacher: any;
+  colorScheme: ColorScheme;
+  bookingSettings: BookingSettings;
+  teacher: {
+    id: string;
+    name: string;
+    subdomain: string;
+    hourlyRate?: number;
+    title?: string;
+    email?: string;
+    profileImage?: string;
+    bio?: string;
+    phone?: string;
+    colorScheme?: string;
+  };
 }
 
 interface CustomField {
@@ -18,21 +35,23 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
   const [open, setOpen] = useState(false);
   let customFields: CustomField[] = [];
   if (bookingSettings?.form_fields) {
+    const isValidField = (field: unknown): field is CustomField =>
+      typeof field === 'object' && field !== null && 'name' in field && typeof (field as { name?: unknown }).name === 'string';
     if (typeof bookingSettings.form_fields === 'string') {
       try {
         const parsed = JSON.parse(bookingSettings.form_fields);
         if (Array.isArray(parsed)) {
-          customFields = parsed;
-        } else if (typeof parsed === 'object' && parsed !== null) {
+          customFields = parsed.filter(isValidField);
+        } else if (typeof parsed === 'object' && parsed !== null && isValidField(parsed)) {
           customFields = [parsed];
         }
       } catch {
         customFields = [];
       }
     } else if (Array.isArray(bookingSettings.form_fields)) {
-      customFields = bookingSettings.form_fields;
-    } else if (typeof bookingSettings.form_fields === 'object' && bookingSettings.form_fields !== null) {
-      customFields = [bookingSettings.form_fields];
+      customFields = (bookingSettings.form_fields as CustomField[]).filter(isValidField);
+    } else if (typeof bookingSettings.form_fields === 'object' && bookingSettings.form_fields !== null && isValidField(bookingSettings.form_fields)) {
+      customFields = [bookingSettings.form_fields as CustomField];
     }
   }
   return (
@@ -60,7 +79,7 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
                     <label className="block font-medium mb-1" htmlFor={`field-${idx}`}>{field.label || field.name}</label>
                     <input
                       id={`field-${idx}`}
-                      name={typeof field.name === 'string' ? field.name : String(field.name)}
+                      name={field.name}
                       type={field.type || "text"}
                       required={field.required}
                       className="w-full border rounded px-3 py-2"
