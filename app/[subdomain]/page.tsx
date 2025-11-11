@@ -16,8 +16,8 @@ interface TeacherMeta {
 	name: string;
 }
 
-export async function generateMetadata({ params }: { params: { subdomain: string } }): Promise<Metadata> {
-		const { subdomain } = params;
+export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }): Promise<Metadata> {
+	const { subdomain } = await params;
 	const teacher = await prisma.teacher.findUnique({ where: { subdomain } });
 	if (!teacher) {
 		return { title: 'Provider Not Found' };
@@ -68,8 +68,8 @@ interface AvailabilitySlot {
 	isActive: boolean;
 }
 
-export default async function Page({ params }: { params: { subdomain: string } }) {
-		const { subdomain } = params;
+export default async function Page({ params }: { params: Promise<{ subdomain: string }> }) {
+	const { subdomain } = await params;
 	const teacher = await prisma.teacher.findUnique({ where: { subdomain } });
 	if (!teacher) {
 		notFound();
