@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import type { ColorScheme } from '@/lib/themes';
 
 interface BookingSettings {
-  form_fields?: string | object | Array<CustomField>;
+  form_fields?: string | Record<string, boolean> | Array<CustomField>;
 }
 
 interface ManualBookModalProps {
@@ -35,41 +35,42 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
   const [open, setOpen] = useState(false);
   let customFields: CustomField[] = [];
   
-  // Debug: Log the booking settings to see what we're receiving
-  console.log('ManualBookModal bookingSettings:', bookingSettings);
-  
   // Parse form_fields from booking settings
   if (bookingSettings?.form_fields) {
-    let formFields: any = bookingSettings.form_fields;
-    
-    console.log('Raw form_fields:', formFields);
+    let formFields: Record<string, boolean>;
     
     // If it's a string, try to parse it as JSON
-    if (typeof formFields === 'string') {
+    if (typeof bookingSettings.form_fields === 'string') {
       try {
-        formFields = JSON.parse(formFields);
-        console.log('Parsed form_fields:', formFields);
+        const parsed = JSON.parse(bookingSettings.form_fields);
+        formFields = parsed as Record<string, boolean>;
       } catch {
         formFields = {};
       }
+    } else if (Array.isArray(bookingSettings.form_fields)) {
+      // Handle array format (legacy support)
+      formFields = {};
+      bookingSettings.form_fields.forEach((field: CustomField) => {
+        if (field.name) {
+          formFields[field.name] = true;
+        }
+      });
+    } else {
+      // Assume it's already a Record<string, boolean>
+      formFields = bookingSettings.form_fields as Record<string, boolean>;
     }
     
     // Convert the formFields object to an array of CustomField objects
-    if (typeof formFields === 'object' && formFields !== null) {
-      const fieldDefinitions = [
-        { name: 'name', label: 'Full Name', type: 'text', required: true },
-        { name: 'email', label: 'Email Address', type: 'email', required: true },
-        { name: 'phone', label: 'Phone Number', type: 'tel', required: false },
-        { name: 'address', label: 'Address', type: 'text', required: false },
-        { name: 'dates', label: 'Preferred Dates', type: 'text', required: false },
-        { name: 'description', label: 'Description/Notes', type: 'textarea', required: false }
-      ];
-      
-      customFields = fieldDefinitions.filter(field => formFields[field.name] === true);
-      console.log('Final customFields:', customFields);
-    }
-  } else {
-    console.log('No form_fields found in bookingSettings');
+    const fieldDefinitions = [
+      { name: 'name', label: 'Full Name', type: 'text', required: true },
+      { name: 'email', label: 'Email Address', type: 'email', required: true },
+      { name: 'phone', label: 'Phone Number', type: 'tel', required: false },
+      { name: 'address', label: 'Address', type: 'text', required: false },
+      { name: 'dates', label: 'Preferred Dates', type: 'text', required: false },
+      { name: 'description', label: 'Description/Notes', type: 'textarea', required: false }
+    ];
+    
+    customFields = fieldDefinitions.filter(field => formFields[field.name] === true);
   }
   return (
     <>
