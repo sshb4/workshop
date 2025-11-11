@@ -34,25 +34,42 @@ interface CustomField {
 export default function ManualBookModal({ colorScheme, bookingSettings, teacher }: ManualBookModalProps) {
   const [open, setOpen] = useState(false);
   let customFields: CustomField[] = [];
+  
+  // Debug: Log the booking settings to see what we're receiving
+  console.log('ManualBookModal bookingSettings:', bookingSettings);
+  
+  // Parse form_fields from booking settings
   if (bookingSettings?.form_fields) {
-    const isValidField = (field: unknown): field is CustomField =>
-      typeof field === 'object' && field !== null && 'name' in field && typeof (field as { name?: unknown }).name === 'string';
-    if (typeof bookingSettings.form_fields === 'string') {
+    let formFields: any = bookingSettings.form_fields;
+    
+    console.log('Raw form_fields:', formFields);
+    
+    // If it's a string, try to parse it as JSON
+    if (typeof formFields === 'string') {
       try {
-        const parsed = JSON.parse(bookingSettings.form_fields);
-        if (Array.isArray(parsed)) {
-          customFields = parsed.filter(isValidField);
-        } else if (typeof parsed === 'object' && parsed !== null && isValidField(parsed)) {
-          customFields = [parsed];
-        }
+        formFields = JSON.parse(formFields);
+        console.log('Parsed form_fields:', formFields);
       } catch {
-        customFields = [];
+        formFields = {};
       }
-    } else if (Array.isArray(bookingSettings.form_fields)) {
-      customFields = (bookingSettings.form_fields as CustomField[]).filter(isValidField);
-    } else if (typeof bookingSettings.form_fields === 'object' && bookingSettings.form_fields !== null && isValidField(bookingSettings.form_fields)) {
-      customFields = [bookingSettings.form_fields as CustomField];
     }
+    
+    // Convert the formFields object to an array of CustomField objects
+    if (typeof formFields === 'object' && formFields !== null) {
+      const fieldDefinitions = [
+        { name: 'name', label: 'Full Name', type: 'text', required: true },
+        { name: 'email', label: 'Email Address', type: 'email', required: true },
+        { name: 'phone', label: 'Phone Number', type: 'tel', required: false },
+        { name: 'address', label: 'Address', type: 'text', required: false },
+        { name: 'dates', label: 'Preferred Dates', type: 'text', required: false },
+        { name: 'description', label: 'Description/Notes', type: 'textarea', required: false }
+      ];
+      
+      customFields = fieldDefinitions.filter(field => formFields[field.name] === true);
+      console.log('Final customFields:', customFields);
+    }
+  } else {
+    console.log('No form_fields found in bookingSettings');
   }
   return (
     <>
@@ -77,13 +94,24 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
                 customFields.map((field, idx) => (
                   <div key={idx} className="mb-4">
                     <label className="block font-medium mb-1" htmlFor={`field-${idx}`}>{field.label || field.name}</label>
-                    <input
-                      id={`field-${idx}`}
-                      name={field.name}
-                      type={field.type || "text"}
-                      required={field.required}
-                      className="w-full border rounded px-3 py-2"
-                    />
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        id={`field-${idx}`}
+                        name={field.name}
+                        required={field.required}
+                        className="w-full border rounded px-3 py-2 resize-vertical min-h-[80px]"
+                        placeholder={`Enter your ${field.label?.toLowerCase() || field.name}`}
+                      />
+                    ) : (
+                      <input
+                        id={`field-${idx}`}
+                        name={field.name}
+                        type={field.type || "text"}
+                        required={field.required}
+                        className="w-full border rounded px-3 py-2"
+                        placeholder={`Enter your ${field.label?.toLowerCase() || field.name}`}
+                      />
+                    )}
                   </div>
                 ))
               ) : (
