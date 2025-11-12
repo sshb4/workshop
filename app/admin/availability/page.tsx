@@ -41,7 +41,7 @@ function AvailabilityContent() {
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([])
 
   // Helper to check if a date is blocked
-  function isDateBlocked(dateStr: string) {
+  const isDateBlocked = useCallback((dateStr: string) => {
     const date = new Date(dateStr)
     return blockedDates.some(blocked => {
       const start = new Date(blocked.startDate)
@@ -53,10 +53,10 @@ function AvailabilityContent() {
       // Otherwise block date range
       return date >= start && date <= end
     })
-  }
+  }, [blockedDates])
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [showBlockForm, setShowBlockForm] = useState(false)
   
@@ -160,10 +160,9 @@ function AvailabilityContent() {
   )
   if (status === 'unauthenticated') return null
 
-  async function handleSubmit(e: React.FormEvent) {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setSuccess('')
 
     if (formData.selectedDays.length === 0) {
       setError('Please select at least one day of the week')
@@ -220,7 +219,6 @@ function AvailabilityContent() {
       const results = await Promise.all(responses.map(r => r.json()));
       const allSuccessful = responses.every(r => r.ok);
       if (allSuccessful) {
-        setSuccess(`Availability created for dates: ${createdDates.join(', ')}`);
         setShowForm(false);
         setFormData({
           title: '',
@@ -252,7 +250,6 @@ function AvailabilityContent() {
       const result = await response.json()
 
       if (response.ok) {
-        setSuccess(result.message)
         fetchAvailability() // Refresh the list
       } else {
         setError(result.error)
@@ -266,7 +263,6 @@ function AvailabilityContent() {
   async function handleBlockSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    setSuccess('')
 
     if (!blockFormData.startDate) {
       setError('Please select a start date')
@@ -290,7 +286,6 @@ function AvailabilityContent() {
       })
 
       if (response.ok) {
-        setSuccess('Blocked date added successfully!')
         setShowBlockForm(false)
         setBlockFormData({
           startDate: '',
@@ -320,7 +315,6 @@ function AvailabilityContent() {
       })
 
       if (response.ok) {
-        setSuccess('Blocked date removed successfully!')
         fetchBlockedDates()
       } else {
         const result = await response.json()
