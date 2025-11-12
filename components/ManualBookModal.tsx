@@ -104,6 +104,25 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
     setSubmitError('');
 
     try {
+      // Format the date range for submission
+      const submissionData = { ...formData };
+      
+      // Combine start and end dates into a readable format
+      if (formData.startDate) {
+        const startDate = new Date(formData.startDate).toLocaleDateString();
+        const endDate = formData.endDate ? new Date(formData.endDate).toLocaleDateString() : null;
+        
+        if (endDate && endDate !== startDate) {
+          submissionData.dates = `${startDate} - ${endDate}`;
+        } else {
+          submissionData.dates = startDate;
+        }
+        
+        // Remove the separate date fields from submission
+        delete submissionData.startDate;
+        delete submissionData.endDate;
+      }
+
       const response = await fetch('/api/booking-request', {
         method: 'POST',
         headers: {
@@ -111,7 +130,7 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
         },
         body: JSON.stringify({
           teacherId: teacher.id,
-          formData
+          formData: submissionData
         }),
       });
 
@@ -217,17 +236,42 @@ export default function ManualBookModal({ colorScheme, bookingSettings, teacher 
                           maxLength={14}
                         />
                       ) : field.name === 'dates' ? (
-                        <input
-                          id={`field-${idx}`}
-                          name={field.name}
-                          type="date"
-                          required={field.required}
-                          value={formData[field.name] || ''}
-                          onChange={handleInputChange}
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          disabled={isSubmitting}
-                          min={new Date().toISOString().split('T')[0]}
-                        />
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Preferred Start Date
+                            </label>
+                            <input
+                              id={`field-${idx}-start`}
+                              name="startDate"
+                              type="date"
+                              required={field.required}
+                              value={formData.startDate || ''}
+                              onChange={handleInputChange}
+                              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              disabled={isSubmitting}
+                              min={new Date().toISOString().split('T')[0]}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Preferred End Date (Optional)
+                            </label>
+                            <input
+                              id={`field-${idx}-end`}
+                              name="endDate"
+                              type="date"
+                              value={formData.endDate || ''}
+                              onChange={handleInputChange}
+                              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              disabled={isSubmitting}
+                              min={formData.startDate || new Date().toISOString().split('T')[0]}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            Select a date range for your preferred booking period. End date is optional for single sessions.
+                          </p>
+                        </div>
                       ) : (
                         <input
                           id={`field-${idx}`}

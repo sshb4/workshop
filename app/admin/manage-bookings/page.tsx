@@ -140,14 +140,21 @@ export default function ManageBookingsPage() {
         throw new Error(errorData.error || 'Failed to create quote')
       }
 
-      setMessage(`Quote created and sent to ${quoteBooking.studentName}`)
+      const result = await response.json()
+      
+      if (result.emailError) {
+        setMessage(`Quote created but email could not be sent to ${quoteBooking.studentName}. Please contact them manually.`)
+      } else {
+        setMessage(`Quote created and email sent to ${quoteBooking.studentName} (${quoteBooking.studentEmail})`)
+      }
+      
       setQuoteBooking(null)
       setQuoteForm({ description: '', amount: '', duration: '', notes: '' })
       
       // Refresh bookings to show updated information
       fetchBookings()
       
-      setTimeout(() => setMessage(''), 3000)
+      setTimeout(() => setMessage(''), 5000)
     } catch (error) {
       setMessage(`Error: ${error instanceof Error ? error.message : 'Failed to create quote'}`)
     }
