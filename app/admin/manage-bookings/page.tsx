@@ -16,6 +16,11 @@ interface Booking {
   paymentStatus: string
   notes: string | null
   createdAt: string
+  // Quote fields
+  quoteDescription?: string | null
+  quoteDuration?: string | null
+  quoteNotes?: string | null
+  quoteSentAt?: string | null
 }
 
 interface ManualBookingForm {
@@ -42,6 +47,7 @@ export default function ManageBookingsPage() {
   const [deleteBookingId, setDeleteBookingId] = useState<string | null>(null)
   const [contactBooking, setContactBooking] = useState<Booking | null>(null)
   const [quoteBooking, setQuoteBooking] = useState<Booking | null>(null)
+  const [viewQuoteBooking, setViewQuoteBooking] = useState<Booking | null>(null)
   const [quoteForm, setQuoteForm] = useState({
     description: '',
     amount: '',
@@ -143,7 +149,9 @@ export default function ManageBookingsPage() {
       const result = await response.json()
       
       if (result.emailError) {
-        if (result.setupRequired) {
+        if (result.domainSetupNeeded) {
+          setMessage(`Quote created! ⚠️ To email customers directly: 1) Go to resend.com/domains, 2) Verify your domain, 3) Update FROM_EMAIL in .env. Meanwhile, contact ${quoteBooking.studentName} at ${quoteBooking.studentEmail}`)
+        } else if (result.setupRequired) {
           setMessage(`Quote created but email service needs configuration. Please set up Resend API key and FROM_EMAIL in your .env file, then contact ${quoteBooking.studentName} manually at ${quoteBooking.studentEmail}`)
         } else {
           setMessage(`Quote created but email could not be sent to ${quoteBooking.studentName}. Please contact them manually at ${quoteBooking.studentEmail}`)
@@ -494,7 +502,10 @@ export default function ManageBookingsPage() {
                           {booking.paymentStatus === 'request' ? (
                             <div className="flex space-x-2">
                               <button
-                                onClick={() => setQuoteBooking(booking)}
+                                onClick={() => {
+                                  setViewQuoteBooking(null)
+                                  setQuoteBooking(booking)
+                                }}
                                 className="text-indigo-600 hover:text-indigo-900 text-xs bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded"
                                 title="Create Quote"
                               >
@@ -515,13 +526,47 @@ export default function ManageBookingsPage() {
                                 Delete
                               </button>
                             </div>
+                          ) : booking.paymentStatus === 'quote-sent' ? (
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => setViewQuoteBooking(booking)}
+                                className="text-green-600 hover:text-green-900 text-xs bg-green-50 hover:bg-green-100 px-2 py-1 rounded"
+                                title="View Quote"
+                              >
+                                View Quote
+                              </button>
+                              <button
+                                onClick={() => setContactBooking(booking)}
+                                className="text-blue-600 hover:text-blue-900 text-xs bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded"
+                                title="Contact Customer"
+                              >
+                                Contact
+                              </button>
+                              <button
+                                onClick={() => setDeleteBookingId(booking.id)}
+                                className="text-red-600 hover:text-red-900 text-xs bg-red-50 hover:bg-red-100 px-2 py-1 rounded"
+                                title="Delete"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           ) : (
-                            <button
-                              onClick={() => setDeleteBookingId(booking.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              Delete
-                            </button>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => setContactBooking(booking)}
+                                className="text-blue-600 hover:text-blue-900 text-xs bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded"
+                                title="Contact Customer"
+                              >
+                                Contact
+                              </button>
+                              <button
+                                onClick={() => setDeleteBookingId(booking.id)}
+                                className="text-red-600 hover:text-red-900 text-xs bg-red-50 hover:bg-red-100 px-2 py-1 rounded"
+                                title="Delete"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -882,6 +927,108 @@ export default function ManageBookingsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Quote Modal */}
+      {viewQuoteBooking && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Quote Details</h3>
+              <button
+                onClick={() => setViewQuoteBooking(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <span className="sr-only">Close</span>
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Customer Information */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 mb-3">Customer Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Name</label>
+                    <p className="text-gray-900">{viewQuoteBooking.studentName}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <p className="text-gray-900">{viewQuoteBooking.studentEmail}</p>
+                  </div>
+                  {viewQuoteBooking.studentPhone && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Phone</label>
+                      <p className="text-gray-900">{viewQuoteBooking.studentPhone}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Quote Information */}
+              <div className="bg-indigo-50 rounded-lg p-4">
+                <h4 className="font-semibold text-indigo-900 mb-3">Quote Details</h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-indigo-700">Service Description</label>
+                    <p className="text-indigo-900">{viewQuoteBooking.quoteDescription || 'No description available'}</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-indigo-700">Amount</label>
+                      <p className="text-2xl font-bold text-green-600">${viewQuoteBooking.amountPaid.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-indigo-700">Duration</label>
+                      <p className="text-indigo-900">{viewQuoteBooking.quoteDuration || 'Not specified'} hours</p>
+                    </div>
+                  </div>
+                  {viewQuoteBooking.quoteNotes && (
+                    <div>
+                      <label className="block text-sm font-medium text-indigo-700">Additional Notes</label>
+                      <p className="text-indigo-900 bg-white p-3 rounded border">{viewQuoteBooking.quoteNotes}</p>
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-indigo-700">Quote Sent</label>
+                    <p className="text-indigo-900">
+                      {viewQuoteBooking.quoteSentAt 
+                        ? new Date(viewQuoteBooking.quoteSentAt).toLocaleString()
+                        : 'Date not available'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Original Request */}
+              {viewQuoteBooking.notes && (
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-yellow-800 mb-3">Original Request</h4>
+                  <p className="text-yellow-900 whitespace-pre-wrap">{viewQuoteBooking.notes}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 mt-6">
+              <button
+                onClick={() => setContactBooking(viewQuoteBooking)}
+                className="px-4 py-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg font-medium transition-colors"
+              >
+                Contact Customer
+              </button>
+              <button
+                onClick={() => setViewQuoteBooking(null)}
+                className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

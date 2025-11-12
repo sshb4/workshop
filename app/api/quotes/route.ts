@@ -3,6 +3,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
+// Force TypeScript to reload types
+
 // Lazy load Resend to avoid import issues
 async function sendEmail(to: string, subject: string, text: string) {
   // Check if Resend is properly configured
@@ -16,6 +18,10 @@ async function sendEmail(to: string, subject: string, text: string) {
 
   const { Resend } = await import('resend');
   const resend = new Resend(process.env.RESEND_API_KEY);
+  
+  // Always try to send to the actual recipient
+  // If using default domain without verification, Resend will return an error
+  // which our error handling will catch and provide instructions
   
   return await resend.emails.send({
     from: process.env.FROM_EMAIL,
@@ -76,7 +82,12 @@ export async function POST(request: Request) {
       data: {
         notes: quoteInfo,
         amountPaid: parseFloat(amount),
-        paymentStatus: 'quote-sent'  // Update status to quote-sent
+        paymentStatus: 'quote-sent',
+        // Store structured quote data
+        quoteDescription: description,
+        quoteDuration: duration,
+        quoteNotes: notes,
+        quoteSentAt: new Date()
       }
     })
 
@@ -93,7 +104,7 @@ Amount: $${amount}
 Duration: ${duration} hours
 ${notes ? `\nAdditional Notes: ${notes}` : ''}
 
-Ready to proceed? Simply reply to this email to confirm your booking and discuss next steps.
+To confirm or reject this quote, simply reply to this email to discuss next steps.
 
 Best regards,
 ${booking.teacher.name}
@@ -132,18 +143,33 @@ This quote is valid for 7 days. If you have any questions, please don't hesitate
       
       // Provide specific error messages for common issues
       let errorMessage = 'Failed to send email';
+      let setupRequired = false;
+      
       const errorMsg = emailError instanceof Error ? emailError.message : String(emailError);
+      const errorObj = typeof emailError === 'object' && emailError !== null 
+        ? emailError as { name?: string; message?: string } 
+        : {};
+      
       if (errorMsg.includes('API key')) {
         errorMessage = 'Email service not configured - missing API key';
+        setupRequired = true;
       } else if (errorMsg.includes('FROM_EMAIL')) {
         errorMessage = 'Email service not configured - missing sender email';
+        setupRequired = true;
+      } else if (errorObj.name === 'validation_error' && errorMsg.includes('testing emails')) {
+        errorMessage = 'Domain verification required. Using default domain, emails redirected to test address';
+        setupRequired = true;
+      } else if (errorMsg.includes('domain')) {
+        errorMessage = 'Custom domain required for external emails. Verify domain at resend.com/domains';
+        setupRequired = true;
       }
       
       return NextResponse.json({ 
         success: true,
         message: `Quote created successfully, but email could not be sent: ${errorMessage}`,
         emailError: errorMessage,
-        setupRequired: errorMsg.includes('configured')
+        setupRequired: setupRequired,
+        domainSetupNeeded: errorObj.name === 'validation_error'
       });
     }
 

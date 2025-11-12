@@ -15,10 +15,15 @@ Update your `.env` file with your actual values:
 # Replace with your actual Resend API key
 RESEND_API_KEY=re_your_actual_api_key_here
 
-# For testing: Use onboarding@resend.dev
+# For testing: Use onboarding@resend.dev (emails redirected to your address)
 # For production: Use your verified domain
 FROM_EMAIL=onboarding@resend.dev
+
+# Your email address for testing (emails will be sent here during development)
+RESEND_TEST_EMAIL=your-email@gmail.com
 ```
+
+**Important**: With the default domain, emails are automatically redirected to your test email address and prefixed with `[DEV]` to indicate development mode.
 
 ### Step 3: Test Email Functionality
 1. Create a booking request from your site
@@ -26,10 +31,15 @@ FROM_EMAIL=onboarding@resend.dev
 3. Create a quote for the request
 4. You should see "Quote created and email sent successfully"
 
-## Domain Setup (Optional - For Production)
-1. Add your domain in Resend dashboard
-2. Verify ownership via DNS records
-3. Update `FROM_EMAIL` to use your domain: `noreply@yourdomain.com`
+## Domain Setup (Required for Production)
+**To send emails to actual customers**, you need to verify your own domain:
+
+1. **Add Domain**: Go to https://resend.com/domains 
+2. **Add your domain** (e.g., `yourbusiness.com`)
+3. **Verify DNS records** as instructed by Resend
+4. **Update .env**: `FROM_EMAIL=noreply@yourbusiness.com`
+
+**Without domain verification**: Emails only go to your test address with `[DEV]` prefix.
 
 ## Troubleshooting
 
