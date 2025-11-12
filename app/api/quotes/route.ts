@@ -5,11 +5,20 @@ import { NextResponse } from 'next/server'
 
 // Lazy load Resend to avoid import issues
 async function sendEmail(to: string, subject: string, text: string) {
+  // Check if Resend is properly configured
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'your-resend-api-key-here') {
+    throw new Error('Resend API key is not configured. Please add your API key to the .env file.');
+  }
+
+  if (!process.env.FROM_EMAIL || process.env.FROM_EMAIL === 'noreply@yourdomain.com') {
+    throw new Error('FROM_EMAIL is not configured. Please set a verified email address in the .env file.');
+  }
+
   const { Resend } = await import('resend');
   const resend = new Resend(process.env.RESEND_API_KEY);
   
   return await resend.emails.send({
-    from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
+    from: process.env.FROM_EMAIL,
     to: [to],
     subject: subject,
     text: text,
@@ -118,13 +127,23 @@ This quote is valid for 7 days. If you have any questions, please don't hesitate
         emailId: emailData?.id
       });
 
-    } catch (emailError) {
+    } catch (emailError: unknown) {
       console.error('Error sending email:', emailError);
+      
+      // Provide specific error messages for common issues
+      let errorMessage = 'Failed to send email';
+      const errorMsg = emailError instanceof Error ? emailError.message : String(emailError);
+      if (errorMsg.includes('API key')) {
+        errorMessage = 'Email service not configured - missing API key';
+      } else if (errorMsg.includes('FROM_EMAIL')) {
+        errorMessage = 'Email service not configured - missing sender email';
+      }
       
       return NextResponse.json({ 
         success: true,
-        message: 'Quote created successfully, but email could not be sent',
-        emailError: 'Failed to send email'
+        message: `Quote created successfully, but email could not be sent: ${errorMessage}`,
+        emailError: errorMessage,
+        setupRequired: errorMsg.includes('configured')
       });
     }
 

@@ -143,7 +143,11 @@ export default function ManageBookingsPage() {
       const result = await response.json()
       
       if (result.emailError) {
-        setMessage(`Quote created but email could not be sent to ${quoteBooking.studentName}. Please contact them manually.`)
+        if (result.setupRequired) {
+          setMessage(`Quote created but email service needs configuration. Please set up Resend API key and FROM_EMAIL in your .env file, then contact ${quoteBooking.studentName} manually at ${quoteBooking.studentEmail}`)
+        } else {
+          setMessage(`Quote created but email could not be sent to ${quoteBooking.studentName}. Please contact them manually at ${quoteBooking.studentEmail}`)
+        }
       } else {
         setMessage(`Quote created and email sent to ${quoteBooking.studentName} (${quoteBooking.studentEmail})`)
       }
