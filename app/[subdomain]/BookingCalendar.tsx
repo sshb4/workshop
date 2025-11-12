@@ -49,7 +49,7 @@ interface BookingCalendarProps {
   colorScheme: ColorScheme
 }
 
-export default function BookingCalendar({ teacher, availabilitySlots, colorScheme }: BookingCalendarProps) {
+export default function BookingCalendar({ availabilitySlots, colorScheme }: BookingCalendarProps) {
   // Fetch form field settings from booking settings API
   const [formFields, setFormFields] = useState({
     name: true,
@@ -84,7 +84,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
     description: ''
   });
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState('');
+  const [submitError] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -100,7 +100,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
     }, 2000);
   };
   const [showBookingForm, setShowBookingForm] = useState(false)
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [currentMonth] = useState(new Date())
 
   // Generate calendar days with available/blocked status
   const calendarDays = useMemo((): CalendarDay[] => {
@@ -142,7 +142,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
       <div className="mb-6">
         {/* Day Headers */}
         <div className="grid grid-cols-7 gap-1 mb-3">
-          {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, index) => (
+          {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day) => (
             <div 
               key={day}
               className="text-center font-semibold py-3 rounded-lg"
@@ -156,7 +156,7 @@ export default function BookingCalendar({ teacher, availabilitySlots, colorSchem
 
         {/* Calendar Days - Only show available/blocked status */}
         <div className="grid grid-cols-7 gap-1">
-          {calendarDays.map((day, index) => (
+          {calendarDays.map((day) => (
             <div
               key={day.date.toISOString()}
               className="aspect-square p-2 rounded-lg transition-all duration-200 relative min-h-16 flex flex-col items-center justify-center group"

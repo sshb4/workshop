@@ -107,13 +107,13 @@ export default async function DashboardPage() {
     },
   })
 
-  const totalRevenue = await prisma.booking.aggregate({
-    where: {
-      teacherId: teacher.id,
-      paymentStatus: 'paid',
-    },
-    _sum: { amountPaid: true },
-  })
+  // const totalRevenue = await prisma.booking.aggregate({
+  //   where: {
+  //     teacherId: teacher.id,
+  //     paymentStatus: 'paid',
+  //   },
+  //   _sum: { amountPaid: true },
+  // })
 
   const thisMonthRevenue = await prisma.booking.aggregate({
     where: {

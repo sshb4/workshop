@@ -346,7 +346,7 @@ export async function sendBookingReminderEmail({
   teacherName,
   bookingDate,
   startTime,
-  endTime,
+  // endTime,
   teacherEmail
 }: BookingReminderEmail) {
   // If Resend is not available, simulate email sending
@@ -426,7 +426,7 @@ export async function sendBookingCancellationEmail({
   teacherName,
   bookingDate,
   startTime,
-  endTime,
+  // endTime,
   reason
 }: BookingCancellationEmail) {
   // If Resend is not available, simulate email sending

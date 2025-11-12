@@ -27,7 +27,7 @@ export function QuoteEmailTemplate({
         </p>
         
         <p style={{ color: '#374151', marginBottom: '20px' }}>
-          Thank you for your booking request! I've prepared a quote for you based on your needs.
+          Thank you for your booking request! I&apos;ve prepared a quote for you based on your needs.
         </p>
         
         <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '6px', marginBottom: '20px' }}>
@@ -70,7 +70,7 @@ export function QuoteEmailTemplate({
         <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '20px 0' }} />
         
         <p style={{ color: '#9ca3af', fontSize: '12px', margin: '0' }}>
-          This quote is valid for 7 days. If you have any questions, please don't hesitate to reach out.
+          This quote is valid for 7 days. If you have any questions, please don&apos;t hesitate to reach out.
         </p>
       </div>
     </div>
