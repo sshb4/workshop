@@ -113,7 +113,7 @@ function AvailabilityContent() {
     } finally {
       setLoading(false)
     }
-  }, [session, status])
+  }, [session, status, isDateBlocked])
 
   const fetchBlockedDates = useCallback(async () => {
     try {
@@ -125,7 +125,7 @@ function AvailabilityContent() {
     } catch (error) {
       console.error('Error fetching blocked dates:', error)
     }
-  }, [isDateBlocked])
+  }, [])
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user && 'id' in session.user) {

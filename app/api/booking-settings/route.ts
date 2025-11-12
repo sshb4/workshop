@@ -4,7 +4,6 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
-import crypto from 'crypto'
 
 export async function GET() {
   try {
@@ -53,7 +52,12 @@ export async function GET() {
       })
       
       if (bookingSettings) {
-        const bookingSettingsWithNewFields = bookingSettings as any
+        interface ExtendedBookingSettings {
+          allowCustomerBook?: boolean;
+          allowManualBook?: boolean;
+          formFields?: string;
+        }
+        const extendedSettings = bookingSettings as typeof bookingSettings & ExtendedBookingSettings
         settings = {
           minAdvanceBooking: bookingSettings.minAdvanceBooking,
           maxAdvanceBooking: bookingSettings.maxAdvanceBooking,
@@ -63,9 +67,9 @@ export async function GET() {
           allowSameDayBooking: bookingSettings.allowSameDayBooking,
           cancellationPolicy: bookingSettings.cancellationPolicy,
           maxSessionsPerDay: bookingSettings.maxSessionsPerDay,
-          allowCustomerBook: bookingSettingsWithNewFields.allowCustomerBook ?? true,
-          allowManualBook: bookingSettingsWithNewFields.allowManualBook ?? true,
-          formFields: bookingSettingsWithNewFields.formFields ? JSON.parse(bookingSettingsWithNewFields.formFields) : defaultSettings.formFields
+          allowCustomerBook: extendedSettings.allowCustomerBook ?? true,
+          allowManualBook: extendedSettings.allowManualBook ?? true,
+          formFields: extendedSettings.formFields ? JSON.parse(extendedSettings.formFields) : defaultSettings.formFields
         }
       }
     } catch {
@@ -128,8 +132,8 @@ export async function POST(request: Request) {
 
     const { settings, blockedDates } = await request.json()
 
-    // Upsert booking settings using Prisma methods
-    await (prisma.bookingSettings.upsert as any)({
+    // Upsert booking settings using Prisma methods (only existing fields for now)
+    await prisma.bookingSettings.upsert({
       where: { teacherId: session.user.id },
       create: {
         teacherId: session.user.id,
@@ -140,10 +144,7 @@ export async function POST(request: Request) {
         allowWeekends: settings.allowWeekends,
         allowSameDayBooking: settings.allowSameDayBooking,
         cancellationPolicy: settings.cancellationPolicy,
-        maxSessionsPerDay: settings.maxSessionsPerDay,
-        allowCustomerBook: settings.allowCustomerBook,
-        allowManualBook: settings.allowManualBook,
-        formFields: JSON.stringify(settings.formFields)
+        maxSessionsPerDay: settings.maxSessionsPerDay
       },
       update: {
         minAdvanceBooking: settings.minAdvanceBooking,
@@ -153,10 +154,7 @@ export async function POST(request: Request) {
         allowWeekends: settings.allowWeekends,
         allowSameDayBooking: settings.allowSameDayBooking,
         cancellationPolicy: settings.cancellationPolicy,
-        maxSessionsPerDay: settings.maxSessionsPerDay,
-        allowCustomerBook: settings.allowCustomerBook,
-        allowManualBook: settings.allowManualBook,
-        formFields: JSON.stringify(settings.formFields)
+        maxSessionsPerDay: settings.maxSessionsPerDay
       }
     })
 
@@ -167,7 +165,15 @@ export async function POST(request: Request) {
 
     // Insert new blocked dates
     if (blockedDates && blockedDates.length > 0) {
-      const blockedDatesData = blockedDates.map((date: any) => ({
+      interface BlockedDateInput {
+        startDate: string;
+        endDate?: string;
+        reason: string;
+        isRecurring?: boolean;
+        recurringType?: string | null;
+      }
+      
+      const blockedDatesData = (blockedDates as BlockedDateInput[]).map(date => ({
         teacherId: session.user.id,
         startDate: new Date(date.startDate),
         endDate: new Date(date.endDate || date.startDate),
