@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import crypto from 'crypto'
 
 export async function GET() {
   try {
@@ -47,36 +48,24 @@ export async function GET() {
     // Try to fetch booking settings using raw SQL
     let settings = defaultSettings
     try {
-      interface BookingSettingsRow {
-        min_advance_booking: number;
-        max_advance_booking: number;
-        session_duration: number;
-        buffer_time: number;
-        allow_weekends: boolean;
-        allow_same_day_booking: boolean;
-        cancellation_policy: number;
-        max_sessions_per_day: number;
-        allow_customer_book?: number;
-        allow_manual_book?: number;
-        form_fields?: Record<string, boolean>;
-      }
-      const bookingSettings = await prisma.$queryRaw`
-        SELECT * FROM booking_settings WHERE teacher_id = ${session.user.id} LIMIT 1
-      ` as BookingSettingsRow[]
-      if (bookingSettings.length > 0) {
-        const dbSettings = bookingSettings[0]
+      const bookingSettings = await prisma.bookingSettings.findUnique({
+        where: { teacherId: session.user.id }
+      })
+      
+      if (bookingSettings) {
+        const bookingSettingsWithNewFields = bookingSettings as any
         settings = {
-          minAdvanceBooking: dbSettings.min_advance_booking,
-          maxAdvanceBooking: dbSettings.max_advance_booking,
-          sessionDuration: dbSettings.session_duration,
-          bufferTime: dbSettings.buffer_time,
-          allowWeekends: dbSettings.allow_weekends,
-          allowSameDayBooking: dbSettings.allow_same_day_booking,
-          cancellationPolicy: dbSettings.cancellation_policy,
-          maxSessionsPerDay: dbSettings.max_sessions_per_day,
-          allowCustomerBook: dbSettings.allow_customer_book !== undefined ? !!dbSettings.allow_customer_book : true,
-          allowManualBook: dbSettings.allow_manual_book !== undefined ? !!dbSettings.allow_manual_book : true,
-          formFields: dbSettings.form_fields ? (typeof dbSettings.form_fields === 'string' ? JSON.parse(dbSettings.form_fields) : dbSettings.form_fields) : defaultSettings.formFields
+          minAdvanceBooking: bookingSettings.minAdvanceBooking,
+          maxAdvanceBooking: bookingSettings.maxAdvanceBooking,
+          sessionDuration: bookingSettings.sessionDuration,
+          bufferTime: bookingSettings.bufferTime,
+          allowWeekends: bookingSettings.allowWeekends,
+          allowSameDayBooking: bookingSettings.allowSameDayBooking,
+          cancellationPolicy: bookingSettings.cancellationPolicy,
+          maxSessionsPerDay: bookingSettings.maxSessionsPerDay,
+          allowCustomerBook: bookingSettingsWithNewFields.allowCustomerBook ?? true,
+          allowManualBook: bookingSettingsWithNewFields.allowManualBook ?? true,
+          formFields: bookingSettingsWithNewFields.formFields ? JSON.parse(bookingSettingsWithNewFields.formFields) : defaultSettings.formFields
         }
       }
     } catch {
@@ -139,55 +128,57 @@ export async function POST(request: Request) {
 
     const { settings, blockedDates } = await request.json()
 
-    // Upsert booking settings, including formFields as JSON
-    await prisma.$executeRaw`
-      INSERT INTO booking_settings (
-        id, teacher_id, min_advance_booking, max_advance_booking, session_duration,
-        buffer_time, allow_weekends, allow_same_day_booking, cancellation_policy,
-        max_sessions_per_day, allow_customer_book, allow_manual_book, form_fields, created_at, updated_at
-      ) VALUES (
-        ${crypto.randomUUID()}, ${session.user.id}, ${settings.minAdvanceBooking}, 
-        ${settings.maxAdvanceBooking}, ${settings.sessionDuration}, ${settings.bufferTime},
-        ${settings.allowWeekends}, ${settings.allowSameDayBooking}, ${settings.cancellationPolicy},
-  ${settings.maxSessionsPerDay}, ${settings.allowCustomerBook}, ${settings.allowManualBook},
-        ${JSON.stringify(settings.formFields)}::jsonb, NOW(), NOW()
-      ) ON CONFLICT (teacher_id) DO UPDATE SET
-        min_advance_booking = ${settings.minAdvanceBooking},
-        max_advance_booking = ${settings.maxAdvanceBooking},
-        session_duration = ${settings.sessionDuration},
-        buffer_time = ${settings.bufferTime},
-        allow_weekends = ${settings.allowWeekends},
-        allow_same_day_booking = ${settings.allowSameDayBooking},
-        cancellation_policy = ${settings.cancellationPolicy},
-        max_sessions_per_day = ${settings.maxSessionsPerDay},
-  allow_customer_book = ${settings.allowCustomerBook},
-  allow_manual_book = ${settings.allowManualBook},
-        form_fields = ${JSON.stringify(settings.formFields)}::jsonb,
-        updated_at = NOW()
-    `
+    // Upsert booking settings using Prisma methods
+    await (prisma.bookingSettings.upsert as any)({
+      where: { teacherId: session.user.id },
+      create: {
+        teacherId: session.user.id,
+        minAdvanceBooking: settings.minAdvanceBooking,
+        maxAdvanceBooking: settings.maxAdvanceBooking,
+        sessionDuration: settings.sessionDuration,
+        bufferTime: settings.bufferTime,
+        allowWeekends: settings.allowWeekends,
+        allowSameDayBooking: settings.allowSameDayBooking,
+        cancellationPolicy: settings.cancellationPolicy,
+        maxSessionsPerDay: settings.maxSessionsPerDay,
+        allowCustomerBook: settings.allowCustomerBook,
+        allowManualBook: settings.allowManualBook,
+        formFields: JSON.stringify(settings.formFields)
+      },
+      update: {
+        minAdvanceBooking: settings.minAdvanceBooking,
+        maxAdvanceBooking: settings.maxAdvanceBooking,
+        sessionDuration: settings.sessionDuration,
+        bufferTime: settings.bufferTime,
+        allowWeekends: settings.allowWeekends,
+        allowSameDayBooking: settings.allowSameDayBooking,
+        cancellationPolicy: settings.cancellationPolicy,
+        maxSessionsPerDay: settings.maxSessionsPerDay,
+        allowCustomerBook: settings.allowCustomerBook,
+        allowManualBook: settings.allowManualBook,
+        formFields: JSON.stringify(settings.formFields)
+      }
+    })
 
     // Delete existing blocked dates
-    await prisma.$executeRaw`
-      DELETE FROM blocked_dates WHERE teacher_id = ${session.user.id}
-    `
+    await prisma.blockedDate.deleteMany({
+      where: { teacherId: session.user.id }
+    })
 
     // Insert new blocked dates
     if (blockedDates && blockedDates.length > 0) {
-      for (const date of blockedDates) {
-        const startDateISO = new Date(date.startDate).toISOString()
-        const endDateISO = new Date(date.endDate || date.startDate).toISOString()
-        
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO blocked_dates (
-            id, teacher_id, start_date, end_date, reason, is_recurring, recurring_type,
-            created_at, updated_at
-          ) VALUES (
-            '${crypto.randomUUID()}', '${session.user.id}', '${startDateISO}', 
-            '${endDateISO}', '${date.reason}', ${date.isRecurring ? 1 : 0},
-            ${date.recurringType ? `'${date.recurringType}'` : 'NULL'}, NOW(), NOW()
-          )
-        `)
-      }
+      const blockedDatesData = blockedDates.map((date: any) => ({
+        teacherId: session.user.id,
+        startDate: new Date(date.startDate),
+        endDate: new Date(date.endDate || date.startDate),
+        reason: date.reason,
+        isRecurring: date.isRecurring || false,
+        recurringType: date.recurringType || null
+      }))
+      
+      await prisma.blockedDate.createMany({
+        data: blockedDatesData
+      })
     }
 
     return NextResponse.json({ success: true })

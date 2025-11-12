@@ -148,7 +148,7 @@ This quote is valid for 7 days. If you have any questions, please don't hesitate
       const errorMsg = emailError instanceof Error ? emailError.message : String(emailError);
       const errorObj = typeof emailError === 'object' && emailError !== null 
         ? emailError as { name?: string; message?: string } 
-        : {};
+        : {}; 
       
       if (errorMsg.includes('API key')) {
         errorMessage = 'Email service not configured - missing API key';
