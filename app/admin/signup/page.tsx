@@ -128,13 +128,13 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 py-12 overscroll-none">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 py-12 overscroll-none">
       <div className="max-w-md w-full mx-6">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-block p-3 bg-indigo-100 rounded-full mb-4">
-              <UserPlusIcon className="w-8 h-8 text-indigo-600" />
+            <div className="inline-block p-3 bg-amber-100 rounded-full mb-4">
+              <UserPlusIcon className="w-8 h-8 text-amber-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
             <p className="text-gray-600">Set up your booking page in minutes</p>
@@ -158,7 +158,7 @@ export default function SignupPage() {
                 required
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors text-gray-900"
                 placeholder="Enter your full name"
               />
             </div>
@@ -174,7 +174,7 @@ export default function SignupPage() {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors text-gray-900"
                 placeholder="Enter your email"
               />
             </div>
@@ -194,7 +194,7 @@ export default function SignupPage() {
                   required
                   value={formData.subdomain}
                   onChange={handleInputChange}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors text-gray-900"
                   placeholder="your-name"
                 />
               </div>
@@ -217,7 +217,7 @@ export default function SignupPage() {
                   onChange={handleInputChange}
                   onFocus={() => setPasswordFocused(true)}
                   onBlur={() => setPasswordFocused(false)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors text-gray-900"
                   placeholder="Create a password"
                 />
                 <button
@@ -312,7 +312,7 @@ export default function SignupPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors text-gray-900"
                   placeholder="Confirm your password"
                 />
                 <button
@@ -332,7 +332,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-amber-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-amber-600 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </button>
@@ -344,7 +344,7 @@ export default function SignupPage() {
               Already have an account?{' '}
               <Link 
                 href="/admin/login" 
-                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+                className="font-medium text-amber-600 hover:text-amber-500 transition-colors"
               >
                 Sign in here
               </Link>

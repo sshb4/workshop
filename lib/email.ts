@@ -1,6 +1,9 @@
 // lib/email.ts
 import { Resend } from 'resend';
 
+// Initialize Resend with YOUR single API key for the entire app
+// All users share this one instance - they never need their own API keys
+// This is how production apps work: one email service for all users
 let resend: Resend | null = null;
 
 // Try to initialize Resend, handle gracefully if not available
@@ -77,7 +80,7 @@ export async function sendEmailVerificationEmail({
       subject: 'Welcome! Please verify your email address',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Our Platform! 🎉</h1>
           </div>
           
@@ -88,7 +91,7 @@ export async function sendEmailVerificationEmail({
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${verificationUrl}" style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+              <a href="${verificationUrl}" style="background: #f59e0b; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
                 Verify Email Address
               </a>
             </div>
@@ -155,7 +158,7 @@ export async function sendPasswordResetEmail({
       subject: 'Reset Your Password',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px;">Password Reset Request 🔒</h1>
           </div>
           
@@ -166,7 +169,7 @@ export async function sendPasswordResetEmail({
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetUrl}" style="background: #f093fb; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+              <a href="${resetUrl}" style="background: #f59e0b; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
                 Reset Password
               </a>
             </div>
@@ -256,7 +259,7 @@ export async function sendBookingConfirmationEmail({
       subject: `Booking Confirmation - Session with ${teacherName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px;">Booking Confirmed! 🎉</h1>
           </div>
           
@@ -266,7 +269,7 @@ export async function sendBookingConfirmationEmail({
               Your booking has been confirmed! Here are the details of your upcoming session:
             </p>
             
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
               <h3 style="color: #1a202c; margin-top: 0;">Session Details</h3>
               <table style="width: 100%; border-collapse: collapse;">
                 <tr>
@@ -382,7 +385,7 @@ export async function sendBookingReminderEmail({
       subject: `Reminder: Your session with ${teacherName} is tomorrow`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+          <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px;">Session Reminder 📚</h1>
           </div>
           
@@ -392,7 +395,7 @@ export async function sendBookingReminderEmail({
               This is a friendly reminder that you have a session scheduled with ${teacherName}.
             </p>
             
-            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f093fb;">
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #fbbf24;">
               <h3 style="color: #1a202c; margin-top: 0;">Session Details</h3>
               <p style="color: #4a5568; margin: 8px 0;"><strong>Date:</strong> ${formattedDate}</p>
               <p style="color: #4a5568; margin: 8px 0;"><strong>Time:</strong> ${formattedStartTime}</p>
@@ -569,7 +572,7 @@ export async function sendTeacherNotificationEmail({
       to: [to],
       subject: `New Booking: ${studentName} - ${formattedDate}`,
       html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+        <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
           <h1 style="color: white; margin: 0; font-size: 28px;">New Booking Received! 📅</h1>
         </div>
         <div style="background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e2e8f0;">
@@ -577,7 +580,7 @@ export async function sendTeacherNotificationEmail({
           <p style="color: #4a5568; line-height: 1.6;">
             You have a new booking! Here are the student details:
           </p>
-          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4facfe;">
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
             <h3 style="color: #1a202c; margin-top: 0;">Booking Details</h3>
             <table style="width: 100%; border-collapse: collapse;">
               <tr>

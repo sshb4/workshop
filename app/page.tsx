@@ -27,7 +27,7 @@ export default function Home() {
 
   // Show landing page by default, redirect happens client-side
   return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center">
           {/* Header */}
@@ -42,13 +42,13 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 href="/admin/signup"
-                className="bg-indigo-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl"
+                className="bg-amber-500 text-white px-8 py-4 rounded-lg font-semibold hover:bg-amber-600 transition-colors shadow-lg hover:shadow-xl"
               >
                 Get Started Free
               </Link>
               <Link 
                 href="/admin/login"
-                className="bg-white text-indigo-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors shadow-lg border border-indigo-200"
+                className="bg-white text-amber-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors shadow-lg border border-amber-200"
               >
                 Sign In
               </Link>
@@ -58,8 +58,8 @@ export default function Home() {
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-8 mb-16">
             <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <div className="inline-block p-3 bg-indigo-100 rounded-full mb-4">
-                <CalendarIcon className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(190deg) brightness(100%) contrast(100%)' }} />
+              <div className="inline-block p-3 bg-amber-100 rounded-full mb-4">
+                <CalendarIcon className="w-8 h-8" style={{ filter: 'invert(50%) sepia(80%) saturate(2000%) hue-rotate(10deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Easy Scheduling</h3>
               <p className="text-gray-600">
@@ -68,8 +68,8 @@ export default function Home() {
             </div>
 
             <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <div className="inline-block p-3 bg-purple-100 rounded-full mb-4">
-                <ProfileIcon className="w-8 h-8" style={{ filter: 'invert(30%) sepia(80%) saturate(2000%) hue-rotate(270deg) brightness(100%) contrast(100%)' }} />
+              <div className="inline-block p-3 bg-yellow-100 rounded-full mb-4">
+                <ProfileIcon className="w-8 h-8" style={{ filter: 'invert(60%) sepia(80%) saturate(2000%) hue-rotate(10deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Professional Branding</h3>
               <p className="text-gray-600">
@@ -78,12 +78,12 @@ export default function Home() {
             </div>
 
             <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <div className="inline-block p-3 bg-pink-100 rounded-full mb-4">
-                  <GlobeIcon className="w-8 h-8" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(320deg) brightness(100%) contrast(100%)' }} />
+              <div className="inline-block p-3 bg-orange-100 rounded-full mb-4">
+                  <GlobeIcon className="w-8 h-8" style={{ filter: 'invert(50%) sepia(80%) saturate(2000%) hue-rotate(10deg) brightness(100%) contrast(100%)' }} />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">Custom URL</h3>
               <p className="text-gray-600">
-                Get your own branded URL like <span className="font-mono text-indigo-600">yourname.app.com</span> to share with clients.
+                Get your own branded URL like <span className="font-mono text-amber-600">yourname.app.com</span> to share with clients.
               </p>
             </div>
           </div>
@@ -91,10 +91,10 @@ export default function Home() {
           {/* Footer */}
           <div className="mt-16 pt-8 border-t border-gray-200">
             <p className="text-gray-500">
-              Ready to get started? <Link href="/admin/signup" className="text-indigo-600 hover:text-indigo-500 font-medium">Create your account</Link> and set up your booking page in under 5 minutes.
+              Ready to get started? <Link href="/admin/signup" className="text-amber-600 hover:text-amber-500 font-medium">Create your account</Link> and set up your booking page in under 5 minutes.
             </p>
             <p className="text-gray-500 mt-2">
-              Already have an account? <Link href="/admin/login" className="text-indigo-600 hover:text-indigo-500 font-medium">Sign in to your dashboard</Link>
+              Already have an account? <Link href="/admin/login" className="text-amber-600 hover:text-amber-500 font-medium">Sign in to your dashboard</Link>
             </p>
           </div>
         </div>

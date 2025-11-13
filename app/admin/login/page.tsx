@@ -101,13 +101,13 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 overscroll-none">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 overscroll-none">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-block p-3 bg-indigo-100 rounded-full mb-4">
-              <UserIcon className="w-8 h-8 text-indigo-600" />
+            <div className="inline-block p-3 bg-amber-100 rounded-full mb-4">
+              <UserIcon className="w-8 h-8 text-amber-600" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900">Teacher Login</h2>
             <p className="mt-2 text-gray-600">Sign in to manage your bookings</p>
@@ -174,7 +174,7 @@ function LoginForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition font-medium"
                 placeholder="you@example.com"
               />
             </div>
@@ -190,7 +190,7 @@ function LoginForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
+                  className="w-full px-4 py-3 pr-12 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-transparent transition font-medium"
                   placeholder="••••••••"
                 />
                 <button
@@ -210,7 +210,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -227,7 +227,7 @@ function LoginForm() {
           <div className="mt-4 text-center">
             <Link 
               href="/admin/forgot-password" 
-              className="text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+              className="text-sm text-gray-600 hover:text-amber-600 transition-colors"
             >
               Forgot your password?
             </Link>
@@ -239,7 +239,7 @@ function LoginForm() {
               Don&apos;t have an account?{' '}
               <Link 
                 href="/admin/signup" 
-                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+                className="font-medium text-amber-600 hover:text-amber-500 transition-colors"
               >
                 Create one here
               </Link>
@@ -254,12 +254,12 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50">
         <div className="max-w-md w-full mx-4">
           <div className="bg-white rounded-2xl shadow-2xl p-8">
             <div className="text-center">
-              <div className="inline-block p-3 bg-indigo-100 rounded-full mb-4">
-                <SpinnerIcon className="w-8 h-8 text-indigo-600 animate-spin" />
+              <div className="inline-block p-3 bg-amber-100 rounded-full mb-4">
+                <SpinnerIcon className="w-8 h-8 text-amber-600 animate-spin" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900">Loading...</h2>
             </div>
