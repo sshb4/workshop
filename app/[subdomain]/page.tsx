@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { Metadata } from 'next';
 import { getColorScheme } from '@/lib/themes';
-import BookingCalendar from './BookingCalendar';
 import ManualBookModal from '@/components/ManualBookModal';
 
 interface TeacherMeta {
@@ -92,15 +91,14 @@ export default async function Page({ params }: { params: Promise<{ subdomain: st
 			where: {
 				teacherId: teacher.id,
 				isActive: true,
-				endTime: { gt: new Date().toISOString() },
 			},
 			orderBy: { startTime: 'asc' },
 		});
-		availabilitySlots = slots.map(slot => ({
+		availabilitySlots = slots.map((slot: typeof slots[0]) => ({
 			...slot,
 			startDate: slot.startDate instanceof Date ? slot.startDate.toISOString() : slot.startDate,
 			endDate: slot.endDate instanceof Date && slot.endDate !== null ? slot.endDate.toISOString() : slot.endDate,
-		}));
+		})) as AvailabilitySlot[];
 	}
 	const colorScheme = getColorScheme((teacher as typeof teacher & { colorScheme?: string }).colorScheme || 'default');
 	return (
@@ -193,68 +191,24 @@ export default async function Page({ params }: { params: Promise<{ subdomain: st
 						</div>
 					</div>
 				</div>
-				{allowCustomerBook && (
-					<>
-						<p className="mb-6 sm:mb-8 text-sm sm:text-lg transition-colors duration-300"
-							style={{ color: colorScheme.styles.textSecondary }}>
-							Select an available time window below to schedule your session.
-						</p>
-						{availabilitySlots.length > 0 ? (
-							<BookingCalendar
-								teacher={{
-									id: teacher.id,
-									subdomain: teacher.subdomain,
-									name: teacher.name,
-									hourlyRate: teacher.hourlyRate ? Number(teacher.hourlyRate) : undefined,
-									title: (teacher as { title?: string }).title
-								}}
-								availabilitySlots={availabilitySlots}
-								colorScheme={colorScheme}
-							/>
-						) : (
-							<div className="border-2 border-dashed rounded-xl p-16 text-center transition-colors duration-300"
-								style={{ borderColor: colorScheme.styles.border, backgroundColor: colorScheme.styles.backgroundSecondary }}>
-								<div className="mb-4 transition-colors duration-300" style={{ color: colorScheme.styles.textSecondary }}>
-									<svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-									</svg>
-								</div>
-								<p className="text-lg font-medium transition-colors duration-300" style={{ color: colorScheme.styles.textSecondary }}>
-									No availability set
-								</p>
-								<p className="text-sm mt-2 transition-colors duration-300" style={{ color: colorScheme.styles.textSecondary }}>
-									The provider hasn&apos;t set their available times yet
-								</p>
-								<p className="text-sm mt-4">
-									<span className="transition-colors duration-300" style={{ color: colorScheme.styles.textSecondary }}>
-										Contact directly: <br />
-									</span>
-									<a href={`mailto:${teacher.email}`} className="font-medium transition-colors duration-200 hover:opacity-80" style={{ color: colorScheme.styles.primary }}>
-										{teacher.email}
-									</a>
-								</p>
-							</div>
-						)}
-					</>
-				)}
-				{allowManualBook && (
-					<div className="mt-8">
-						<ManualBookModal
-							colorScheme={colorScheme}
-							bookingSettings={bookingSettings}
-							teacher={{
-								...teacher,
-								hourlyRate: teacher.hourlyRate === null ? undefined : teacher.hourlyRate,
-								title: teacher.title === null ? undefined : teacher.title,
-								bio: teacher.bio === null ? undefined : teacher.bio,
-								profileImage: teacher.profileImage === null ? undefined : teacher.profileImage,
-								email: teacher.email === null ? undefined : teacher.email,
-								phone: teacher.phone === null ? undefined : teacher.phone,
-								colorScheme: teacher.colorScheme === null ? undefined : teacher.colorScheme
-							}}
-						/>
-					</div>
-				)}
+				<div className="mt-8">
+					<ManualBookModal
+						colorScheme={colorScheme}
+						bookingSettings={bookingSettings}
+						availabilitySlots={availabilitySlots}
+						showCalendar={allowManualBook}
+						teacher={{
+							...teacher,
+							hourlyRate: teacher.hourlyRate === null ? undefined : teacher.hourlyRate,
+							title: teacher.title === null ? undefined : teacher.title,
+							bio: teacher.bio === null ? undefined : teacher.bio,
+							profileImage: teacher.profileImage === null ? undefined : teacher.profileImage,
+							email: teacher.email === null ? undefined : teacher.email,
+							phone: teacher.phone === null ? undefined : teacher.phone,
+							colorScheme: teacher.colorScheme === null ? undefined : teacher.colorScheme
+						}}
+					/>
+				</div>
 			</main>
 			<footer className="mt-16 py-8 text-center text-gray-500 text-sm">
 				<p>Powered by Buzz Financial</p>
