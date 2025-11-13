@@ -229,7 +229,7 @@ export default function BookingSettingsPage() {
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 />
                 <label htmlFor="allowCustomerBook" className="text-sm text-gray-700 font-medium flex items-center gap-2">
-                  Customer Book
+                  Submit form to book
                 </label>
               </div>
               <div className="flex items-center gap-3">
@@ -241,11 +241,8 @@ export default function BookingSettingsPage() {
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 />
                 <label htmlFor="allowManualBook" className="text-sm text-gray-700 font-medium flex items-center gap-2">
-                  Manual Book
+                  Show calendar
                 </label>
-              </div>
-              <div className="text-xs text-gray-500 mt-2">
-                <span className="font-semibold">Customer Book</span> requires them to fill out a booking & invoice form. If only <span className="font-semibold">Manual Book</span> is selected, the calendar with your availability will be hidden and customers will see a &quot;Call to schedule an appointment&quot; message instead.
               </div>
             </div>
           </div>
