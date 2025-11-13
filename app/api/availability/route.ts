@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate date logic if end date is provided
-    if (endDate && new Date(startDate) >= new Date(endDate)) {
+    if (endDate && new Date(startDate) > new Date(endDate)) {
       return NextResponse.json(
         { error: 'Start date must be before end date' },
         { status: 400 }

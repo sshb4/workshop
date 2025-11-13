@@ -358,6 +358,23 @@ export default function BookingSettingsPage() {
             </div>
           </div>
 
+          {/* Availability Management Link */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Manage Availability</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Set your available time slots and block specific dates when you&apos;re unavailable.
+            </p>
+            <Link
+              href="/admin/availability"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Manage Availability & Blocked Dates
+            </Link>
+          </div>
+
           {/* Save Button */}
           <div className="flex justify-end">
             <button

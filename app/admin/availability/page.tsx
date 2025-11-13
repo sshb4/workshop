@@ -59,6 +59,11 @@ function AvailabilityContent() {
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [showBlockForm, setShowBlockForm] = useState(false)
+  const [showResetModal, setShowResetModal] = useState(false)
+  const [resetting, setResetting] = useState(false)
+  const [showOverlapModal, setShowOverlapModal] = useState(false)
+  const [pendingSlotData, setPendingSlotData] = useState<typeof formData | null>(null)
+  const [overlapDetails, setOverlapDetails] = useState<string[]>([])
   
   // Form state
   const [formData, setFormData] = useState({
@@ -160,7 +165,36 @@ function AvailabilityContent() {
   )
   if (status === 'unauthenticated') return null
 
-    const handleSubmit = async (e: React.FormEvent) => {
+  // Function to check if two time ranges overlap
+  const timeRangesOverlap = (start1: string, end1: string, start2: string, end2: string) => {
+    return start1 < end2 && start2 < end1
+  }
+
+  // Function to check if two date ranges overlap
+  const dateRangesOverlap = (start1: string, end1: string, start2: string, end2: string) => {
+    return start1 <= end2 && start2 <= end1
+  }
+
+  // Function to detect overlapping slots
+  const detectOverlaps = (newStartDate: string, newEndDate: string, newDayOfWeek: number, newStartTime: string, newEndTime: string) => {
+    const overlaps: string[] = []
+    
+    slots.forEach((slot: AvailabilitySlot) => {
+      if (slot.dayOfWeek === newDayOfWeek) {
+        const slotEndDate = slot.endDate || slot.startDate
+        if (dateRangesOverlap(newStartDate, newEndDate, slot.startDate, slotEndDate)) {
+          if (timeRangesOverlap(newStartTime, newEndTime, slot.startTime, slot.endTime)) {
+            const dayName = DAYS[slot.dayOfWeek]
+            overlaps.push(`${dayName}: ${slot.startDate}${slot.endDate && slot.endDate !== slot.startDate ? ' to ' + slot.endDate : ''} (${slot.startTime}-${slot.endTime})`)
+          }
+        }
+      }
+    })
+    
+    return overlaps
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
@@ -169,11 +203,39 @@ function AvailabilityContent() {
       return
     }
 
+    // Check for overlaps before creating
+    const start = new Date(formData.startDate)
+    const end = formData.endDate ? new Date(formData.endDate) : start
+    const allOverlaps: string[] = []
+    
+    formData.selectedDays.forEach(dayOfWeek => {
+      const overlaps = detectOverlaps(
+        formData.startDate,
+        formData.endDate || formData.startDate,
+        dayOfWeek,
+        formData.startTime,
+        formData.endTime
+      )
+      allOverlaps.push(...overlaps)
+    })
+
+    if (allOverlaps.length > 0) {
+      setOverlapDetails(allOverlaps)
+      setPendingSlotData(formData)
+      setShowOverlapModal(true)
+      return
+    }
+
+    await createSlots(formData)
+  }
+
+  const createSlots = async (slotData: typeof formData) => {
+    setError('')
     try {
       // Prevent creating slots on blocked days
       // Create slots for all unblocked dates in the selected range for each selected day
-      const start = new Date(formData.startDate)
-      const end = formData.endDate ? new Date(formData.endDate) : start
+      const start = new Date(slotData.startDate)
+      const end = slotData.endDate ? new Date(slotData.endDate) : start
       const slotRequests: Promise<Response>[] = [];
       const createdDates: string[] = [];
       const formatUSDate = (date: Date) => {
@@ -185,15 +247,15 @@ function AvailabilityContent() {
       const dayCount = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
       for (let i = 0; i <= dayCount; i++) {
         const d = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-        formData.selectedDays.forEach(dayOfWeek => {
+        slotData.selectedDays.forEach(dayOfWeek => {
           if (d.getDay() === dayOfWeek && !isDateBlocked(formatUSDate(d))) {
             // If the range is only one day, omit endDate
             const isSingleDay = start.getTime() === end.getTime();
             const slotPayload: Partial<AvailabilitySlot> = {
-              ...formData,
+              ...slotData,
               dayOfWeek,
               startDate: formatUSDate(d),
-              title: formData.title || `${DAYS[dayOfWeek]} Availability`
+              title: slotData.title || `${DAYS[dayOfWeek]} Availability`
             };
             if (!isSingleDay) {
               slotPayload.endDate = formatUSDate(end);
@@ -239,6 +301,21 @@ function AvailabilityContent() {
     }
   }
 
+  const confirmOverlap = async () => {
+    setShowOverlapModal(false)
+    if (pendingSlotData) {
+      await createSlots(pendingSlotData)
+      setPendingSlotData(null)
+      setOverlapDetails([])
+    }
+  }
+
+  const cancelOverlap = () => {
+    setShowOverlapModal(false)
+    setPendingSlotData(null)
+    setOverlapDetails([])
+  }
+
   async function deleteSlot(slotId: string) {
     if (!confirm('Are you sure you want to delete this availability period?')) return
 
@@ -257,6 +334,26 @@ function AvailabilityContent() {
     } catch (error) {
       console.error('Error deleting availability:', error)
       setError('Failed to delete availability period')
+    }
+  }
+
+  async function handleResetAvailability() {
+    setResetting(true)
+    try {
+      // Delete all availability slots
+      const deletePromises = slots.map(slot => 
+        fetch(`/api/availability?id=${slot.id}`, { method: 'DELETE' })
+      )
+      
+      await Promise.all(deletePromises)
+      
+      setShowResetModal(false)
+      fetchAvailability()
+    } catch (error) {
+      console.error('Error resetting availability:', error)
+      setError('Failed to reset availability')
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -354,19 +451,27 @@ function AvailabilityContent() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 py-4">
-            <Link 
-              href="/admin/dashboard"
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Availability Management</h1>
-              <p className="text-sm text-gray-600">Set up your flexible schedule periods</p>
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-4">
+              <Link 
+                href="/admin/dashboard"
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Availability Management</h1>
+                <p className="text-sm text-gray-600">Set up your flexible schedule periods</p>
+              </div>
             </div>
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition border border-red-200"
+            >
+              Reset All Availability
+            </button>
           </div>
         </div>
       </header>
@@ -792,6 +897,73 @@ function AvailabilityContent() {
           </div>
         </div>
       </div>
+
+      {/* Reset Confirmation Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Reset All Availability?</h3>
+            <p className="text-gray-600 mb-6">
+              This will delete all your availability periods. This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowResetModal(false)}
+                disabled={resetting}
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleResetAvailability}
+                disabled={resetting}
+                className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition disabled:opacity-50"
+              >
+                {resetting ? 'Resetting...' : 'Yes, Reset All'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Overlap Confirmation Modal */}
+      {showOverlapModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Overlapping Availability Detected</h3>
+            <p className="text-gray-600 mb-4">
+              The following existing availability slots overlap with your new selection:
+            </p>
+            <div className="mb-6 max-h-48 overflow-y-auto bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <ul className="text-sm text-gray-700 space-y-1">
+                {overlapDetails.map((detail, idx) => (
+                  <li key={idx} className="flex items-start">
+                    <span className="text-yellow-600 mr-2">⚠</span>
+                    <span>{detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="text-gray-600 mb-6 text-sm">
+              Are you sure you want to create this availability anyway?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelOverlap}
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmOverlap}
+                className="px-4 py-2 text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition"
+              >
+                Yes, Create Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
