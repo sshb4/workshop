@@ -132,7 +132,7 @@ export async function POST(request: Request) {
 
     const { settings, blockedDates } = await request.json()
 
-    // Upsert booking settings using Prisma methods (only existing fields for now)
+    // Upsert booking settings using Prisma methods
     await prisma.bookingSettings.upsert({
       where: { teacherId: session.user.id },
       create: {
@@ -144,7 +144,10 @@ export async function POST(request: Request) {
         allowWeekends: settings.allowWeekends,
         allowSameDayBooking: settings.allowSameDayBooking,
         cancellationPolicy: settings.cancellationPolicy,
-        maxSessionsPerDay: settings.maxSessionsPerDay
+        maxSessionsPerDay: settings.maxSessionsPerDay,
+        allowCustomerBook: settings.allowCustomerBook ?? true,
+        allowManualBook: settings.allowManualBook ?? true,
+        formFields: JSON.stringify(settings.formFields || {})
       },
       update: {
         minAdvanceBooking: settings.minAdvanceBooking,
@@ -154,7 +157,10 @@ export async function POST(request: Request) {
         allowWeekends: settings.allowWeekends,
         allowSameDayBooking: settings.allowSameDayBooking,
         cancellationPolicy: settings.cancellationPolicy,
-        maxSessionsPerDay: settings.maxSessionsPerDay
+        maxSessionsPerDay: settings.maxSessionsPerDay,
+        allowCustomerBook: settings.allowCustomerBook ?? true,
+        allowManualBook: settings.allowManualBook ?? true,
+        formFields: JSON.stringify(settings.formFields || {})
       }
     })
 

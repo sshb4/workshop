@@ -14,5 +14,6 @@
 - **Styling:** Tailwind CSS 4
 - **Database:** SQLite with Prisma 6.16.3
 - **Authentication:** NextAuth.js 4.24.11
+- **Email:** Resend
 - **Security:** bcryptjs for password hashing
 
