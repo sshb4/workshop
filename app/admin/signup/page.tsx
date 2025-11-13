@@ -156,6 +156,7 @@ export default function SignupPage() {
                 name="name"
                 type="text"
                 required
+                autoComplete="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors text-gray-900"
@@ -172,6 +173,7 @@ export default function SignupPage() {
                 name="email"
                 type="email"
                 required
+                autoComplete="email"
                 value={formData.email}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors text-gray-900"

@@ -43,13 +43,13 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 overscroll-none">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 overscroll-none">
       <div className="max-w-md w-full mx-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-block p-3 bg-indigo-100 rounded-full mb-4">
-              <LockIcon className="w-8 h-8 text-indigo-600" />
+            <div className="inline-block p-3 bg-amber-100 rounded-full mb-4">
+              <LockIcon className="w-8 h-8 text-amber-600" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900">Forgot Password</h2>
             <p className="mt-2 text-gray-600">Enter your email to receive a reset link</p>
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
                 placeholder="Enter your email address"
               />
             </div>
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               {loading ? (
                 <div className="flex items-center">
@@ -122,7 +122,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-6 text-center">
             <Link 
               href="/admin/login" 
-              className="text-sm text-indigo-600 hover:text-indigo-500 font-medium"
+              className="text-sm text-amber-600 hover:text-amber-500 font-medium"
             >
               ← Back to Login
             </Link>

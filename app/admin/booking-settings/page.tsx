@@ -255,10 +255,11 @@ export default function BookingSettingsPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="sessionDuration" className="block text-sm font-medium text-gray-700 mb-2">
                   Session Duration (minutes)
                 </label>
                 <input
+                  id="sessionDuration"
                   type="number"
                   value={settings.sessionDuration || ''}
                   onChange={(e) => setSettings({...settings, sessionDuration: parseInt(e.target.value) || 0})}
@@ -269,10 +270,11 @@ export default function BookingSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="bufferTime" className="block text-sm font-medium text-gray-700 mb-2">
                   Buffer Time Between Sessions (minutes)
                 </label>
                 <input
+                  id="bufferTime"
                   type="number"
                   value={settings.bufferTime || ''}
                   onChange={(e) => setSettings({...settings, bufferTime: parseInt(e.target.value) || 0})}
@@ -283,10 +285,11 @@ export default function BookingSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="minAdvanceBooking" className="block text-sm font-medium text-gray-700 mb-2">
                   Minimum Advance Booking (hours)
                 </label>
                 <input
+                  id="minAdvanceBooking"
                   type="number"
                   value={settings.minAdvanceBooking || ''}
                   onChange={(e) => setSettings({...settings, minAdvanceBooking: parseInt(e.target.value) || 0})}
@@ -297,10 +300,11 @@ export default function BookingSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="maxAdvanceBooking" className="block text-sm font-medium text-gray-700 mb-2">
                   Maximum Advance Booking (days)
                 </label>
                 <input
+                  id="maxAdvanceBooking"
                   type="number"
                   value={settings.maxAdvanceBooking || ''}
                   onChange={(e) => setSettings({...settings, maxAdvanceBooking: parseInt(e.target.value) || 1})}
@@ -311,10 +315,11 @@ export default function BookingSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="maxSessionsPerDay" className="block text-sm font-medium text-gray-700 mb-2">
                   Max Sessions Per Day
                 </label>
                 <input
+                  id="maxSessionsPerDay"
                   type="number"
                   value={settings.maxSessionsPerDay || ''}
                   onChange={(e) => setSettings({...settings, maxSessionsPerDay: parseInt(e.target.value) || 1})}
@@ -325,10 +330,11 @@ export default function BookingSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="cancellationPolicy" className="block text-sm font-medium text-gray-700 mb-2">
                   Cancellation Policy (hours before)
                 </label>
                 <input
+                  id="cancellationPolicy"
                   type="number"
                   value={settings.cancellationPolicy || ''}
                   onChange={(e) => setSettings({...settings, cancellationPolicy: parseInt(e.target.value) || 0})}
