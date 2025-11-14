@@ -1,9 +1,9 @@
-// app/api/profile/route.ts
-
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { writeFile, mkdir } from 'fs/promises'
+import path from 'path'
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
-      return NextResponse.redirect(new URL('/admin/login', request.url))
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get form data
@@ -27,6 +27,67 @@ export async function POST(request: NextRequest) {
     const profileImage = formData.get('profileImage') as string
     const favicon = formData.get('favicon') as string
     const colorScheme = formData.get('colorScheme') as string
+    const photoFile = formData.get('photo') as File | null
+
+    // Check if this is a setup request (minimal data)
+    const isSetupRequest = !name && !email && !subdomain
+
+    let photoUrl: string | undefined
+
+    // Handle photo upload if provided
+    if (photoFile && photoFile.size > 0) {
+      try {
+        // Create uploads directory if it doesn't exist
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'profiles')
+        await mkdir(uploadsDir, { recursive: true })
+
+        // Generate unique filename
+        const fileName = `${session.user.id}-${Date.now()}.${photoFile.name.split('.').pop()}`
+        const filePath = path.join(uploadsDir, fileName)
+
+        // Convert file to buffer and save
+        const bytes = await photoFile.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+        await writeFile(filePath, buffer)
+
+        photoUrl = `/uploads/profiles/${fileName}`
+      } catch (fileError) {
+        console.error('File upload error:', fileError)
+        // Don't fail the whole request for file upload issues
+      }
+    }
+
+    // For setup requests, handle minimal profile updates
+    if (isSetupRequest) {
+      const updateData: Record<string, unknown> = {}
+      
+      if (bio && bio.trim()) {
+        updateData.bio = bio.trim()
+      }
+      
+      if (hourlyRateStr && !isNaN(hourlyRate) && hourlyRate > 0) {
+        updateData.hourlyRate = hourlyRate
+      }
+      
+      if (photoUrl) {
+        updateData.profileImage = photoUrl
+      }
+
+      // Only update if there's data to update
+      if (Object.keys(updateData).length > 0) {
+        await prisma.teacher.update({
+          where: { id: session.user.id },
+          data: updateData
+        })
+      }
+
+      return NextResponse.json({ 
+        success: true,
+        message: 'Profile updated successfully' 
+      })
+    }
+
+    // Continue with existing full profile update logic...
 
     // Validate required fields
     if (!name || !email) {

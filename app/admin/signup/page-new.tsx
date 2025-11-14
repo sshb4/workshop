@@ -26,10 +26,12 @@ export default function SignupPage() {
   const [bookingSettings, setBookingSettings] = useState({
     name: true,
     email: true,
-    phone: false,
-    address: false,
-    dates: true,
-    description: false
+    phone: true,
+    description: false,
+    preferredDate: true,
+    budget: false,
+    experience: false,
+    goals: false
   })
 
   const [profileData, setProfileData] = useState({
@@ -317,9 +319,6 @@ export default function SignupPage() {
                   Your Booking Page URL
                 </label>
                 <div className="flex rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-amber-500 focus-within:border-amber-500">
-                  <span className="inline-flex items-center px-4 py-3 bg-gray-50 text-gray-500 text-sm rounded-l-lg border-r border-gray-300">
-                    workshop.buzz/
-                  </span>
                   <input
                     id="subdomain"
                     name="subdomain"
@@ -327,9 +326,12 @@ export default function SignupPage() {
                     required
                     value={formData.subdomain}
                     onChange={handleInputChange}
-                    className="flex-1 px-4 py-3 rounded-r-lg border-0 focus:ring-0 text-gray-900"
+                    className="flex-1 px-4 py-3 rounded-l-lg border-0 focus:ring-0 text-gray-900"
                     placeholder="your-name"
                   />
+                  <span className="inline-flex items-center px-4 py-3 bg-gray-50 text-gray-500 text-sm rounded-r-lg border-l border-gray-300">
+                    .yoursite.com
+                  </span>
                 </div>
                 <p className="mt-1 text-xs text-gray-500">This will be your unique booking page URL</p>
               </div>
@@ -461,19 +463,21 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Booking Form Settings */}
               <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Booking Request Form Fields</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Customize Your Booking Form</h3>
                 <p className="text-gray-600 mb-4 text-sm">
-                  Select which fields customers must fill out when requesting a booking:
+                  Choose which information students should provide when booking:
                 </p>
                 
                 <div className="grid gap-3">
                   {Object.entries({
-                    name: 'Name',
-                    email: 'Email',
-                    phone: 'Phone',
-                    address: 'Address',
-                    dates: 'Date(s) Requested',
-                    description: 'Description'
+                    name: 'Full Name',
+                    email: 'Email Address', 
+                    phone: 'Phone Number',
+                    description: 'Project Description',
+                    preferredDate: 'Preferred Date Range',
+                    budget: 'Budget Range',
+                    experience: 'Experience Level',
+                    goals: 'Learning Goals'
                   }).map(([key, label]) => (
                     <div key={key} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
                       <div>

@@ -70,6 +70,7 @@ export default async function DashboardPage() {
   const teacher = await prisma.teacher.findUnique({
     where: { id: session.user.id },
     include: {
+      bookingSettings: true,
       bookings: {
         orderBy: [
           { createdAt: 'desc' }, // Show newest first (including requests)
@@ -83,6 +84,11 @@ export default async function DashboardPage() {
 
   if (!teacher) {
     redirect('/admin/login')
+  }
+
+  // Check if user needs to complete setup
+  if (!teacher.bookingSettings) {
+    redirect('/admin/setup')
   }
 
   // Calculate stats
