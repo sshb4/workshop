@@ -263,7 +263,7 @@ export default async function DashboardPage() {
                 <p className="text-xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{upcomingBookings}</p>
               </div>
               <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
-                <ClockIcon className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(24%) sepia(94%) saturate(7470%) hue-rotate(220deg) brightness(95%) contrast(101%)' }} />
+                <ClockIcon className="w-4 h-4 sm:w-6 sm:h-6" style={{ filter: 'invert(40%) sepia(80%) saturate(2000%) hue-rotate(90deg) brightness(100%) contrast(100%)' }} />
               </div>
             </div>
           </div>

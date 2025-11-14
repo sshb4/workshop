@@ -327,7 +327,7 @@ export async function DELETE(request: NextRequest) {
     await prisma.invoice.delete({
       where: { id: invoiceId }
     })
-
+    
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting invoice:', error)
