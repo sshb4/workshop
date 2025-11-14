@@ -42,7 +42,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ invoice })
     } else {
       // Get all invoices for teacher
-      // @ts-expect-error - Prisma types will update after dev server restart
       const invoices = await prisma.invoice.findMany({
         where: {
           teacherId: teacher.id
@@ -104,7 +103,6 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if invoice already exists for this booking
-      // @ts-expect-error - Prisma types will update after dev server restart
       const existingInvoice = await prisma.invoice.findFirst({
         where: {
           bookingId: booking.id
@@ -133,7 +131,6 @@ export async function POST(request: NextRequest) {
       }
 
       // Save invoice to our database
-      // @ts-expect-error - Prisma types will update after dev server restart
       const invoice = await prisma.invoice.create({
         data: {
           teacherId: teacher.id,
@@ -177,7 +174,6 @@ export async function POST(request: NextRequest) {
       }
 
       // Save invoice to our database  
-      // @ts-expect-error - Prisma types will update after dev server restart
       const invoice = await prisma.invoice.create({
         data: {
           teacherId: teacher.id,
@@ -239,7 +235,6 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json()
     const { invoiceId, updates } = body
 
-    // @ts-expect-error - Prisma types will update after dev server restart
     const invoice = await prisma.invoice.findFirst({
       where: {
         id: invoiceId,
@@ -261,7 +256,6 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update local database
-    // @ts-expect-error - Prisma types will update after dev server restart
     const updatedInvoice = await prisma.invoice.update({
       where: { id: invoiceId },
       data: {
@@ -307,7 +301,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 })
     }
 
-    // @ts-expect-error - Prisma types will update after dev server restart
     const invoice = await prisma.invoice.findFirst({
       where: {
         id: invoiceId,
@@ -331,7 +324,6 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete from local database
-    // @ts-expect-error - Prisma types will update after dev server restart
     await prisma.invoice.delete({
       where: { id: invoiceId }
     })
