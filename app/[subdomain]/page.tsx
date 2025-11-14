@@ -74,14 +74,12 @@ export default async function Page({ params }: { params: Promise<{ subdomain: st
 		notFound();
 	}
 	let allowCustomerBook = true;
-	let allowManualBook = true;
 	const bookingSettings: { form_fields?: string } = {};
 	try {
 		const rawSettings = await prisma.$queryRaw`SELECT * FROM booking_settings WHERE teacher_id = ${teacher.id} LIMIT 1`;
 		if (Array.isArray(rawSettings) && rawSettings.length > 0) {
 			const dbSettings = rawSettings[0];
 			allowCustomerBook = dbSettings.allow_customer_book !== undefined ? !!dbSettings.allow_customer_book : true;
-			allowManualBook = dbSettings.allow_manual_book !== undefined ? !!dbSettings.allow_manual_book : true;
 			bookingSettings.form_fields = dbSettings.form_fields;
 		}
 	} catch {}
@@ -196,7 +194,6 @@ export default async function Page({ params }: { params: Promise<{ subdomain: st
 						colorScheme={colorScheme}
 						bookingSettings={bookingSettings}
 						availabilitySlots={availabilitySlots}
-						showCalendar={allowManualBook}
 						teacher={{
 							...teacher,
 							hourlyRate: teacher.hourlyRate === null ? undefined : teacher.hourlyRate,

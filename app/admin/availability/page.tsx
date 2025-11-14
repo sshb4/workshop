@@ -204,8 +204,6 @@ function AvailabilityContent() {
     }
 
     // Check for overlaps before creating
-    const start = new Date(formData.startDate)
-    const end = formData.endDate ? new Date(formData.endDate) : start
     const allOverlaps: string[] = []
     
     formData.selectedDays.forEach(dayOfWeek => {

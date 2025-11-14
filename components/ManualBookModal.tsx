@@ -22,7 +22,6 @@ interface ManualBookModalProps {
   colorScheme: ColorScheme;
   bookingSettings: BookingSettings;
   availabilitySlots: AvailabilitySlot[];
-  showCalendar: boolean;
   teacher: {
     id: string;
     name: string;
@@ -44,7 +43,7 @@ interface CustomField {
   required?: boolean;
 }
 
-export default function ManualBookModal({ colorScheme, bookingSettings, availabilitySlots, showCalendar, teacher }: ManualBookModalProps) {
+export default function ManualBookModal({ colorScheme, bookingSettings, availabilitySlots, teacher }: ManualBookModalProps) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);

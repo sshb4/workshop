@@ -9,7 +9,7 @@ import BackArrowIcon from '@/components/icons/BackArrowIcon'
 export const dynamic = 'force-dynamic'
 
 export default function InvoicesPage() {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
 
