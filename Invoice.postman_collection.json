@@ -1,0 +1,414 @@
+{
+	"info": {
+		"_postman_id": "8a931021-1eec-45b6-be69-f80b979acb6c",
+		"name": "Invoice",
+		"description": "The Invoice API lets you generate invoices, fetch existing ones, and view detailed line items. It’s designed to be simple to adopt, even if you’re new to APIs, and works neatly alongside Customers, Subscriptions, and Transactions.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48796129",
+		"_collection_link": "https://expitrans.postman.co/workspace/Troute-API~f442977d-882b-4fd6-b713-0e18eba6e0b8/collection/34291398-8a931021-1eec-45b6-be69-f80b979acb6c?action=share&source=collection_link&creator=48796129"
+	},
+	"item": [
+		{
+			"name": "Create Invoice",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"invoice\": {\n        \"uniqueID\": null, // You don't create uniqueID, the server does.\n        \"customerID\": {{customer_id}},\n        \"customer\": {\n            \"uniqueID\": null, // ID should be null, as the server sets the ID.\n            \"customer_information\": {\n                \"firstname\": \"\",\n                \"lastname\": \"\",\n                \"address1\": \"\",\n                \"address2\": \"\",\n                \"city\": \"\",\n                \"state\": \"\",\n                \"zip\": \"\",\n                \"country\": \"\",\n                \"phone1\": \"\",\n                \"phone2\": \"\",\n                \"email\": \"\"\n            },\n            \"billing_information\": {\n                \"firstname\": \"\",\n                \"lastname\": \"\",\n                \"address1\": \"\",\n                \"address2\": \"\",\n                \"city\": \"\",\n                \"state\": \"\",\n                \"zip\": \"\",\n                \"country\": \"\",\n                \"phone\": \"\",\n                \"email\": \"\"\n            },\n            \"custom\": {\n                \"custom1\": \"\",\n                \"custom2\": \"\",\n                \"custom3\": \"\",\n                \"custom4\": \"\",\n                \"custom5\": \"\",\n                \"custom6\": \"\",\n                \"custom7\": \"\",\n                \"custom8\": \"\",\n                \"custom9\": \"\",\n                \"custom10\": \"\"\n            },\n            \"customer_payments\": [\n                {\n                    \"paymentID\": null,\n                    \"paymenttype\": \"\",\n                    \"lastfour\": \"\",\n                    \"brand\": \"\"\n                }\n            ]\n        },\n        \"date_created\": \"\", \n        \"due_date\": \"\",\n        \"status\": \"\", // Can be `Paid`, `Unpaid` or `Cancelled`\n        \"date_closed\": \"\", // `Y-m-d H:i:s` so `2025-10-06 09:55:52\n        \"invoice_number\": \"\", // Can be anything you want, Troute typically does YYYYMMDDHHiiss\n        \"notes\": \"\",\n        \"amount\": \"\",\n        \"discount\": \"\",\n        \"tax\": \"\",\n        \"shipping\": \"\",\n        \"surcharge\": \"\",\n        \"items\": [\n            {\n                \"title\": \"\",\n                \"description\": \"\",\n                \"quantity\": 0,\n                \"unit_price\": 21.3 // Individual price, NOT collective price\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/query/expiinvoice",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"query",
+						"expiinvoice"
+					],
+					"query": [
+						{
+							"key": "modifiers",
+							"value": "",
+							"description": "Reduces response to given variable(s) and uniqueID",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Creates an Invoice and customer(if you don't pass an ID. Check Examples for more information), and returns the Invoice object back."
+			},
+			"response": [
+				{
+					"name": "Create Invoice & Customer",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"invoice\": {\n        \"uniqueID\": null, // You don't create uniqueID, the server does.\n        \"customer\": {\n            \"uniqueID\": null, // ID should be null, as the server sets the ID.\n            \"customer_information\": {\n                \"firstname\": \"\",\n                \"lastname\": \"\",\n                \"address1\": \"\",\n                \"address2\": \"\",\n                \"city\": \"\",\n                \"state\": \"\",\n                \"zip\": \"\",\n                \"country\": \"\",\n                \"phone1\": \"\",\n                \"phone2\": \"\",\n                \"email\": \"\"\n            },\n            \"billing_information\": {\n                \"firstname\": \"\",\n                \"lastname\": \"\",\n                \"address1\": \"\",\n                \"address2\": \"\",\n                \"city\": \"\",\n                \"state\": \"\",\n                \"zip\": \"\",\n                \"country\": \"\",\n                \"phone\": \"\",\n                \"email\": \"\"\n            },\n            \"custom\": {\n                \"custom1\": \"\",\n                \"custom2\": \"\",\n                \"custom3\": \"\",\n                \"custom4\": \"\",\n                \"custom5\": \"\",\n                \"custom6\": \"\",\n                \"custom7\": \"\",\n                \"custom8\": \"\",\n                \"custom9\": \"\",\n                \"custom10\": \"\"\n            },\n            \"customer_payments\": [\n                {\n                    \"paymentID\": null,\n                    \"paymenttype\": \"\",\n                    \"lastfour\": \"\",\n                    \"brand\": \"\"\n                }\n            ]\n        },\n        \"date_created\": \"\", \n        \"due_date\": \"\",\n        \"status\": \"\",\n        \"date_closed\": \"\",\n        \"invoice_number\": \"\",\n        \"notes\": \"\",\n        \"amount\": \"\",\n        \"discount\": \"\",\n        \"tax\": \"\",\n        \"shipping\": \"\",\n        \"surcharge\": \"\",\n        \"items\": [\n            {\n                \"title\": \"\",\n                \"description\": \"\",\n                \"quantity\": 0,\n                \"unit_price\": 21.3 // Individual price, NOT collective price\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/query/expiinvoice",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"query",
+								"expiinvoice"
+							],
+							"query": [
+								{
+									"key": "modifiers",
+									"value": null,
+									"description": "Any modifier for the return object. \n**This does not prevent variables from being set.** You'll have to mark them as null(or \"\") if you don't want them set.",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\n    \"invoice\": {\n        \"uniqueID\": {{invoice_id}},\n        \"customer\": {\n            \"uniqueID\": {{customer_id}},\n            \"customer_information\": {\n                \"firstname\": \"\",\n                \"lastname\": \"\",\n                \"address1\": \"\",\n                \"address2\": \"\",\n                \"city\": \"\",\n                \"state\": \"\",\n                \"zip\": \"\",\n                \"country\": \"\",\n                \"phone1\": \"\",\n                \"phone2\": \"\",\n                \"email\": \"\"\n            },\n            \"billing_information\": {\n                \"firstname\": \"\",\n                \"lastname\": \"\",\n                \"address1\": \"\",\n                \"address2\": \"\",\n                \"city\": \"\",\n                \"state\": \"\",\n                \"zip\": \"\",\n                \"country\": \"\",\n                \"phone\": \"\",\n                \"email\": \"\"\n            },\n            \"custom\": {\n                \"custom1\": \"\",\n                \"custom2\": \"\",\n                \"custom3\": \"\",\n                \"custom4\": \"\",\n                \"custom5\": \"\",\n                \"custom6\": \"\",\n                \"custom7\": \"\",\n                \"custom8\": \"\",\n                \"custom9\": \"\",\n                \"custom10\": \"\"\n            },\n            \"customer_payments\": [\n                {\n                    \"paymentID\": 0,\n                    \"paymenttype\": \"\",\n                    \"lastfour\": \"\",\n                    \"brand\": \"\"\n                }\n            ]\n        },\n        \"date_created\": \"\", \n        \"due_date\": \"\",\n        \"status\": \"\",\n        \"date_closed\": \"\",\n        \"invoice_number\": \"\",\n        \"notes\": \"\",\n        \"amount\": \"\",\n        \"discount\": \"\",\n        \"tax\": \"\",\n        \"shipping\": \"\",\n        \"surcharge\": \"\"\n    }\n}"
+				},
+				{
+					"name": "Customer ID",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"invoice\": {\n        \"customerID\": {{customer_id}},\n        \"date_created\": \"2025-10-06 02:02:03\", \n        \"due_date\": \"2025-10-20 02:02:03\",\n        \"status\": \"unpaid\",\n        \"date_closed\": \"\",\n        \"invoice_number\": \"20251006000001\",\n        \"notes\": \"These are notes that you can add to make the invoice a bit more detailed.\",\n        \"amount\": \"\",\n        \"discount\": \"\",\n        \"tax\": \"\",\n        \"shipping\": \"\",\n        \"surcharge\": \"\",\n        \"items\": [\n            {\n                \"title\": \"\",\n                \"description\": \"\",\n                \"quantity\": 0,\n                \"unit_price\": 21.3 // Individual price, NOT collective price\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/query?action=expiinvoice&modifiers=customer.uniqueID",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"query"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "expiinvoice",
+									"description": "Tells the server that you want to interact with \"Invoice\""
+								},
+								{
+									"key": "modifiers",
+									"value": "customer.uniqueID",
+									"description": "Any modifier for the return object. \n**This does not prevent variables from being set.** You'll have to mark them as null(or \"\") if you don't want them set."
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": "{\n    \"invoice\": {\n        \"customer\": {\n            \"uniqueID\": \"{{customer_id}}\"\n        },\n        \"date_created\": \"2025-10-06 02:02:03\", \n        \"due_date\": \"2025-10-20 02:02:03\",\n        \"status\": \"unpaid\",\n        \"date_closed\": \"\",\n        \"invoice_number\": \"20251006000001\",\n        \"notes\": \"These are notes that you can add to make the invoice a bit more detailed.\",\n        \"amount\": \"\",\n        \"discount\": \"\",\n        \"tax\": \"\",\n        \"shipping\": \"\",\n        \"surcharge\": \"\"\n    }\n}"
+				},
+				{
+					"name": "Deprecated",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    // DEPRECATED, DO NOT USE\n    \"x_tran_key\": \"{{secretKey}}\",\n    \"x_login\": \"{{merchantKey}}\",\n    \"firstname\": \"\",\n    \"lastname\": \"\",\n    \"email\": \"\",\n    \"date_created\": \"\", \n    \"due_date\": \"\",\n    \"status\": \"\", // Can be `Paid`, `Unpaid` or `Cancelled`\n    \"date_closed\": \"\", // `Y-m-d H:i:s` so `2025-10-06 09:55:52\n    \"invoice_number\": \"\",\n    \"notes\": \"\",\n    \"amount\": \"\",\n    \"discount\": \"\",\n    \"tax\": \"\",\n    \"shipping\": \"\",\n    \"surcharge\": \"\",\n    \"items\": [\n        {\n            \"title\": \"\",\n            \"description\": \"\",\n            \"quantity\": 0,\n            \"unit_price\": 21.3 // Individual price, NOT collective price\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/query?action=create_invoice",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"query"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "create_invoice",
+									"description": "Tells the server that you want to interact with \"Invoice\""
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Get Invoice",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/query/expiinvoice?uniqueID=1639",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"query",
+						"expiinvoice"
+					],
+					"query": [
+						{
+							"key": "uniqueID",
+							"value": "1639"
+						},
+						{
+							"key": "modifiers",
+							"value": "",
+							"description": "Reduces response to given variable(s) and uniqueID",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get Invoice",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/query?action=expiinvoice&uniqueID=1638",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"query"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "expiinvoice",
+									"description": "Tells the server that you want to interact with \"Invoice\""
+								},
+								{
+									"key": "modifiers",
+									"value": "",
+									"description": "Any modifier for the return object. \n**This does not prevent variables from being set.** You'll have to mark them as null(or \"\") if you don't want them set.",
+									"disabled": true
+								},
+								{
+									"key": "uniqueID",
+									"value": "1638"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Get Invoices",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/query/expiinvoice?sort",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"query",
+						"expiinvoice"
+					],
+					"query": [
+						{
+							"key": "modifiers",
+							"value": "",
+							"description": "Reduces response to given variable(s) and uniqueID",
+							"disabled": true
+						},
+						{
+							"key": "filters",
+							"value": "",
+							"description": "Filters response by given variable(s)",
+							"disabled": true
+						},
+						{
+							"key": "sort",
+							"value": null,
+							"description": "Sorts response by given variable"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Invoice",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"invoice\": {\n        \"uniqueID\": 1638,\n        \"customer\": {\n            \"uniqueID\": 6202,\n            \"customer_information\": {\n                \"firstname\": \"Test\"\n            }\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/query/expiinvoice",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"query",
+						"expiinvoice"
+					],
+					"query": [
+						{
+							"key": "modifiers",
+							"value": "",
+							"description": "Reduces response to given variable(s) and uniqueID",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Invoice",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/query/expiinvoice?uniqueID=1638",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"query",
+						"expiinvoice"
+					],
+					"query": [
+						{
+							"key": "uniqueID",
+							"value": "1638"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					"pm.test(\"Check for 401 Unauthorized\", function () {",
+					"    pm.expect(pm.response.code).to.not.eql(401, \"Unauthorized: Please use query/login to continue.\");",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "https://99318cc5-f2db-4208-ad3a-d1964e768001.mock.pstmn.io"
+		}
+	]
+}
