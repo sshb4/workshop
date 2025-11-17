@@ -62,15 +62,9 @@ export async function sendEmailVerificationEmail({
   teacherName,
   verificationUrl
 }: EmailVerificationEmail) {
-  // If Resend is not available, simulate email sending
   if (!resend) {
-    console.log('📧 [SIMULATED] Teacher notification email would be sent to:', {
-      to,
-      subject: 'New Booking Notification',
-      teacherName,
-      verificationUrl
-    });
-    return { success: true, message: 'Email simulated (Resend not installed)' };
+    console.error('Resend is not configured');
+    return { success: false, error: 'Email service not available' };
   }
 
   try {
@@ -140,15 +134,9 @@ export async function sendPasswordResetEmail({
   teacherName,
   resetUrl
 }: PasswordResetEmail) {
-  // If Resend is not available, simulate email sending
   if (!resend) {
-    console.log('📧 [SIMULATED] Password reset email would be sent to:', {
-      to,
-      subject: 'Password Reset Request',
-      teacherName,
-      resetUrl
-    });
-    return { success: true, message: 'Email simulated (Resend not installed)' };
+    console.error('Resend is not configured');
+    return { success: false, error: 'Email service not available' };
   }
 
   try {
@@ -220,17 +208,8 @@ export async function sendBookingConfirmationEmail({
 }: BookingConfirmationEmail) {
   // If Resend is not available, simulate email sending
   if (!resend) {
-    console.log('📧 [SIMULATED] Booking confirmation email would be sent to:', {
-      to,
-      subject: 'Booking Confirmation',
-      studentName,
-      teacherName,
-      bookingDate,
-      startTime,
-      endTime,
-      amountPaid
-    });
-    return { success: true, message: 'Email simulated (Resend not installed)' };
+    console.error('Resend is not configured');
+    return { success: false, error: 'Email service not available' };
   }
 
   try {
@@ -352,17 +331,9 @@ export async function sendBookingReminderEmail({
   // endTime,
   teacherEmail
 }: BookingReminderEmail) {
-  // If Resend is not available, simulate email sending
   if (!resend) {
-    console.log('📧 [SIMULATED] Booking reminder email would be sent to:', {
-      to,
-      subject: 'Session Reminder',
-      studentName,
-      teacherName,
-      bookingDate,
-      startTime
-    });
-    return { success: true, message: 'Email simulated (Resend not installed)' };
+    console.error('Resend is not configured');
+    return { success: false, error: 'Email service not available' };
   }
 
   try {
@@ -530,21 +501,9 @@ export async function sendTeacherNotificationEmail({
   amountPaid?: number
   notes?: string
 }) {
-  // If Resend is not available, simulate email sending
   if (!resend) {
-    console.log('📧 [SIMULATED] Teacher notification email would be sent to:', {
-      to,
-      subject: 'New Booking',
-      teacherName,
-      studentName,
-      studentEmail,
-      bookingDate,
-      startTime,
-      endTime,
-      amountPaid,
-      notes
-    });
-    return { success: true, message: 'Email simulated (Resend not installed)' };
+    console.error('Resend is not configured');
+    return { success: false, error: 'Email service not available' };
   }
 
   try {
@@ -645,10 +604,9 @@ export async function sendBookingRequestEmail({
   preferredDates,
   notes
 }: BookingRequestEmail) {
-  // If Resend is not available, simulate email sending
   if (!resend) {
-    console.log(`[SIMULATED] Booking request confirmation email would be sent to ${to}`);
-    return { success: true, simulated: true };
+    console.error('Resend is not configured');
+    return { success: false, error: 'Email service not available' };
   }
 
   try {
