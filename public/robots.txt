@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Allow crawling of public pages
+Allow: /$
+Allow: /[subdomain]
+
+Sitemap: https://buzzworkshop.com/sitemap.xml

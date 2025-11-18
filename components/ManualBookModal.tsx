@@ -345,7 +345,7 @@ export default function ManualBookModal({ colorScheme, bookingSettings, availabi
             {submitSuccess ? (
               <div className="text-center">
                 <p className="text-gray-600 mb-4">
-                  Your booking request has been submitted successfully!  
+                  
                   {teacher.name} will review your request and contact you soon.
                 </p>
                 <p className="text-sm text-gray-500">
