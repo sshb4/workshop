@@ -626,7 +626,7 @@ export default function SignupPage() {
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email!</h3>
                 <p className="text-gray-600 mb-4">
-                  We've sent a verification link to <strong>{formData.email}</strong>
+                  We&apos;ve sent a verification link to <strong>{formData.email}</strong>
                 </p>
                 <p className="text-sm text-gray-500">
                   Click the link in your email to verify your account, then you can log in.
@@ -639,7 +639,7 @@ export default function SignupPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div className="text-sm">
-                    <p className="text-blue-800 font-medium">Didn't receive the email?</p>
+                    <p className="text-blue-800 font-medium">Didn&apos;t receive the email?</p>
                     <p className="text-blue-700 mt-1">Check your spam folder or contact support if you need help.</p>
                   </div>
                 </div>
