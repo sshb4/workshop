@@ -258,22 +258,29 @@ export default function SignupPage() {
             </p>
             
             {/* Progress Steps */}
-            <div className="flex justify-center items-center mt-6 space-x-4">
+            <div className="flex justify-center items-center mt-6 space-x-3">
               <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                 step >= 1 ? 'bg-amber-600 border-amber-600 text-white' : 'border-gray-300 text-gray-300'
               }`}>
                 1
               </div>
-              <div className={`h-1 w-16 ${step >= 2 ? 'bg-amber-600' : 'bg-gray-300'}`}></div>
+              <div className={`h-1 w-12 ${step >= 2 ? 'bg-amber-600' : 'bg-gray-300'}`}></div>
               <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                 step >= 2 ? 'bg-amber-600 border-amber-600 text-white' : 'border-gray-300 text-gray-300'
               }`}>
                 2
               </div>
+              <div className={`h-1 w-12 ${step >= 4 ? 'bg-amber-600' : 'bg-gray-300'}`}></div>
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
+                step >= 4 ? 'bg-amber-600 border-amber-600 text-white' : 'border-gray-300 text-gray-300'
+              }`}>
+                3
+              </div>
             </div>
-            <div className="flex justify-between mt-2 text-sm text-gray-600 max-w-48 mx-auto">
+            <div className="flex justify-between mt-2 text-sm text-gray-600 max-w-80 mx-auto">
               <span>Account Details</span>
               <span>Profile Setup</span>
+              <span>Email Verification</span>
             </div>
           </div>
 
@@ -634,8 +641,8 @@ export default function SignupPage() {
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-start">
-                  <svg className="w-5 h-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center">
+                  <svg className="w-5 h-5 text-blue-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div className="text-sm">
