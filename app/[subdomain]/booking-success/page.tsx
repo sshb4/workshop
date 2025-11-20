@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export default async function BookingSuccessPage({ params }: { params: { subdomain: string } }) {
+export default async function Page({ params }: { params: { subdomain: string } }) {
   const { subdomain } = params
 
   return (

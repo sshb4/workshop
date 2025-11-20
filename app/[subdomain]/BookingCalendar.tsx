@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import React from 'react';
 
 interface AvailabilitySlot {
@@ -51,7 +51,7 @@ interface BookingCalendarProps {
   onDaySelect?: (date: Date) => void
 }
 
-const BookingCalendar: React.FC<BookingCalendarProps> = ({ teacher, availabilitySlots, colorScheme, onDaySelect }) => {
+const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, colorScheme, onDaySelect }) => {
 
   // All hooks and logic above
   // ...existing code...
