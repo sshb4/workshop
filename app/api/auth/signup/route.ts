@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
+import { sendEmailVerificationEmail } from '@/lib/email'
 
 
 export async function POST(request: NextRequest) {
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
     // Print the database URL for debugging
     console.log('SIGNUP API DATABASE_URL:', process.env.DATABASE_URL)
     const body = await request.json()
-    const { name, email, password, subdomain } = body
+  const { name, email, password, subdomain, hasMerchPage, checkoutType } = body
 
     // Validate required fields
     if (!name || !email || !password || !subdomain) {
@@ -91,14 +92,22 @@ export async function POST(request: NextRequest) {
     const saltRounds = 12
     const hashedPassword = await bcrypt.hash(password, saltRounds)
 
-    // Create the new teacher
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex')
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
+
+    // Create the new teacher (email not verified initially)
     const newTeacher = await prisma.teacher.create({
       data: {
         name: name as string,
         email: email as string,
         passwordHash: hashedPassword,
         subdomain: subdomain as string,
-        emailVerified: new Date() // Auto-verify for production compatibility
+        hasMerchPage: !!hasMerchPage,
+        checkoutType: checkoutType === 'checkout' ? 'checkout' : 'invoice',
+        emailVerified: null, // Email not verified yet
+        verificationToken: verificationToken,
+        tokenExpiry: tokenExpiry
       }
     })
 
@@ -127,16 +136,33 @@ export async function POST(request: NextRequest) {
       // Don't fail the signup if booking settings creation fails
     }
 
+    // Send verification email
+    try {
+      const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`
+      
+      await sendEmailVerificationEmail({
+        to: email,
+        teacherName: name,
+        verificationUrl: verificationUrl
+      })
+      
+      console.log('Verification email sent to:', email)
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError)
+      // Don't fail signup if email fails - just log it
+    }
+
     // Return success (don't return password hash)
     return NextResponse.json({
       success: true,
-      message: 'Account created successfully! You can now log in.',
+      message: 'Account created successfully! Please check your email to verify your account before logging in.',
       teacher: {
         id: newTeacher.id,
         name: newTeacher.name,
         email: newTeacher.email,
         subdomain: newTeacher.subdomain,
-        emailVerified: true
+        emailVerified: false,
+        requiresVerification: true
       }
     })
   } catch (error) {

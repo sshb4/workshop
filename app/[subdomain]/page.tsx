@@ -14,8 +14,8 @@ interface TeacherMeta {
 	name: string;
 }
 
-export async function generateMetadata({ params }: { params: { subdomain: string } }) {
-	const { subdomain } = params;
+export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }): Promise<Metadata> {
+	const { subdomain } = await params;
 	const teacher = await prisma.teacher.findUnique({ where: { subdomain } });
 	if (!teacher) {
 		return { title: 'Provider Not Found' };
@@ -66,9 +66,10 @@ interface AvailabilitySlot {
 	isActive: boolean;
 }
 
-export default async function Page({ params }: { params: { subdomain: string } }) {
+export default async function Page({ params }: { params: Promise<{ subdomain: string }> }) {
 	const { subdomain } = await params;
 	const teacher = await prisma.teacher.findUnique({ where: { subdomain } });
+	console.log('Teacher object:', teacher);
 	if (!teacher) {
 		notFound();
 	}
@@ -116,16 +117,27 @@ export default async function Page({ params }: { params: { subdomain: string } }
 					borderColor: colorScheme.styles.border
 				}}
 			>
-				<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-					<h1 className="text-2xl sm:text-4xl font-bold transition-colors duration-300"
-						style={{ color: colorScheme.styles.textPrimary }}>
-						{teacher.name}
-					</h1>
-					{(teacher as { title?: string }).title && (
-						<p className="text-sm sm:text-lg mt-1 transition-colors duration-300"
-							style={{ color: colorScheme.styles.textSecondary }}>
-							{(teacher as { title?: string }).title}
-						</p>
+				<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<h1 className="text-2xl sm:text-4xl font-bold transition-colors duration-300"
+							style={{ color: colorScheme.styles.textPrimary }}>
+							{teacher.name}
+						</h1>
+						{(teacher as { title?: string }).title && (
+							<p className="text-sm sm:text-lg mt-1 transition-colors duration-300"
+								style={{ color: colorScheme.styles.textSecondary }}>
+								{(teacher as { title?: string }).title}
+							</p>
+						)}
+					</div>
+					{/* Merch Link */}
+					{teacher.hasMerchPage && (
+						<a
+							href={`/${teacher.subdomain}/merch`}
+							className="inline-block px-4 py-2 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors mt-4 sm:mt-0"
+						>
+							Merch
+						</a>
 					)}
 				</div>
 			</header>

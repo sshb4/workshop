@@ -15,11 +15,13 @@ export default function SignupPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    subdomain: ''
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  subdomain: '',
+  hasMerchPage: false,
+  checkoutType: 'invoice'
   })
   
   // Setup form data
@@ -168,7 +170,14 @@ export default function SignupPage() {
           return
         }
 
-        // Auto-login the user
+        // Check if email verification is required
+        if (signupResult.teacher?.requiresVerification) {
+          // Show verification message and redirect to login
+          setStep(4) // We'll create a verification step
+          return
+        }
+
+        // Auto-login the user (for backwards compatibility if verification is disabled)
         const signInResult = await signIn('credentials', {
           email: formData.email,
           password: formData.password,
@@ -176,7 +185,7 @@ export default function SignupPage() {
         })
 
         if (signInResult?.error) {
-          setError('Account created but login failed. Please try logging in manually.')
+          setError('Account created successfully! Please check your email to verify your account, then log in manually.')
           return
         }
 
@@ -244,29 +253,36 @@ export default function SignupPage() {
               <UserPlusIcon className="w-8 h-8 text-amber-600" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {step === 1 ? 'Create Account' : 'Complete Your Profile'}
+              {step === 1 ? 'Create Account' : step === 4 ? 'Email Verification' : 'Complete Your Profile'}
             </h1>
             <p className="text-gray-600">
-              {step === 1 ? 'Set up your booking page in minutes' : 'Just a few more details to get started'}
+              {step === 1 ? 'Set up your booking page in minutes' : step === 4 ? 'Check your email to verify your account' : 'Just a few more details to get started'}
             </p>
             
             {/* Progress Steps */}
-            <div className="flex justify-center items-center mt-6 space-x-4">
+            <div className="flex justify-center items-center mt-6 space-x-3">
               <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                 step >= 1 ? 'bg-amber-600 border-amber-600 text-white' : 'border-gray-300 text-gray-300'
               }`}>
                 1
               </div>
-              <div className={`h-1 w-16 ${step >= 2 ? 'bg-amber-600' : 'bg-gray-300'}`}></div>
+              <div className={`h-1 w-12 ${step >= 2 ? 'bg-amber-600' : 'bg-gray-300'}`}></div>
               <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                 step >= 2 ? 'bg-amber-600 border-amber-600 text-white' : 'border-gray-300 text-gray-300'
               }`}>
                 2
               </div>
+              <div className={`h-1 w-12 ${step >= 4 ? 'bg-amber-600' : 'bg-gray-300'}`}></div>
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
+                step >= 4 ? 'bg-amber-600 border-amber-600 text-white' : 'border-gray-300 text-gray-300'
+              }`}>
+                3
+              </div>
             </div>
-            <div className="flex justify-between mt-2 text-sm text-gray-600 max-w-48 mx-auto">
+            <div className="flex justify-between mt-2 text-sm text-gray-600 max-w-80 mx-auto">
               <span>Account Details</span>
               <span>Profile Setup</span>
+              <span>Email Verification</span>
             </div>
           </div>
 
@@ -580,6 +596,50 @@ export default function SignupPage() {
                 </div>
               </div>
 
+              {/* Merch Page Option */}
+              <div className="bg-white rounded-lg p-6 border border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Include Merch Page</h3>
+                <p className="text-gray-600 mb-4 text-sm">Enable a public merch page to sell products or resources.</p>
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={formData.hasMerchPage || false}
+                    onChange={e => setFormData(prev => ({ ...prev, hasMerchPage: e.target.checked }))}
+                    className="w-5 h-5 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                  />
+                  <span className="text-sm text-gray-900">Enable Merch Page</span>
+                </label>
+              </div>
+                {/* Checkout Type Option */}
+                <div className="bg-white rounded-lg p-6 border border-gray-200 mt-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Checkout Type</h3>
+                  <p className="text-gray-600 mb-4 text-sm">Choose how customers pay for merch: Invoice or Checkout.</p>
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="checkoutType"
+                        value="invoice"
+                        checked={formData.checkoutType === 'invoice'}
+                        onChange={e => setFormData(prev => ({ ...prev, checkoutType: e.target.value }))}
+                        className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-900">Invoice</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="checkoutType"
+                        value="checkout"
+                        checked={formData.checkoutType === 'checkout'}
+                        onChange={e => setFormData(prev => ({ ...prev, checkoutType: e.target.value }))}
+                        className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-900">Checkout</span>
+                    </label>
+                  </div>
+                </div>
+
               <div className="flex justify-between items-center pt-4">
                 <button
                   type="button"
@@ -607,18 +667,60 @@ export default function SignupPage() {
             </form>
           )}
 
-          {/* Login Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link 
-                href="/admin/login" 
-                className="font-medium text-amber-600 hover:text-amber-500 transition-colors"
+          {/* Step 4: Email Verification */}
+          {step === 4 && (
+            <div className="text-center space-y-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email!</h3>
+                <p className="text-gray-600 mb-4">
+                  We&apos;ve sent a verification link to <strong>{formData.email}</strong>
+                </p>
+                <p className="text-sm text-gray-500">
+                  Click the link in your email to verify your account, then you can log in.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="text-center">
+                  <svg className="w-5 h-5 text-blue-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m-1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="text-sm">
+                    <p className="text-blue-800 font-medium">Didn&apos;t receive the email?</p>
+                    <p className="text-blue-700 mt-1">Check your spam folder or contact support if you need help.</p>
+                  </div>
+                </div>
+              </div>
+
+              <Link
+                href="/admin/login"
+                className="inline-flex items-center justify-center px-6 py-3 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors"
               >
-                Sign in here
+                Go to Login Page
               </Link>
-            </p>
-          </div>
+            </div>
+          )}
+
+          {/* Login Link */}
+          {step !== 4 && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link 
+                  href="/admin/login" 
+                  className="font-medium text-amber-600 hover:text-amber-500 transition-colors"
+                >
+                  Sign in here
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

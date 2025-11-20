@@ -46,13 +46,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid credentials')
         }
 
-        // Check if email is verified
-        // TODO: Re-enable when production database has verification fields
-        /*
-        if (!teacher.emailVerified) {
-          throw new Error('Please verify your email address before logging in')
-        }
-        */
+        // Email verification check disabled for development
+        // if (!teacher.emailVerified) {
+        //   console.log('Email not verified for teacher:', teacher.email)
+        //   throw new Error('Please verify your email address before logging in. Check your email for a verification link.')
+        // }
 
         return {
           id: teacher.id,

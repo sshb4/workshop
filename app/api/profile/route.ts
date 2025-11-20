@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
     const favicon = formData.get('favicon') as string
     const colorScheme = formData.get('colorScheme') as string
     const photoFile = formData.get('photo') as File | null
+  const hasMerchPageRaw = formData.get('hasMerchPage');
+  const hasMerchPage = String(hasMerchPageRaw) === 'true' || String(hasMerchPageRaw) === 'on'
+  const checkoutTypeRaw = formData.get('checkoutType');
+  const checkoutType = checkoutTypeRaw === 'checkout' ? 'checkout' : 'invoice';
 
     // Check if this is a setup request (minimal data)
     const isSetupRequest = !name && !email && !subdomain
@@ -173,6 +177,8 @@ export async function POST(request: NextRequest) {
       favicon: string | null
       colorScheme: string
       phone?: string | null
+  hasMerchPage?: boolean
+  checkoutType?: string
     } = {
       name,
       email,
@@ -181,6 +187,8 @@ export async function POST(request: NextRequest) {
       profileImage: profileImage && profileImage.trim() !== '' ? profileImage : null,
       favicon: favicon && favicon.trim() !== '' ? favicon : null,
       colorScheme: colorScheme || 'default',
+      hasMerchPage: hasMerchPage,
+      checkoutType: checkoutType,
     }
 
     // Only update subdomain if provided

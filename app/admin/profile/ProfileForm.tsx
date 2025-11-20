@@ -21,6 +21,7 @@ interface Teacher {
   favicon: string | null
   colorScheme: string
   timeFormat?: string | null
+  hasMerchPage?: boolean
 }
 
 interface ProfileFormProps {
@@ -32,6 +33,21 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
   const [showSuccess, setShowSuccess] = useState(false)
   const [origin, setOrigin] = useState('your-domain.com')
   const [phoneValue, setPhoneValue] = useState(teacher.phone || '')
+  const [form, setForm] = useState({
+  teacherId: teacher.id,
+  name: teacher.name,
+  email: teacher.email,
+  phone: teacher.phone,
+  hourlyRate: teacher.hourlyRate,
+  subdomain: teacher.subdomain,
+  title: teacher.title,
+  bio: teacher.bio,
+  profileImage: teacher.profileImage,
+  favicon: teacher.favicon,
+  colorScheme: teacher.colorScheme,
+  hasMerchPage: false, // new state for merch page toggle
+  checkoutType: 'invoice'
+  })
 
   // Phone number formatting function
   const formatPhoneNumber = (value: string) => {
@@ -74,6 +90,13 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
       setPhoneValue(formatPhoneNumber(teacher.phone))
     }
   }, [teacher.phone])
+
+  useEffect(() => {
+    setForm(prev => ({
+      ...prev,
+      hasMerchPage: teacher.hasMerchPage || false
+    }));
+  }, [teacher.hasMerchPage]);
 
   return (
     <>
@@ -282,50 +305,89 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
             </div>
           </div>
 
-          {/* Profile Image URL */}
-          <div>
+          {/* Profile Image Upload */}
+          <div className="mb-6">
             <label htmlFor="profileImage" className="block text-sm font-medium text-gray-700 mb-2">
-              Profile Image URL
+              Profile Image
             </label>
-            <input
-              id="profileImage"
-              name="profileImage"
-              type="url"
-              defaultValue={teacher.profileImage || ''}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
-              placeholder="https://example.com/your-photo.jpg"
-            />
-            <p className="mt-1 text-sm text-gray-500">
-              Paste a URL to your profile photo. Leave blank to use your initials as a placeholder.
-            </p>
-          </div>
-
-          {/* Favicon URL */}
-          <div>
-            <label htmlFor="favicon" className="block text-sm font-medium text-gray-700 mb-2">
-              Custom Favicon URL
-            </label>
-            <input
-              id="favicon"
-              name="favicon"
-              type="url"
-              defaultValue={teacher.favicon || ''}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
-              placeholder="https://example.com/your-favicon.png"
-            />
-            <p className="mt-1 text-sm text-gray-500">
-              Paste a URL to your custom favicon (recommended: 32x32 PNG, max 256x256). Leave blank to use the default favicon. This will appear in browser tabs when visitors view your booking page.
-            </p>
-            <div className="mt-2 p-3 bg-blue-50 border-l-4 border-blue-400 rounded-r">
-              <p className="text-xs text-blue-800">
-                <strong>Favicon Tips:</strong> Use a simple, recognizable icon that works at small sizes. Square PNG files work best. You can create favicons at{' '}
-                <a href="https://favicon.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">
-                  favicon.io
-                </a>{' '}
-                or upload your logo to free online favicon generators.
+            <div className="flex flex-col w-full gap-2">
+              <input
+                id="profileImage"
+                name="photo"
+                type="file"
+                accept="image/*"
+                className="w-full block border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
+              />
+              <p className="text-sm text-gray-500">
+                Upload a profile photo. Leave blank to use your initials as a placeholder.
               </p>
             </div>
           </div>
+
+          {/* Favicon Upload */}
+          <div className="mb-6">
+            <label htmlFor="favicon" className="block text-sm font-medium text-gray-700 mb-2">
+              Custom Favicon
+            </label>
+            <div className="flex flex-col w-full gap-2">
+              <input
+                id="favicon"
+                name="faviconFile"
+                type="file"
+                accept="image/png,image/x-icon,image/svg+xml"
+                className="w-full block border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition font-medium"
+              />
+              <p className="text-sm text-gray-500">
+                Upload a favicon (recommended: 32x32 PNG, SVG, or ICO). Leave blank to use the default favicon.
+              </p>
+            </div>
+          </div>
+
+          {/* Merch Page Option */}
+          <div className="bg-white rounded-lg p-6 border border-gray-200 mb-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Include Merch Page</h3>
+            <p className="text-gray-600 mb-4 text-sm">Enable a public merch page to sell products or resources.</p>
+            <label className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                name="hasMerchPage"
+                checked={form.hasMerchPage || false}
+                value="true"
+                onChange={e => setForm(prev => ({ ...prev, hasMerchPage: e.target.checked }))}
+                className="w-5 h-5 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+              />
+              <span className="text-sm text-gray-900">Enable Merch Page</span>
+            </label>
+          </div>
+            {/* Checkout Type Option */}
+            <div className="bg-white rounded-lg p-6 border border-gray-200 mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Checkout Type</h3>
+              <p className="text-gray-600 mb-4 text-sm">Choose how customers pay for merch: Invoice or Checkout.</p>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="checkoutType"
+                    value="invoice"
+                    checked={form.checkoutType === 'invoice'}
+                    onChange={e => setForm(prev => ({ ...prev, checkoutType: e.target.value }))}
+                    className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                  />
+                  <span className="text-sm text-gray-900">Invoice</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="checkoutType"
+                    value="checkout"
+                    checked={form.checkoutType === 'checkout'}
+                    onChange={e => setForm(prev => ({ ...prev, checkoutType: e.target.value }))}
+                    className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                  />
+                  <span className="text-sm text-gray-900">Checkout</span>
+                </label>
+              </div>
+            </div>
 
           {/* Submit Button */}
           <div className="flex justify-end pt-4 border-t border-gray-200">
