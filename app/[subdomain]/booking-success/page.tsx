@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
-export default async function BookingSuccessPage({ params }: { params: Promise<{ subdomain: string }> }) {
-  const { subdomain } = await params
+export default async function BookingSuccessPage({ params }: { params: { subdomain: string } }) {
+  const { subdomain } = params
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">

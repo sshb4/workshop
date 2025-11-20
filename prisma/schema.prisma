@@ -27,6 +27,8 @@ model Teacher {
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
   favicon           String?
+  hasMerchPage      Boolean            @default(false)
+  checkoutType      String             @default("invoice")
   accounts          Account[]
   availabilitySlots AvailabilitySlot[]
   blockedDates      BlockedDate[]
@@ -149,41 +151,41 @@ model BlockedDate {
 }
 
 model Invoice {
-  id              String    @id @default(cuid())
-  teacherId       String    @map("teacher_id")
-  bookingId       String?   @map("booking_id")
-  trouteInvoiceId String?   @unique @map("troute_invoice_id") // External API ID
-  trouteCustomerId String?  @map("troute_customer_id") // External customer ID
-  invoiceNumber   String?   @unique @map("invoice_number")
-  status          String    @default("Unpaid") // Paid, Unpaid, Cancelled
-  amount          Float
-  discount        Float?    @default(0)
-  tax             Float?    @default(0)
-  shipping        Float?    @default(0)
-  surcharge       Float?    @default(0)
-  notes           String?
-  dueDate         DateTime  @map("due_date")
-  dateClosed      DateTime? @map("date_closed")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  
-  teacher         Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  booking         Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  items           InvoiceItem[]
+  id               String    @id @default(cuid())
+  teacherId        String    @map("teacher_id")
+  bookingId        String?   @map("booking_id")
+  trouteInvoiceId  String?   @unique @map("troute_invoice_id") // External API ID
+  trouteCustomerId String?   @map("troute_customer_id") // External customer ID
+  invoiceNumber    String?   @unique @map("invoice_number")
+  status           String    @default("Unpaid") // Paid, Unpaid, Cancelled
+  amount           Float
+  discount         Float?    @default(0)
+  tax              Float?    @default(0)
+  shipping         Float?    @default(0)
+  surcharge        Float?    @default(0)
+  notes            String?
+  dueDate          DateTime  @map("due_date")
+  dateClosed       DateTime? @map("date_closed")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  teacher Teacher       @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  booking Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  items   InvoiceItem[]
 
   @@map("invoices")
 }
 
 model InvoiceItem {
-  id          String  @id @default(cuid())
-  invoiceId   String  @map("invoice_id")
+  id          String   @id @default(cuid())
+  invoiceId   String   @map("invoice_id")
   title       String
   description String?
-  quantity    Int     @default(1)
-  unitPrice   Float   @map("unit_price")
+  quantity    Int      @default(1)
+  unitPrice   Float    @map("unit_price")
   createdAt   DateTime @default(now()) @map("created_at")
-  
-  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@map("invoice_items")
 }

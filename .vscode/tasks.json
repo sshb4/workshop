@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Prisma migrate for checkoutType",
+			"type": "shell",
+			"command": "npx prisma migrate dev --name add-checkout-type",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [
+				"$prisma"
+			],
+			"group": "build"
+		}
+	]
+}

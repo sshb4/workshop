@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     // Print the database URL for debugging
     console.log('SIGNUP API DATABASE_URL:', process.env.DATABASE_URL)
     const body = await request.json()
-    const { name, email, password, subdomain } = body
+  const { name, email, password, subdomain, hasMerchPage, checkoutType } = body
 
     // Validate required fields
     if (!name || !email || !password || !subdomain) {
@@ -103,6 +103,8 @@ export async function POST(request: NextRequest) {
         email: email as string,
         passwordHash: hashedPassword,
         subdomain: subdomain as string,
+        hasMerchPage: !!hasMerchPage,
+        checkoutType: checkoutType === 'checkout' ? 'checkout' : 'invoice',
         emailVerified: null, // Email not verified yet
         verificationToken: verificationToken,
         tokenExpiry: tokenExpiry

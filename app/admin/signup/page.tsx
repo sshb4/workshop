@@ -15,11 +15,13 @@ export default function SignupPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    subdomain: ''
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  subdomain: '',
+  hasMerchPage: false,
+  checkoutType: 'invoice'
   })
   
   // Setup form data
@@ -594,6 +596,50 @@ export default function SignupPage() {
                 </div>
               </div>
 
+              {/* Merch Page Option */}
+              <div className="bg-white rounded-lg p-6 border border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Include Merch Page</h3>
+                <p className="text-gray-600 mb-4 text-sm">Enable a public merch page to sell products or resources.</p>
+                <label className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={formData.hasMerchPage || false}
+                    onChange={e => setFormData(prev => ({ ...prev, hasMerchPage: e.target.checked }))}
+                    className="w-5 h-5 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                  />
+                  <span className="text-sm text-gray-900">Enable Merch Page</span>
+                </label>
+              </div>
+                {/* Checkout Type Option */}
+                <div className="bg-white rounded-lg p-6 border border-gray-200 mt-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Checkout Type</h3>
+                  <p className="text-gray-600 mb-4 text-sm">Choose how customers pay for merch: Invoice or Checkout.</p>
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="checkoutType"
+                        value="invoice"
+                        checked={formData.checkoutType === 'invoice'}
+                        onChange={e => setFormData(prev => ({ ...prev, checkoutType: e.target.value }))}
+                        className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-900">Invoice</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="checkoutType"
+                        value="checkout"
+                        checked={formData.checkoutType === 'checkout'}
+                        onChange={e => setFormData(prev => ({ ...prev, checkoutType: e.target.value }))}
+                        className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-900">Checkout</span>
+                    </label>
+                  </div>
+                </div>
+
               <div className="flex justify-between items-center pt-4">
                 <button
                   type="button"
@@ -643,7 +689,7 @@ export default function SignupPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="text-center">
                   <svg className="w-5 h-5 text-blue-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m-1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <div className="text-sm">
                     <p className="text-blue-800 font-medium">Didn&apos;t receive the email?</p>
