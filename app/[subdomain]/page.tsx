@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
-import { Metadata } from 'next';
 import { getColorScheme } from '@/lib/themes';
 import ManualBookModal from '@/components/ManualBookModal';
 
@@ -15,8 +14,8 @@ interface TeacherMeta {
 	name: string;
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }): Promise<Metadata> {
-	const { subdomain } = await params;
+export async function generateMetadata({ params }: { params: { subdomain: string } }) {
+	const { subdomain } = params;
 	const teacher = await prisma.teacher.findUnique({ where: { subdomain } });
 	if (!teacher) {
 		return { title: 'Provider Not Found' };
@@ -67,7 +66,7 @@ interface AvailabilitySlot {
 	isActive: boolean;
 }
 
-export default async function Page({ params }: { params: Promise<{ subdomain: string }> }) {
+export default async function Page({ params }: { params: { subdomain: string } }) {
 	const { subdomain } = await params;
 	const teacher = await prisma.teacher.findUnique({ where: { subdomain } });
 	if (!teacher) {
