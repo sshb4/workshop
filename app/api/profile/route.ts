@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
       profileImage: profileImage && profileImage.trim() !== '' ? profileImage : null,
       favicon: favicon && favicon.trim() !== '' ? favicon : null,
       colorScheme: colorScheme || 'default',
-      hasMerchPage: hasMerchPage,
+      //hasMerchPage: hasMerchPage,
       checkoutType: checkoutType,
     }
 

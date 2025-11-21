@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { getColorScheme } from '@/lib/themes';
 import ManualBookModal from '@/components/ManualBookModal';
+import BookingCalendar from './BookingCalendar';
 
 interface TeacherMeta {
 	title?: string;
@@ -204,23 +205,39 @@ export default async function Page({ params }: { params: { subdomain: string } }
 						</div>
 					</div>
 				</div>
-				<div className="mt-8">
-					<ManualBookModal
-						colorScheme={colorScheme}
-						bookingSettings={bookingSettings}
-						availabilitySlots={availabilitySlots}
-						teacher={{
-							...teacher,
-							hourlyRate: teacher.hourlyRate === null ? undefined : teacher.hourlyRate,
-							title: teacher.title === null ? undefined : teacher.title,
-							bio: teacher.bio === null ? undefined : teacher.bio,
-							profileImage: teacher.profileImage === null ? undefined : teacher.profileImage,
-							email: teacher.email === null ? undefined : teacher.email,
-							phone: teacher.phone === null ? undefined : teacher.phone,
-							colorScheme: teacher.colorScheme === null ? undefined : teacher.colorScheme
-						}}
-					/>
-				</div>
+					{/* BookingCalendar for checkoutType 'checkout' */}
+					{teacher.checkoutType === 'checkout' && (
+						<div className="mt-8">
+							<h2 className="text-xl font-bold mb-4">Book a Session</h2>
+									<BookingCalendar
+										teacher={{
+											...teacher,
+											hourlyRate: teacher.hourlyRate === null ? undefined : teacher.hourlyRate,
+											title: teacher.title === null ? undefined : teacher.title
+										}}
+										availabilitySlots={availabilitySlots}
+										colorScheme={colorScheme}
+										onDaySelect={(date: Date) => {}}
+									/>
+						</div>
+					)}
+					<div className="mt-8">
+						<ManualBookModal
+							colorScheme={colorScheme}
+							bookingSettings={bookingSettings}
+							availabilitySlots={availabilitySlots}
+							teacher={{
+								...teacher,
+								hourlyRate: teacher.hourlyRate === null ? undefined : teacher.hourlyRate,
+								title: teacher.title === null ? undefined : teacher.title,
+								bio: teacher.bio === null ? undefined : teacher.bio,
+								profileImage: teacher.profileImage === null ? undefined : teacher.profileImage,
+								email: teacher.email === null ? undefined : teacher.email,
+								phone: teacher.phone === null ? undefined : teacher.phone,
+								colorScheme: teacher.colorScheme === null ? undefined : teacher.colorScheme
+							}}
+						/>
+					</div>
 			</main>
 			<footer className="mt-16 py-8 text-center text-gray-500 text-sm">
 				<p>Powered by Buzz Financial</p>

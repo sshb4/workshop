@@ -4,6 +4,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import React, { Suspense } from 'react'
 import Link from 'next/link'
 import { colorSchemes } from '@/lib/themes'
 import { SuccessCheckIcon } from '@/components/icons/SuccessCheckIcon'
@@ -22,6 +23,7 @@ interface Teacher {
   colorScheme: string
   timeFormat?: string | null
   hasMerchPage?: boolean
+  checkoutType?: string
 }
 
 interface ProfileFormProps {
@@ -34,19 +36,19 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
   const [origin, setOrigin] = useState('your-domain.com')
   const [phoneValue, setPhoneValue] = useState(teacher.phone || '')
   const [form, setForm] = useState({
-  teacherId: teacher.id,
-  name: teacher.name,
-  email: teacher.email,
-  phone: teacher.phone,
-  hourlyRate: teacher.hourlyRate,
-  subdomain: teacher.subdomain,
-  title: teacher.title,
-  bio: teacher.bio,
-  profileImage: teacher.profileImage,
-  favicon: teacher.favicon,
-  colorScheme: teacher.colorScheme,
-  //hasMerchPage: false, // new state for merch page toggle
-  checkoutType: 'invoice'
+    teacherId: teacher.id,
+    name: teacher.name,
+    email: teacher.email,
+    phone: teacher.phone,
+    hourlyRate: teacher.hourlyRate,
+    subdomain: teacher.subdomain,
+    title: teacher.title,
+    bio: teacher.bio,
+    profileImage: teacher.profileImage,
+    favicon: teacher.favicon,
+    colorScheme: teacher.colorScheme,
+    //hasMerchPage: false, // new state for merch page toggle
+    checkoutType: teacher.checkoutType || 'invoice'
   })
 
   // Phone number formatting function
@@ -94,9 +96,10 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
   useEffect(() => {
     setForm(prev => ({
       ...prev,
-      hasMerchPage: teacher.hasMerchPage || false
+      hasMerchPage: teacher.hasMerchPage || false,
+      checkoutType: teacher.checkoutType || 'invoice'
     }));
-  }, [teacher.hasMerchPage]);
+  }, [teacher.hasMerchPage, teacher.checkoutType]);
 
   return (
     <>
@@ -401,6 +404,41 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
           </div>
         </form>
       </div>
+
+      {/* Show BookingCalendar if checkoutType is 'checkout' */}
+      {form.checkoutType === 'checkout' && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">Booking Calendar Demo</h3>
+          {/* You may want to fetch real slots and colorScheme here */}
+          {/* For demo, use teacher and empty slots/colors */}
+          {typeof window !== 'undefined' && (
+    <Suspense fallback={<div>Loading calendar...</div>}>
+              {(() => {
+                const BookingCalendar = require('@/app/[subdomain]/BookingCalendar.tsx').default;
+                return (
+                  <BookingCalendar
+                    teacher={teacher}
+                    availabilitySlots={[]}
+                    colorScheme={{
+                      styles: {
+                        primary: '#6366f1',
+                        primaryLight: '#a5b4fc',
+                        accent: '#f59e42',
+                        background: '#fff',
+                        backgroundSecondary: '#fef3c7',
+                        border: '#e5e7eb',
+                        textPrimary: '#1f2937',
+                        textSecondary: '#6b7280',
+                      }
+                    }}
+      onDaySelect={(date: Date) => alert(`Selected date: ${date.toDateString()}`)}
+                  />
+                );
+              })()}
+    </Suspense>
+          )}
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
