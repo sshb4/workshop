@@ -133,6 +133,7 @@ export default async function Page({ params }: { params: { subdomain: string } }
 						)}
 					</div>
 					{/* Merch Link */}
+					{/*
 					{teacher.hasMerchPage && (
 						<a
 							href={`/${teacher.subdomain}/merch`}
@@ -141,6 +142,7 @@ export default async function Page({ params }: { params: { subdomain: string } }
 							Merch
 						</a>
 					)}
+					*/}
 				</div>
 			</header>
 			<main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">

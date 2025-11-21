@@ -1,3 +1,5 @@
+{/* 
+
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 
@@ -90,3 +92,5 @@ export default async function Page({ params }: { params: { subdomain: string } }
     </div>
   );
 }
+
+*/}

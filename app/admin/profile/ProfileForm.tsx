@@ -45,7 +45,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
   profileImage: teacher.profileImage,
   favicon: teacher.favicon,
   colorScheme: teacher.colorScheme,
-  hasMerchPage: false, // new state for merch page toggle
+  //hasMerchPage: false, // new state for merch page toggle
   checkoutType: 'invoice'
   })
 
@@ -343,7 +343,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
             </div>
           </div>
 
-          {/* Merch Page Option */}
+          {/* Merch Page Option 
           <div className="bg-white rounded-lg p-6 border border-gray-200 mb-6">
             <h3 className="text-lg font-medium text-gray-900 mb-2">Include Merch Page</h3>
             <p className="text-gray-600 mb-4 text-sm">Enable a public merch page to sell products or resources.</p>
@@ -359,6 +359,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
               <span className="text-sm text-gray-900">Enable Merch Page</span>
             </label>
           </div>
+          */}
             {/* Checkout Type Option */}
             <div className="bg-white rounded-lg p-6 border border-gray-200 mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">Checkout Type</h3>

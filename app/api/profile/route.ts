@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
     const favicon = formData.get('favicon') as string
     const colorScheme = formData.get('colorScheme') as string
     const photoFile = formData.get('photo') as File | null
-  const hasMerchPageRaw = formData.get('hasMerchPage');
-  const hasMerchPage = String(hasMerchPageRaw) === 'true' || String(hasMerchPageRaw) === 'on'
+  //const hasMerchPageRaw = formData.get('hasMerchPage');
+  //const hasMerchPage = String(hasMerchPageRaw) === 'true' || String(hasMerchPageRaw) === 'on'
   const checkoutTypeRaw = formData.get('checkoutType');
   const checkoutType = checkoutTypeRaw === 'checkout' ? 'checkout' : 'invoice';
 

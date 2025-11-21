@@ -20,7 +20,7 @@ export default function SignupPage() {
   password: '',
   confirmPassword: '',
   subdomain: '',
-  hasMerchPage: false,
+  //hasMerchPage: false,
   checkoutType: 'invoice'
   })
   
@@ -595,8 +595,8 @@ export default function SignupPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Merch Page Option */}
+          
+              {/* 
               <div className="bg-white rounded-lg p-6 border border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Include Merch Page</h3>
                 <p className="text-gray-600 mb-4 text-sm">Enable a public merch page to sell products or resources.</p>
@@ -610,10 +610,11 @@ export default function SignupPage() {
                   <span className="text-sm text-gray-900">Enable Merch Page</span>
                 </label>
               </div>
+               */}
                 {/* Checkout Type Option */}
                 <div className="bg-white rounded-lg p-6 border border-gray-200 mt-4">
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Checkout Type</h3>
-                  <p className="text-gray-600 mb-4 text-sm">Choose how customers pay for merch: Invoice or Checkout.</p>
+                  <p className="text-gray-600 mb-4 text-sm">Choose how customers pay for your services: Invoice or Checkout.</p>
                   <div className="flex gap-6">
                     <label className="flex items-center gap-2">
                       <input
