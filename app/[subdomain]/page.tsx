@@ -6,6 +6,11 @@ import { getColorScheme } from '@/lib/themes';
 import ManualBookModal from '@/components/ManualBookModal';
 import BookingCalendar from './BookingCalendar';
 
+interface Service {
+	name: string;
+	description?: string;
+}
+
 interface TeacherMeta {
 	title?: string;
 	favicon?: string;
@@ -15,11 +20,43 @@ interface TeacherMeta {
 	subdomain: string;
 	name: string;
 }
-// NEW
+
 export async function generateMetadata({ params }: { params: { subdomain: string } }): Promise<Metadata> {
 	const { subdomain } = params;
 
-	const teacher = await prisma.teacher.findUnique({ where: { subdomain } });
+			const teacher = await prisma.teacher.findUnique({
+				where: { subdomain },
+				select: {
+					id: true,
+					subdomain: true,
+					name: true,
+					email: true,
+					passwordHash: true,
+					title: true,
+					bio: true,
+					hourlyRate: true,
+					profileImage: true,
+					phone: true,
+					colorScheme: true,
+					favicon: true,
+					hasMerchPage: true,
+					checkoutType: true,
+					services: true,
+				}
+			});
+		// Parse services JSON if present
+		let services: Array<{ name: string; description?: string }> = [];
+		if (teacher && teacher.services) {
+			try {
+				services = Array.isArray(teacher.services)
+					? teacher.services
+					: typeof teacher.services === 'string'
+						? JSON.parse(teacher.services)
+						: [];
+			} catch {
+				services = [];
+			}
+		}
 	if (!teacher) {
 		return { title: 'Provider Not Found' };
 	}
@@ -34,7 +71,7 @@ export async function generateMetadata({ params }: { params: { subdomain: string
 	};
 	return {
 		title: teacherMeta.title ? `${teacherMeta.name} - ${teacherMeta.title}` : teacherMeta.name,
-		description: teacherMeta.bio
+		description: typeof teacherMeta.bio === 'string'
 			? `Book appointments with ${teacherMeta.name}. ${teacherMeta.bio.slice(0, 160)}...`
 			: `Book appointments with ${teacherMeta.name}. Professional services available for $${teacherMeta.hourlyRate}/hour.`,
 		icons: teacherMeta.favicon
@@ -58,6 +95,24 @@ export async function generateMetadata({ params }: { params: { subdomain: string
 	};
 }
 
+interface Teacher {
+	id: string;
+	subdomain: string;
+	name: string;
+	email: string;
+	passwordHash: string;
+	title?: string | null;
+	bio?: string | null;
+	hourlyRate?: number | null;
+	profileImage?: string | null;
+	phone?: string | null;
+	colorScheme?: string;
+	favicon?: string | null;
+	hasMerchPage?: boolean;
+	checkoutType?: string;
+	services?: Service[] | string;
+}
+
 interface AvailabilitySlot {
 	id: string;
 	title: string | null;
@@ -71,10 +126,42 @@ interface AvailabilitySlot {
 
 export default async function Page({ params }: { params: { subdomain: string } }) {
 	const { subdomain } = params;
-	const teacher = await prisma.teacher.findUnique({ where: { subdomain } });
+	const teacher = await prisma.teacher.findUnique({
+		where: { subdomain },
+		select: {
+			id: true,
+			subdomain: true,
+			name: true,
+			email: true,
+			passwordHash: true,
+			title: true,
+			bio: true,
+			hourlyRate: true,
+			profileImage: true,
+			phone: true,
+			colorScheme: true,
+			favicon: true,
+			hasMerchPage: true,
+			checkoutType: true,
+			services: true,
+		}
+	});
 	console.log('Teacher object:', teacher);
 	if (!teacher) {
 		notFound();
+	}
+	// Parse services JSON if present
+	let services: Array<{ name: string; description?: string }> = [];
+	if (teacher && teacher.services) {
+		try {
+			services = Array.isArray(teacher.services)
+				? teacher.services as Array<{ name: string; description?: string }>
+				: typeof teacher.services === 'string'
+					? JSON.parse(teacher.services)
+					: [];
+		} catch {
+			services = [];
+		}
 	}
 	let allowCustomerBook = true;
 	const bookingSettings: { form_fields?: string } = {};
@@ -101,7 +188,9 @@ export default async function Page({ params }: { params: { subdomain: string } }
 			endDate: slot.endDate instanceof Date && slot.endDate !== null ? slot.endDate.toISOString() : slot.endDate,
 		})) as AvailabilitySlot[];
 	}
-	const colorScheme = getColorScheme((teacher as typeof teacher & { colorScheme?: string }).colorScheme || 'default');
+	const colorScheme = getColorScheme(
+		typeof teacher.colorScheme === 'string' ? teacher.colorScheme : 'default'
+	);
 	return (
 		<div className="min-h-screen transition-colors duration-300"
 			style={{
@@ -200,6 +289,23 @@ export default async function Page({ params }: { params: { subdomain: string } }
 										style={{ color: colorScheme.styles.primary }}>
 										${teacher.hourlyRate}/hour
 									</p>
+								</div>
+							)}
+
+							{/* Services Section */}
+							{services.length > 0 && (
+								<div className="mt-8">
+									<h2 className="text-lg sm:text-xl font-semibold mb-3">Services</h2>
+									<ul className="list-disc pl-6">
+										{services.map((service: { name: string; description?: string }, idx: number) => (
+											<li key={idx} className="mb-2">
+												<span className="font-medium">{service.name}</span>
+												{service.description && (
+													<span className="block text-sm text-gray-600 mt-1">{service.description}</span>
+												)}
+											</li>
+										))}
+									</ul>
 								</div>
 							)}
 						</div>

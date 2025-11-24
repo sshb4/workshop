@@ -29,6 +29,7 @@ model Teacher {
   favicon           String?
   hasMerchPage      Boolean            @default(false)
   checkoutType      String             @default("invoice")
+  services          Json?
   accounts          Account[]
   availabilitySlots AvailabilitySlot[]
   blockedDates      BlockedDate[]

@@ -1,3 +1,7 @@
+export default function Page() {
+  return <div>Merch page coming soon.</div>;
+}
+
 {/* 
 
 import { notFound } from 'next/navigation';

@@ -5,6 +5,9 @@
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import React, { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+
+const DynamicBookingCalendar = dynamic(() => import('@/app/[subdomain]/BookingCalendar'), { ssr: false })
 import Link from 'next/link'
 import { colorSchemes } from '@/lib/themes'
 import { SuccessCheckIcon } from '@/components/icons/SuccessCheckIcon'
@@ -412,30 +415,29 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
           {/* You may want to fetch real slots and colorScheme here */}
           {/* For demo, use teacher and empty slots/colors */}
           {typeof window !== 'undefined' && (
-    <Suspense fallback={<div>Loading calendar...</div>}>
-              {(() => {
-                const BookingCalendar = require('@/app/[subdomain]/BookingCalendar.tsx').default;
-                return (
-                  <BookingCalendar
-                    teacher={teacher}
-                    availabilitySlots={[]}
-                    colorScheme={{
-                      styles: {
-                        primary: '#6366f1',
-                        primaryLight: '#a5b4fc',
-                        accent: '#f59e42',
-                        background: '#fff',
-                        backgroundSecondary: '#fef3c7',
-                        border: '#e5e7eb',
-                        textPrimary: '#1f2937',
-                        textSecondary: '#6b7280',
-                      }
-                    }}
-      onDaySelect={(date: Date) => alert(`Selected date: ${date.toDateString()}`)}
-                  />
-                );
-              })()}
-    </Suspense>
+            <Suspense fallback={<div>Loading calendar...</div>}>
+              <DynamicBookingCalendar
+                teacher={{
+                  ...teacher,
+                  hourlyRate: teacher.hourlyRate === null ? undefined : teacher.hourlyRate,
+                  title: teacher.title === null ? undefined : teacher.title
+                }}
+                availabilitySlots={[]}
+                colorScheme={{
+                  styles: {
+                    primary: '#6366f1',
+                    primaryLight: '#a5b4fc',
+                    accent: '#f59e42',
+                    background: '#fff',
+                    backgroundSecondary: '#fef3c7',
+                    border: '#e5e7eb',
+                    textPrimary: '#1f2937',
+                    textSecondary: '#6b7280',
+                  }
+                }}
+                onDaySelect={(date: Date) => alert(`Selected date: ${date.toDateString()}`)}
+              />
+            </Suspense>
           )}
         </div>
       )}
