@@ -30,7 +30,7 @@ interface BlockedDate {
 }
 
 const DAYS = [
-  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+  'Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'
 ]
 
 function AvailabilityContent() {
@@ -587,9 +587,6 @@ function AvailabilityContent() {
                           }}
                           className="mb-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                         />
-                        <span className="text-xs text-gray-700 text-center">
-                          {day.slice(0, 3)}
-                        </span>
                       </label>
                     ))}
                   </div>

@@ -21,8 +21,8 @@ interface TeacherMeta {
 	name: string;
 }
 
-export async function generateMetadata({ params }: { params: { subdomain: string } }): Promise<Metadata> {
-	const { subdomain } = params;
+export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }): Promise<Metadata> {
+	const { subdomain } = await params;
 
 			const teacher = await prisma.teacher.findUnique({
 				where: { subdomain },
@@ -42,7 +42,6 @@ export async function generateMetadata({ params }: { params: { subdomain: string
 					hasMerchPage: true,
 					checkoutType: true,
 					services: true,
-					//TEST
 				}
 			});
 		// Parse services JSON if present
@@ -125,8 +124,8 @@ interface AvailabilitySlot {
 	isActive: boolean;
 }
 
-export default async function Page({ params }: { params: { subdomain: string } }) {
-	const { subdomain } = params;
+export default async function Page({ params }: { params: Promise<{ subdomain: string }> }) {
+const { subdomain } = await params;
 	const teacher = await prisma.teacher.findUnique({
 		where: { subdomain },
 		select: {
@@ -323,9 +322,7 @@ export default async function Page({ params }: { params: { subdomain: string } }
 											title: teacher.title === null ? undefined : teacher.title
 										}}
 										availabilitySlots={availabilitySlots}
-										colorScheme={colorScheme}
-										onDaySelect={(date: Date) => {}}
-									/>
+										colorScheme={colorScheme}									/>
 						</div>
 					)}
 					<div className="mt-8">
