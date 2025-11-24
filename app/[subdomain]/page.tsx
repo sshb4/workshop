@@ -42,6 +42,7 @@ export async function generateMetadata({ params }: { params: { subdomain: string
 					hasMerchPage: true,
 					checkoutType: true,
 					services: true,
+					//TEST
 				}
 			});
 		// Parse services JSON if present
