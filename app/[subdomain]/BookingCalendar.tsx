@@ -133,7 +133,7 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, bl
       {/* Calendar Days - Only show available/blocked status */}
       
       <div className="grid grid-cols-7 gap-1">
-        {calendarDays.map((day: any) => (
+        {calendarDays.map((day: CalendarDay) => (
           <div
             key={day.date.toISOString()}
             className="aspect-square p-2 rounded-lg transition-all duration-200 relative min-h-16 flex flex-col items-center justify-center group cursor-pointer"
