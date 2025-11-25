@@ -42,20 +42,29 @@ interface CalendarDay {
   availableSlots: AvailabilitySlot[]
   hasAvailability: boolean
   isToday: boolean
+  isBlocked: boolean
+}
+
+interface BlockedDate {
+  id: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  isRecurring: boolean;
+  recurringType?: 'weekly' | 'monthly';
 }
 
 interface BookingCalendarProps {
-  teacher: Teacher
-  availabilitySlots: AvailabilitySlot[]
-  colorScheme: ColorScheme
-  onDaySelect?: (date: Date) => void
+  teacher: Teacher;
+  availabilitySlots: AvailabilitySlot[];
+  blockedDates: BlockedDate[];
+  colorScheme: ColorScheme;
+  onDaySelect?: (date: Date) => void;
 }
 
-const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, colorScheme, onDaySelect }) => {
+const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, blockedDates, colorScheme, onDaySelect }) => {
 
   // All hooks and logic above
-  // ...existing code...
-
   const [currentMonth] = useState(new Date());
   const calendarDays: CalendarDay[] = useMemo(() => {
     const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -71,24 +80,38 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, co
       const isPast = currentDate < today;
       const isToday = currentDate.toDateString() === today.toDateString();
       const availableSlots = availabilitySlots.filter(slot => {
-        const slotStart = new Date(slot.startDate);
-        const slotEnd = slot.endDate ? new Date(slot.endDate) : null;
-        const isAfterStart = currentDate >= slotStart;
-        const isBeforeEnd = !slotEnd || currentDate <= slotEnd;
+        // Compare only the date part to avoid timezone issues
+        const slotStartDateStr = new Date(slot.startDate).toISOString().slice(0, 10);
+        const slotEndDateStr = slot.endDate ? new Date(slot.endDate).toISOString().slice(0, 10) : slotStartDateStr;
+        const currentDateStr = currentDate.toISOString().slice(0, 10);
+        const isAfterStart = currentDateStr >= slotStartDateStr;
+        const isBeforeEnd = !slot.endDate || currentDateStr <= slotEndDateStr;
         return slot.dayOfWeek === currentDate.getDay() && slot.isActive && isAfterStart && isBeforeEnd;
       });
       const hasAvailability = availableSlots.length > 0;
+      // Blocked logic
+      const isBlocked = blockedDates && blockedDates.some(blocked => {
+        const start = new Date(blocked.startDate);
+        const end = blocked.endDate ? new Date(blocked.endDate) : start;
+        // Recurring weekly
+        if (blocked.isRecurring && blocked.recurringType === 'weekly') {
+          return currentDate.getDay() === start.getDay();
+        }
+        // Otherwise block date range
+        return currentDate >= start && currentDate <= end;
+      });
       days.push({
         date: currentDate,
         isCurrentMonth,
         isPast,
         availableSlots,
         hasAvailability,
-        isToday
+        isToday,
+        isBlocked // add to CalendarDay if you want
       });
     }
     return days;
-  }, [currentMonth, availabilitySlots]);
+  }, [currentMonth, availabilitySlots, blockedDates]);
 
   // JSX below
   return (
@@ -108,14 +131,17 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, co
       </div>
 
       {/* Calendar Days - Only show available/blocked status */}
+      
       <div className="grid grid-cols-7 gap-1">
-        {calendarDays.map((day: CalendarDay) => (
+        {calendarDays.map((day: any) => (
           <div
             key={day.date.toISOString()}
             className="aspect-square p-2 rounded-lg transition-all duration-200 relative min-h-16 flex flex-col items-center justify-center group cursor-pointer"
             style={{ 
-              backgroundColor: day.hasAvailability && !day.isPast && day.isCurrentMonth
+              backgroundColor: day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked
                 ? colorScheme.styles.backgroundSecondary
+                : day.isBlocked && !day.isPast && day.isCurrentMonth
+                ? '#ffeaea' // light red for blocked
                 : 'transparent',
               color: day.isToday
                 ? colorScheme.styles.primary
@@ -128,19 +154,24 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, co
                   : 'transparent'
               }`
             }}
-            onClick={() => day.hasAvailability && !day.isPast && day.isCurrentMonth && onDaySelect && onDaySelect(day.date)}
+            onClick={() => day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked && onDaySelect && onDaySelect(day.date)}
           >
             <div className="absolute top-1 left-1 text-xs font-bold opacity-80">
               {day.date.getDate()}
             </div>
-            {day.hasAvailability && !day.isPast && day.isCurrentMonth && (
+            {day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked && (
               <div className="flex flex-col items-center justify-center mt-4 w-full">
                 <span className="text-xs font-medium text-green-600">Available</span>
               </div>
             )}
-            {!day.hasAvailability && !day.isPast && day.isCurrentMonth && (
+            {day.isBlocked && !day.isPast && day.isCurrentMonth && (
               <div className="flex flex-col items-center justify-center mt-4 w-full">
                 <span className="text-xs font-medium text-red-500">Blocked</span>
+              </div>
+            )}
+            {!day.hasAvailability && !day.isBlocked && !day.isPast && day.isCurrentMonth && (
+              <div className="flex flex-col items-center justify-center mt-4 w-full">
+                <span className="text-xs font-medium text-gray-400">Unavailable</span>
               </div>
             )}
             {day.isToday && (

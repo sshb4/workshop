@@ -188,6 +188,12 @@ const { subdomain } = await params;
 			endDate: slot.endDate instanceof Date && slot.endDate !== null ? slot.endDate.toISOString() : slot.endDate,
 		})) as AvailabilitySlot[];
 	}
+	// Fetch blocked dates for the teacher
+	const blockedDates = await prisma.blockedDate.findMany({
+	where: { teacherId: teacher.id },
+	orderBy: { startDate: 'asc' }
+	});
+	
 	const colorScheme = getColorScheme(
 		typeof teacher.colorScheme === 'string' ? teacher.colorScheme : 'default'
 	);
@@ -311,20 +317,6 @@ const { subdomain } = await params;
 						</div>
 					</div>
 				</div>
-					{/* BookingCalendar for checkoutType 'checkout' */}
-					{teacher.checkoutType === 'checkout' && (
-						<div className="mt-8">
-							<h2 className="text-xl font-bold mb-4">Book a Session</h2>
-									<BookingCalendar
-										teacher={{
-											...teacher,
-											hourlyRate: teacher.hourlyRate === null ? undefined : teacher.hourlyRate,
-											title: teacher.title === null ? undefined : teacher.title
-										}}
-										availabilitySlots={availabilitySlots}
-										colorScheme={colorScheme}									/>
-						</div>
-					)}
 					<div className="mt-8">
 						<ManualBookModal
 							colorScheme={colorScheme}

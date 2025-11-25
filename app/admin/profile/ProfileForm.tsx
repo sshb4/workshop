@@ -423,6 +423,7 @@ export default function ProfileForm({ teacher }: ProfileFormProps) {
                   title: teacher.title === null ? undefined : teacher.title
                 }}
                 availabilitySlots={[]}
+                blockedDates={[]}
                 colorScheme={{
                   styles: {
                     primary: '#6366f1',

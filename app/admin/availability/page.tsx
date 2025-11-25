@@ -232,8 +232,9 @@ function AvailabilityContent() {
     try {
       // Prevent creating slots on blocked days
       // Create slots for all unblocked dates in the selected range for each selected day
-      const start = new Date(slotData.startDate)
-      const end = slotData.endDate ? new Date(slotData.endDate) : start
+  // Always use UTC for backend slot creation
+  const start = new Date(slotData.startDate + 'T00:00:00.000Z');
+  const end = slotData.endDate ? new Date(slotData.endDate + 'T00:00:00.000Z') : start;
       const slotRequests: Promise<Response>[] = [];
       const createdDates: string[] = [];
       const formatUSDate = (date: Date) => {
@@ -243,21 +244,19 @@ function AvailabilityContent() {
         return `${yyyy}-${mm}-${dd}`;
       };
       const dayCount = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-      for (let i = 0; i <= dayCount; i++) {
-        const d = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
-        slotData.selectedDays.forEach(dayOfWeek => {
-          if (d.getDay() === dayOfWeek && !isDateBlocked(formatUSDate(d))) {
-            // If the range is only one day, omit endDate
-            const isSingleDay = start.getTime() === end.getTime();
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        slotData.selectedDays.forEach(selectedDay => {
+          if (d.getUTCDay() === selectedDay && !isDateBlocked(formatUSDate(d))) {
+            // Debug log for slot creation
+            console.log('Creating slot for', DAYS[selectedDay], formatUSDate(d));
+            // Always set dayOfWeek from the actual date
             const slotPayload: Partial<AvailabilitySlot> = {
               ...slotData,
-              dayOfWeek,
-              startDate: formatUSDate(d),
-              title: slotData.title || `${DAYS[dayOfWeek]} Availability`
+              dayOfWeek: d.getUTCDay(),
+              startDate: formatUSDate(start), // always the range start
+              endDate: formatUSDate(end),     // always the range end
+              title: slotData.title || `${DAYS[d.getUTCDay()]} Availability`
             };
-            if (!isSingleDay) {
-              slotPayload.endDate = formatUSDate(end);
-            }
             slotRequests.push(
               fetch('/api/availability', {
                 method: 'POST',
@@ -268,8 +267,14 @@ function AvailabilityContent() {
               })
             );
             createdDates.push(formatUSDate(d));
+          } else {
+            // Debug log for skipped days
+            if (d.getUTCDay() === selectedDay) {
+              console.log('Skipped (blocked):', DAYS[selectedDay], formatUSDate(d));
+            }
           }
         });
+        d.setUTCDate(d.getUTCDate()); // ensure UTC increment
       }
       if (slotRequests.length === 0) {
         setError('No availability created: all selected dates are blocked.')
@@ -710,6 +715,9 @@ function AvailabilityContent() {
                         </h3>
                         <span className="px-2 py-1 text-xs font-medium bg-indigo-100 text-gray-900 rounded-full">
                           {DAYS[slot.dayOfWeek]}
+                        </span>
+                        <span className="ml-2 text-xs text-gray-500">
+                          Day: {DAYS[slot.dayOfWeek]} ({formatDate(slot.startDate)})
                         </span>
                       </div>
                       <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-900">
