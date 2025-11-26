@@ -100,7 +100,7 @@ function AvailabilityContent() {
           let blocked = false
           const start = new Date(slot.startDate)
           const end = slot.endDate ? new Date(slot.endDate) : start
-          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
             if (isDateBlocked(d.toISOString().split('T')[0])) {
               blocked = true
               break
@@ -233,28 +233,44 @@ function AvailabilityContent() {
       // Prevent creating slots on blocked days
       // Create slots for all unblocked dates in the selected range for each selected day
   // Always use UTC for backend slot creation
-  const start = new Date(slotData.startDate + 'T00:00:00.000Z');
-  const end = slotData.endDate ? new Date(slotData.endDate + 'T00:00:00.000Z') : start;
+  // Parse local date input as UTC date
+  console.log('Slot creation input:', {
+    inputStartDate: slotData.startDate,
+    inputEndDate: slotData.endDate
+  });
+  const [startYear, startMonth, startDay] = slotData.startDate.split('-').map(Number);
+  const [endYear, endMonth, endDay] = (slotData.endDate || slotData.startDate).split('-').map(Number);
+  const start = new Date(Date.UTC(startYear, startMonth - 1, startDay, 0, 0, 0));
+  const end = new Date(Date.UTC(endYear, endMonth - 1, endDay, 0, 0, 0));
+  console.log('Slot creation UTC:', {
+    startUTC: start.toISOString(),
+    endUTC: end.toISOString()
+  });
       const slotRequests: Promise<Response>[] = [];
       const createdDates: string[] = [];
       const formatUSDate = (date: Date) => {
-        const yyyy = date.getFullYear();
-        const mm = (date.getMonth() + 1).toString().padStart(2, '0');
-        const dd = date.getDate().toString().padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
+  const yyyy = date.getUTCFullYear();
+  const mm = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+  const dd = date.getUTCDate().toString().padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
       };
       const dayCount = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+  for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
         slotData.selectedDays.forEach(selectedDay => {
           if (d.getUTCDay() === selectedDay && !isDateBlocked(formatUSDate(d))) {
             // Debug log for slot creation
-            console.log('Creating slot for', DAYS[selectedDay], formatUSDate(d));
+            console.log('Creating slot for', {
+              day: DAYS[selectedDay],
+              slotDate: formatUSDate(d),
+              slotDateISO: d.toISOString(),
+              dayOfWeek: d.getUTCDay()
+            });
             // Always set dayOfWeek from the actual date
             const slotPayload: Partial<AvailabilitySlot> = {
               ...slotData,
               dayOfWeek: d.getUTCDay(),
-              startDate: formatUSDate(start), // always the range start
-              endDate: formatUSDate(end),     // always the range end
+              startDate: formatUSDate(d), // actual slot date
+              endDate: formatUSDate(d),   // actual slot date
               title: slotData.title || `${DAYS[d.getUTCDay()]} Availability`
             };
             slotRequests.push(

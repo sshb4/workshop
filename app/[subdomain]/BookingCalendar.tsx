@@ -66,19 +66,20 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, bl
 
   // All hooks and logic above
   const [currentMonth] = useState(new Date());
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const calendarDays: CalendarDay[] = useMemo(() => {
-    const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
+  const firstDay = new Date(Date.UTC(currentMonth.getUTCFullYear(), currentMonth.getUTCMonth(), 1));
+  const startDate = new Date(firstDay);
+  startDate.setUTCDate(firstDay.getUTCDate() - firstDay.getUTCDay());
     const days: CalendarDay[] = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     for (let i = 0; i < 42; i++) {
       const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + i);
-      const isCurrentMonth = currentDate.getMonth() === currentMonth.getMonth();
-      const isPast = currentDate < today;
-      const isToday = currentDate.toDateString() === today.toDateString();
+      currentDate.setUTCDate(startDate.getUTCDate() + i);
+  const isCurrentMonth = currentDate.getUTCMonth() === currentMonth.getUTCMonth();
+  const isPast = currentDate.getTime() < Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const isToday = currentDate.getUTCFullYear() === today.getUTCFullYear() && currentDate.getUTCMonth() === today.getUTCMonth() && currentDate.getUTCDate() === today.getUTCDate();
       const availableSlots = availabilitySlots.filter(slot => {
         // Compare only the date part to avoid timezone issues
         const slotStartDateStr = new Date(slot.startDate).toISOString().slice(0, 10);
@@ -86,7 +87,17 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, bl
         const currentDateStr = currentDate.toISOString().slice(0, 10);
         const isAfterStart = currentDateStr >= slotStartDateStr;
         const isBeforeEnd = !slot.endDate || currentDateStr <= slotEndDateStr;
-        return slot.dayOfWeek === currentDate.getDay() && slot.isActive && isAfterStart && isBeforeEnd;
+        const match = slot.dayOfWeek === currentDate.getUTCDay() && slot.isActive && isAfterStart && isBeforeEnd;
+        console.log('Calendar debug:', {
+          slotId: slot.id,
+          slotDayOfWeek: slot.dayOfWeek,
+          slotStartDate: slot.startDate,
+          slotEndDate: slot.endDate,
+          currentDate: currentDateStr,
+          currentDayOfWeek: currentDate.getUTCDay(),
+          match
+        });
+        return match;
       });
       const hasAvailability = availableSlots.length > 0;
       // Blocked logic
@@ -131,57 +142,76 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({ availabilitySlots, bl
       </div>
 
       {/* Calendar Days - Only show available/blocked status */}
-      
       <div className="grid grid-cols-7 gap-1">
-        {calendarDays.map((day: CalendarDay) => (
-          <div
-            key={day.date.toISOString()}
-            className="aspect-square p-2 rounded-lg transition-all duration-200 relative min-h-16 flex flex-col items-center justify-center group cursor-pointer"
-            style={{ 
-              backgroundColor: day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked
-                ? colorScheme.styles.backgroundSecondary
-                : day.isBlocked && !day.isPast && day.isCurrentMonth
-                ? '#ffeaea' // light red for blocked
-                : 'transparent',
-              color: day.isToday
-                ? colorScheme.styles.primary
-                : !day.isCurrentMonth || day.isPast
-                ? colorScheme.styles.textSecondary + '40'
-                : colorScheme.styles.textPrimary,
-              border: `2px solid ${
-                day.isToday 
-                  ? colorScheme.styles.accent 
-                  : 'transparent'
-              }`
-            }}
-            onClick={() => day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked && onDaySelect && onDaySelect(day.date)}
-          >
-            <div className="absolute top-1 left-1 text-xs font-bold opacity-80">
-              {day.date.getDate()}
+        {calendarDays.map((day: CalendarDay) => {
+          // Find the first available slot for this day
+          const slot = day.availableSlots[0];
+          const isSelected = selectedSlot && slot && selectedSlot.id === slot.id;
+          return (
+            <div
+              key={day.date.toISOString()}
+              className={`aspect-square p-2 rounded-lg transition-all duration-200 relative min-h-16 flex flex-col items-center justify-center group cursor-pointer ${isSelected ? 'ring-2 ring-green-500' : ''}`}
+              style={{ 
+                backgroundColor: day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked
+                  ? colorScheme.styles.backgroundSecondary
+                  : day.isBlocked && !day.isPast && day.isCurrentMonth
+                  ? '#ffeaea' // light red for blocked
+                  : 'transparent',
+                color: day.isToday
+                  ? colorScheme.styles.primary
+                  : !day.isCurrentMonth || day.isPast
+                  ? colorScheme.styles.textSecondary + '40'
+                  : colorScheme.styles.textPrimary,
+                border: `2px solid ${
+                  day.isToday 
+                    ? colorScheme.styles.accent 
+                    : 'transparent'
+                }`
+              }}
+              onClick={() => {
+                if (day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked && slot) {
+                  setSelectedSlot(slot);
+                }
+              }}
+            >
+              <div className="absolute top-1 left-1 text-xs font-bold opacity-80">
+                {day.date.getDate()}
+              </div>
+              {day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked && (
+                <div className="flex flex-col items-center justify-center mt-4 w-full">
+                  <span className="text-xs font-medium text-green-600">Available</span>
+                </div>
+              )}
+              {day.isBlocked && !day.isPast && day.isCurrentMonth && (
+                <div className="flex flex-col items-center justify-center mt-4 w-full">
+                  <span className="text-xs font-medium text-red-500">Blocked</span>
+                </div>
+              )}
+              {!day.hasAvailability && !day.isBlocked && !day.isPast && day.isCurrentMonth && (
+                <div className="flex flex-col items-center justify-center mt-4 w-full">
+                  <span className="text-xs font-medium text-gray-400">Unavailable</span>
+                </div>
+              )}
+              {day.isToday && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full" 
+                     style={{ backgroundColor: colorScheme.styles.accent }}>
+                </div>
+              )}
             </div>
-            {day.hasAvailability && !day.isPast && day.isCurrentMonth && !day.isBlocked && (
-              <div className="flex flex-col items-center justify-center mt-4 w-full">
-                <span className="text-xs font-medium text-green-600">Available</span>
-              </div>
-            )}
-            {day.isBlocked && !day.isPast && day.isCurrentMonth && (
-              <div className="flex flex-col items-center justify-center mt-4 w-full">
-                <span className="text-xs font-medium text-red-500">Blocked</span>
-              </div>
-            )}
-            {!day.hasAvailability && !day.isBlocked && !day.isPast && day.isCurrentMonth && (
-              <div className="flex flex-col items-center justify-center mt-4 w-full">
-                <span className="text-xs font-medium text-gray-400">Unavailable</span>
-              </div>
-            )}
-            {day.isToday && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full" 
-                   style={{ backgroundColor: colorScheme.styles.accent }}>
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
+      {/* Checkout Button */}
+      {selectedSlot && (
+        <div className="flex justify-center mt-6">
+          <a
+            href={`./checkout?slotId=${selectedSlot.id}`}
+            className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition-colors"
+          >
+            Proceed to Checkout
+          </a>
+        </div>
+      )}
     </div>
   );
 };
