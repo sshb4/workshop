@@ -15,7 +15,6 @@
     "bcryptjs": "^3.0.2",
     "next": "15.5.4",
     "next-auth": "^4.24.11",
-    "prisma": "^6.19.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "resend": "^6.4.2"
@@ -29,6 +28,7 @@
     "@types/react-dom": "^19.2.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "prisma": "^7.0.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

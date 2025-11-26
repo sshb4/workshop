@@ -16,4 +16,9 @@ const nextConfig: NextConfig = {
   },
 };
 
+module.exports = {
+  compress: true,
+}
+
+
 export default nextConfig;

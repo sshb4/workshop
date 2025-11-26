@@ -1,11 +1,5 @@
 # Workshop Platform
 
-TODO: 
-- get API keys for troute
-- figure out email API
-
-
-
 ### **Security & Authentication**
 - Protected admin routes with middleware
 - Password hashing with bcryptjs
